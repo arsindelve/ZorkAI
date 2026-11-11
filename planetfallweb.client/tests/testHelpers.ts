@@ -1,20 +1,34 @@
 /**
  * Test Helper Functions
- * 
+ *
  * This file contains helper functions used across multiple test files.
  */
 
-import { Page, Route } from '@playwright/test';
-import { mockResponses } from './mockResponses';
+import {Page, Route} from '@playwright/test';
+import {mockResponses} from './mockResponses';
 
 /**
  * Helper function to close the welcome modal
  * This function navigates to the application, waits for the welcome modal to be visible,
  * and then closes it by clicking the close button.
  */
-export async function closeWelcomeModal(page: Page) {
-    // Navigate to the application
-    await page.goto('/');
+export async function visitGame(page: Page, path: string = '/') {
+    await page.goto(path);
+
+    // The welcome modal only appears on a browser's FIRST visit (SessionHandler reports
+    // firstTime once per localStorage). On repeat navigations within the same context there is
+    // nothing to dismiss, so close it only if it actually shows up.
+    const modal = page.locator('[data-testid="welcome-modal"]');
+    if (await modal.isVisible({timeout: 2000}).catch(() => false)) {
+        await page.locator('[data-testid="welcome-modal-close-button"]').click();
+    }
+
+    await page.waitForSelector('[data-testid="game-input"]', {state: 'visible'});
+}
+
+export async function closeWelcomeModal(page: Page, path: string = '/') {
+    // Navigate to the application (a custom path lets specs pass query params, e.g. ?hints=0)
+    await page.goto(path);
 
     // Wait for the welcome modal to be visible
     await page.waitForSelector('[data-testid="welcome-modal"]', {state: 'visible'});
@@ -30,10 +44,13 @@ export async function closeWelcomeModal(page: Page) {
  */
 export async function waitForGameResponse(page: Page) {
     // Wait for any response to appear after submitting the command
-    await page.waitForFunction(() => {
-        const paragraphs = document.querySelectorAll('[data-testid="game-response"]');
-        return paragraphs.length > 1; // More than just the initial loading text
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+        () => {
+            const paragraphs = document.querySelectorAll('[data-testid="game-response"]');
+            return paragraphs.length > 1; // More than just the initial loading text
+        },
+        {timeout: 10000},
+    );
 }
 
 /**
@@ -45,15 +62,21 @@ export async function handlePlanetfallRoute(route: Route) {
 
     if (method === 'GET') {
         // Return the mock init response
-        await route.fulfill({ 
-            status: 200, 
+        await route.fulfill({
+            status: 200,
             contentType: 'application/json',
-            body: JSON.stringify(mockResponses.init)
+            body: JSON.stringify(mockResponses.init),
         });
     } else if (method === 'POST') {
         // Get the request body to determine which mock response to return
         const body = route.request().postDataJSON();
-        let response: { score: number; moves: number; locationName: string; response: string; inventory: string[]; };
+        let response: {
+            score: number;
+            moves: number;
+            locationName: string;
+            response: string;
+            inventory: string[];
+        };
 
         // Select the appropriate mock response based on the input
         if (body.input === 'look around') {
@@ -76,14 +99,14 @@ export async function handlePlanetfallRoute(route: Route) {
             // Default response for any other command
             response = {
                 ...mockResponses.look,
-                response: `You entered: ${body.input}`
+                response: `You entered: ${body.input}`,
             };
         }
 
-        await route.fulfill({ 
-            status: 200, 
+        await route.fulfill({
+            status: 200,
             contentType: 'application/json',
-            body: JSON.stringify(response)
+            body: JSON.stringify(response),
         });
     }
 }
@@ -93,10 +116,10 @@ export async function handlePlanetfallRoute(route: Route) {
  * This function intercepts requests to the saveGame endpoint and returns a success message
  */
 export async function handleSaveGameRoute(route: Route) {
-    await route.fulfill({ 
-        status: 200, 
+    await route.fulfill({
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify("Game saved successfully")
+        body: JSON.stringify('Game saved successfully'),
     });
 }
 
@@ -105,10 +128,10 @@ export async function handleSaveGameRoute(route: Route) {
  * This function intercepts requests to the restoreGame endpoint and returns the initial game state
  */
 export async function handleRestoreGameRoute(route: Route) {
-    await route.fulfill({ 
-        status: 200, 
+    await route.fulfill({
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(mockResponses.init)
+        body: JSON.stringify(mockResponses.init),
     });
 }
 
@@ -117,9 +140,9 @@ export async function handleRestoreGameRoute(route: Route) {
  * This function intercepts requests to the getSavedGames endpoint and returns mock saved games
  */
 export async function handleGetSavedGamesRoute(route: Route) {
-    await route.fulfill({ 
-        status: 200, 
+    await route.fulfill({
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(mockResponses.savedGames)
+        body: JSON.stringify(mockResponses.savedGames),
     });
 }

@@ -103,7 +103,13 @@ public class DeterministicParser
         // deliberately holds NO per-game noun list of its own: scenery nouns live on the locations that
         // handle them (LocationBase.SceneryNouns), so a new game or a new piece of scenery is understood
         // here automatically, without touching the engine.
-        return new Vocabulary(new HashSet<string>(Repository.GetNouns(gameName), StringComparer.OrdinalIgnoreCase));
+        //
+        // GetSceneryNouns is unioned in for the game-wide scenery (IInfocomGame.GlobalScenery) that lives on
+        // the game itself, not on any item or location, so GetNouns cannot see it.
+        var nouns = new HashSet<string>(Repository.GetNouns(gameName), StringComparer.OrdinalIgnoreCase);
+        nouns.UnionWith(Repository.GetSceneryNouns(gameName));
+
+        return new Vocabulary(nouns);
     }
 
     /// <summary>

@@ -4,16 +4,27 @@ import {DialogType, SessionHandler, useGameContext} from '@zork-ai/shared-types'
 import {useMutation} from '@tanstack/react-query';
 import Game from '../Game';
 import Server from '../Server';
+import {preferenceDefaults} from '../__mocks__/preferenceDefaults';
 
 jest.mock('@tanstack/react-query', () => ({useMutation: jest.fn()}));
 jest.mock('@fontsource/roboto', () => ({}));
 jest.mock('../Server');
-jest.mock('../components/GameInput', () => (props: {
-    playerInput: string;
-    setInput: (value: string) => void;
-    handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-}) => <input data-testid="game-input" value={props.playerInput}
-            onChange={(event) => props.setInput(event.target.value)} onKeyDown={props.handleKeyDown}/>);
+jest.mock(
+    '../components/GameInput',
+    () =>
+        (props: {
+            playerInput: string;
+            setInput: (value: string) => void;
+            handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+        }) => (
+            <input
+                data-testid="game-input"
+                value={props.playerInput}
+                onChange={(event) => props.setInput(event.target.value)}
+                onKeyDown={props.handleKeyDown}
+            />
+        ),
+);
 jest.mock('@zork-ai/shared-types', () => {
     const actual = jest.requireActual('@zork-ai/shared-types');
     return {
@@ -49,6 +60,7 @@ describe('Game', () => {
         deleteGameRequest: undefined,
         setDeleteGameRequest: jest.fn(),
         setCopyGameTranscript: jest.fn(),
+        ...preferenceDefaults,
     };
     let mutationOptions: {onSuccess: (response: unknown) => void};
 
@@ -66,6 +78,7 @@ describe('Game', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        localStorage.removeItem('ff_hints');
         Object.assign(context, {
             restartGame: false,
             saveGameRequest: undefined,
@@ -73,34 +86,47 @@ describe('Game', () => {
             deleteGameRequest: undefined,
         });
         (SessionHandler as jest.Mock).mockImplementation(() => session);
-        (Server as jest.MockedClass<typeof Server>).mockImplementation(() => server as unknown as Server);
+        (Server as jest.MockedClass<typeof Server>).mockImplementation(
+            () => server as unknown as Server,
+        );
         (useGameContext as jest.Mock).mockReturnValue(context);
         (useMutation as jest.Mock).mockImplementation((options) => {
             mutationOptions = options;
             return {mutate, isPending: false, isError: false};
         });
-        server.gameInit.mockResolvedValue(response('Escape Pod (A)\n  Safety webbing fills the pod.'));
+        server.gameInit.mockResolvedValue(
+            response('Escape Pod (A)\n  Safety webbing fills the pod.'),
+        );
     });
 
     test('loads and formats the initial game state', async () => {
-        render(<Game/>);
+        render(<Game />);
 
-        await waitFor(() => expect(screen.getByTestId('header-location')).toHaveTextContent('Escape Pod (A)'));
+        await waitFor(() =>
+            expect(screen.getByTestId('header-location')).toHaveTextContent('Escape Pod (A)'),
+        );
         const rendered = screen.getAllByTestId('game-response').at(-1)!;
-        expect(rendered.innerHTML).toContain('<span class="room-header">Escape Pod (A)</span>Safety webbing fills the pod.');
+        expect(rendered.innerHTML).toContain(
+            '<span class="room-header">Escape Pod (A)</span>Safety webbing fills the pod.',
+        );
         expect(screen.getByTestId('inventory-button')).toBeInTheDocument();
+        expect(screen.queryByTestId('hints-button')).not.toBeInTheDocument();
     });
 
     test('submits trimmed input with the active session and records successful output', async () => {
-        render(<Game/>);
+        render(<Game />);
         await waitFor(() => expect(server.gameInit).toHaveBeenCalled());
 
         fireEvent.change(screen.getByTestId('game-input'), {target: {value: '  north  '}});
         fireEvent.click(screen.getByTestId('go-button'));
-        expect(mutate).toHaveBeenCalledWith(expect.objectContaining({input: 'north', sessionId: 'session-1'}));
+        expect(mutate).toHaveBeenCalledWith(
+            expect.objectContaining({input: 'north', sessionId: 'session-1'}),
+        );
 
         act(() => mutationOptions.onSuccess(response('You go north.')));
-        expect(screen.getAllByTestId('game-response').at(-1)!.innerHTML).toContain('&gt;   north  ');
+        expect(screen.getAllByTestId('game-response').at(-1)!.innerHTML).toContain(
+            '&gt;   north  ',
+        );
     });
 
     test.each([
@@ -109,14 +135,36 @@ describe('Game', () => {
         ['<Restart>', DialogType.Restart],
     ])('routes the %s response to its dialog', async (marker, dialog) => {
         server.gameInit.mockResolvedValue(response(marker));
-        render(<Game/>);
+        render(<Game />);
 
         await waitFor(() => expect(context.setDialogToOpen).toHaveBeenCalledWith(dialog));
     });
 
+    test('opens the welcome dialog on a first visit without consuming the session id', async () => {
+        // SessionHandler.getSessionId() has a SIDE EFFECT: it creates the session id and reports
+        // firstTime=true ONLY on the call that created it. This mock mimics that faithfully (the
+        // default mock above is stateless and cannot). A render-time caller — e.g. passing the
+        // session id to <HintPanel> — would consume that one-shot signal before gameInit's effect
+        // runs, and a brand-new player would never see the welcome dialog.
+        let created = false;
+        session.getSessionId.mockImplementation(() => {
+            if (!created) {
+                created = true;
+                return ['session-new', true];
+            }
+            return ['session-new', false];
+        });
+
+        render(<Game />);
+
+        await waitFor(() =>
+            expect(context.setDialogToOpen).toHaveBeenCalledWith(DialogType.Welcome),
+        );
+    });
+
     test('shows request failures from the mutation', async () => {
         (useMutation as jest.Mock).mockReturnValue({mutate, isPending: false, isError: true});
-        render(<Game/>);
+        render(<Game />);
 
         expect(await screen.findByText(/Something went wrong/)).toBeInTheDocument();
     });

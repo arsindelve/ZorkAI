@@ -1,122 +1,123 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import {render, screen, fireEvent} from '@testing-library/react';
 import {FunctionsMenu, useGameContext} from '@zork-ai/shared-types';
 import {DialogType} from '@zork-ai/shared-types';
 
 describe('FunctionsMenu Component', () => {
-  const mockSetDialogToOpen = jest.fn();
-  const mockCopyGameTranscript = jest.fn();
+    const mockSetDialogToOpen = jest.fn();
+    const mockCopyGameTranscript = jest.fn();
 
-  beforeEach(() => {
-    // Setup mock for useGameContext
-    (useGameContext as jest.Mock).mockReturnValue({
-      setDialogToOpen: mockSetDialogToOpen,
-      copyGameTranscript: mockCopyGameTranscript,
+    beforeEach(() => {
+        // Setup mock for useGameContext
+        (useGameContext as jest.Mock).mockReturnValue({
+            setDialogToOpen: mockSetDialogToOpen,
+            copyGameTranscript: mockCopyGameTranscript,
+        });
+
+        // Clear all mocks
+        jest.clearAllMocks();
     });
 
-    // Clear all mocks
-    jest.clearAllMocks();
-  });
+    test('renders the Game button', () => {
+        render(<FunctionsMenu />);
 
-  test('renders the Game button', () => {
-    render(<FunctionsMenu />);
+        const gameButton = screen.getByTestId('game-button');
+        expect(gameButton).toBeInTheDocument();
+        expect(gameButton).toHaveTextContent('Game');
+    });
 
-    const gameButton = screen.getByTestId('game-button');
-    expect(gameButton).toBeInTheDocument();
-    expect(gameButton).toHaveTextContent('Game');
-  });
+    test('opens the menu when button is clicked', () => {
+        render(<FunctionsMenu />);
 
-  test('opens the menu when button is clicked', () => {
-    render(<FunctionsMenu />);
+        // Menu should be closed initially
+        expect(screen.queryByText('Restart Your Game')).not.toBeInTheDocument();
 
-    // Menu should be closed initially
-    expect(screen.queryByText('Restart Your Game')).not.toBeInTheDocument();
+        // Click the button to open the menu
+        fireEvent.click(screen.getByTestId('game-button'));
 
-    // Click the button to open the menu
-    fireEvent.click(screen.getByTestId('game-button'));
+        // Menu should be open now
+        expect(screen.getByText('Restart Your Game')).toBeInTheDocument();
+        expect(screen.getByText('Restore a Previous Saved Game')).toBeInTheDocument();
+        expect(screen.getByText('Save your Game')).toBeInTheDocument();
+        expect(screen.getByText('Copy Game Transcript')).toBeInTheDocument();
+    });
 
-    // Menu should be open now
-    expect(screen.getByText('Restart Your Game')).toBeInTheDocument();
-    expect(screen.getByText('Restore a Previous Saved Game')).toBeInTheDocument();
-    expect(screen.getByText('Save your Game')).toBeInTheDocument();
-    expect(screen.getByText('Copy Game Transcript')).toBeInTheDocument();
-  });
+    test('closes the menu when clicking outside', () => {
+        // Mock the implementation of useState to control the state
+        const mockSetAnchorElement = jest.fn();
 
-  test('closes the menu when clicking outside', () => {
+        // Mock useState to return a non-null anchorElement initially (menu open)
+        // and a function to set it to null (close the menu)
+        jest.spyOn(React, 'useState').mockImplementationOnce(() => [
+            document.createElement('div'),
+            mockSetAnchorElement,
+        ]);
 
+        render(<FunctionsMenu />);
 
-    // Mock the implementation of useState to control the state
-    const mockSetAnchorElement = jest.fn();
+        // Verify the menu is open
+        expect(screen.getByText('Restart Your Game')).toBeInTheDocument();
 
-    // Mock useState to return a non-null anchorElement initially (menu open)
-    // and a function to set it to null (close the menu)
-    jest.spyOn(React, 'useState').mockImplementationOnce(() => [document.createElement('div'), mockSetAnchorElement]);
+        // Simulate closing the menu by calling setAnchorElement(null)
+        mockSetAnchorElement(null);
 
-    render(<FunctionsMenu />);
+        // Restore the original useState
+        jest.spyOn(React, 'useState').mockRestore();
 
-    // Verify the menu is open
-    expect(screen.getByText('Restart Your Game')).toBeInTheDocument();
+        // Since we're mocking, we can't actually check if the menu is closed in the DOM
+        // Instead, we verify that setAnchorElement was called with null
+        expect(mockSetAnchorElement).toHaveBeenCalledWith(null);
+    });
 
-    // Simulate closing the menu by calling setAnchorElement(null)
-    mockSetAnchorElement(null);
+    test('opens Restart dialog when "Restart Your Game" is clicked', () => {
+        render(<FunctionsMenu />);
 
-    // Restore the original useState
-    jest.spyOn(React, 'useState').mockRestore();
+        // Open the menu
+        fireEvent.click(screen.getByTestId('game-button'));
 
-    // Since we're mocking, we can't actually check if the menu is closed in the DOM
-    // Instead, we verify that setAnchorElement was called with null
-    expect(mockSetAnchorElement).toHaveBeenCalledWith(null);
-  });
+        // Click the "Restart Your Game" menu item
+        fireEvent.click(screen.getByText('Restart Your Game'));
 
-  test('opens Restart dialog when "Restart Your Game" is clicked', () => {
-    render(<FunctionsMenu />);
+        // Check if setDialogToOpen was called with Restart
+        expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Restart);
+    });
 
-    // Open the menu
-    fireEvent.click(screen.getByTestId('game-button'));
+    test('opens Restore dialog when "Restore a Previous Saved Game" is clicked', () => {
+        render(<FunctionsMenu />);
 
-    // Click the "Restart Your Game" menu item
-    fireEvent.click(screen.getByText('Restart Your Game'));
+        // Open the menu
+        fireEvent.click(screen.getByTestId('game-button'));
 
-    // Check if setDialogToOpen was called with Restart
-    expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Restart);
-  });
+        // Click the "Restore a Previous Saved Game" menu item
+        fireEvent.click(screen.getByText('Restore a Previous Saved Game'));
 
-  test('opens Restore dialog when "Restore a Previous Saved Game" is clicked', () => {
-    render(<FunctionsMenu />);
+        // Check if setDialogToOpen was called with Restore
+        expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Restore);
+    });
 
-    // Open the menu
-    fireEvent.click(screen.getByTestId('game-button'));
+    test('opens Save dialog when "Save your Game" is clicked', () => {
+        render(<FunctionsMenu />);
 
-    // Click the "Restore a Previous Saved Game" menu item
-    fireEvent.click(screen.getByText('Restore a Previous Saved Game'));
+        // Open the menu
+        fireEvent.click(screen.getByTestId('game-button'));
 
-    // Check if setDialogToOpen was called with Restore
-    expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Restore);
-  });
+        // Click the "Save your Game" menu item
+        fireEvent.click(screen.getByText('Save your Game'));
 
-  test('opens Save dialog when "Save your Game" is clicked', () => {
-    render(<FunctionsMenu />);
+        // Check if setDialogToOpen was called with Save
+        expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Save);
+    });
 
-    // Open the menu
-    fireEvent.click(screen.getByTestId('game-button'));
+    test('calls copyGameTranscript when "Copy Game Transcript" is clicked', () => {
+        render(<FunctionsMenu />);
 
-    // Click the "Save your Game" menu item
-    fireEvent.click(screen.getByText('Save your Game'));
+        // Open the menu
+        fireEvent.click(screen.getByTestId('game-button'));
 
-    // Check if setDialogToOpen was called with Save
-    expect(mockSetDialogToOpen).toHaveBeenCalledWith(DialogType.Save);
-  });
+        // Click the "Copy Game Transcript" menu item
+        fireEvent.click(screen.getByText('Copy Game Transcript'));
 
-  test('calls copyGameTranscript when "Copy Game Transcript" is clicked', () => {
-    render(<FunctionsMenu />);
-
-    // Open the menu
-    fireEvent.click(screen.getByTestId('game-button'));
-
-    // Click the "Copy Game Transcript" menu item
-    fireEvent.click(screen.getByText('Copy Game Transcript'));
-
-    // Check if copyGameTranscript was called
-    expect(mockCopyGameTranscript).toHaveBeenCalled();
-  });
+        // Check if copyGameTranscript was called
+        expect(mockCopyGameTranscript).toHaveBeenCalled();
+    });
 });

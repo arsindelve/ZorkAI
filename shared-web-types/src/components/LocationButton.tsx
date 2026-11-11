@@ -1,6 +1,18 @@
-import React, {useState, useEffect, useRef} from "react";
-import {Button, Menu, MenuItem, ListItemText, Badge, Popper, Paper, MenuList, ClickAwayListener, Grow, Box} from "@mui/material";
-import {Mixpanel} from "../utils/Mixpanel";
+import React, {useState, useEffect, useRef} from 'react';
+import {
+    Button,
+    Menu,
+    MenuItem,
+    ListItemText,
+    Badge,
+    Popper,
+    Paper,
+    MenuList,
+    ClickAwayListener,
+    Grow,
+    Box,
+} from '@mui/material';
+import {Mixpanel} from '../utils/Mixpanel';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PlaceIcon from '@mui/icons-material/Place';
@@ -13,7 +25,11 @@ type LocationButtonProps = {
 
 const toSentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export default function LocationButton({locationActions, onItemClick, onActionClick}: LocationButtonProps) {
+export default function LocationButton({
+    locationActions,
+    onItemClick,
+    onActionClick,
+}: LocationButtonProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [activeItem, setActiveItem] = useState<string | null>(null);
     const [submenuAnchorEl, setSubmenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -65,13 +81,13 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
     };
 
     const handleItemClick = (item: string) => {
-        Mixpanel.track('Click Location Item', { "item": item });
+        Mixpanel.track('Click Location Item', {item: item});
         onItemClick(item);
         handleClose();
     };
 
     const handleActionClick = (action: string) => {
-        Mixpanel.track('Click Location Action', { "action": action });
+        Mixpanel.track('Click Location Action', {action: action});
         onActionClick(action);
         handleClose();
     };
@@ -94,7 +110,7 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
 
     // Only show items that have actions
     const items = Object.keys(locationActions).filter(
-        item => locationActions[item] && locationActions[item].length > 0
+        (item) => locationActions[item] && locationActions[item].length > 0,
     );
 
     return (
@@ -108,7 +124,7 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                         color: 'white',
                         fontWeight: 'bold',
                         transition: 'all 0.3s ease',
-                    }
+                    },
                 }}
             >
                 <Button
@@ -120,7 +136,7 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                     endIcon={<KeyboardArrowDownIcon />}
                     disabled={!isLoaded}
                     sx={{
-                        borderRadius: { xs: '50%', sm: '20px' },
+                        borderRadius: {xs: '50%', sm: '20px'},
                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
                         color: 'white',
                         '&:hover': {
@@ -129,17 +145,19 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                         transition: 'all 0.3s ease',
                         textTransform: 'none',
                         fontWeight: 'bold',
-                        display: { xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex' },
-                        opacity: { xs: 1, sm: isLoaded ? 1 : 0.6 },
+                        display: {xs: isLoaded ? 'inline-flex' : 'none', sm: 'inline-flex'},
+                        opacity: {xs: 1, sm: isLoaded ? 1 : 0.6},
                         transform: isLoaded ? 'translateY(0)' : 'translateY(10px)',
-                        minWidth: { xs: 'auto', sm: '64px' },
-                        px: { xs: 1.5, sm: 2 },
-                        py: { xs: 1, sm: undefined },
-                        '& .MuiButton-endIcon': { display: { xs: 'none', sm: 'flex' } },
-                        '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 } },
+                        minWidth: {xs: 'auto', sm: '64px'},
+                        px: {xs: 1.5, sm: 2},
+                        py: {xs: 1, sm: undefined},
+                        '& .MuiButton-endIcon': {display: {xs: 'none', sm: 'flex'}},
+                        '& .MuiButton-startIcon': {mr: {xs: 0, sm: 1}},
                     }}
                 >
-                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Location</Box>
+                    <Box component="span" sx={{display: {xs: 'none', sm: 'inline'}}}>
+                        Location
+                    </Box>
                 </Button>
             </Badge>
 
@@ -148,12 +166,12 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                 open={open}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
+                    vertical: 'bottom',
+                    horizontal: 'center',
                 }}
                 transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
+                    vertical: 'top',
+                    horizontal: 'center',
                 }}
                 slotProps={{
                     paper: {
@@ -170,8 +188,8 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                                     backgroundColor: 'rgba(0, 0, 0, 0.04)',
                                 },
                             },
-                        }
-                    }
+                        },
+                    },
                 }}
             >
                 {items.map((item, index) => {
@@ -182,12 +200,16 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                             onClick={() => handleItemClick(item)}
                             onMouseEnter={(e) => handleItemHover(e, item)}
                             sx={{
-                                backgroundColor: activeItem === item ? 'rgba(0, 0, 0, 0.08)' : 'transparent',
+                                backgroundColor:
+                                    activeItem === item ? 'rgba(0, 0, 0, 0.08)' : 'transparent',
                             }}
                         >
                             <ListItemText>{toSentenceCase(item)}</ListItemText>
                             {hasActions && (
-                                <ChevronRightIcon fontSize="small" sx={{ ml: 1, color: 'text.secondary' }} />
+                                <ChevronRightIcon
+                                    fontSize="small"
+                                    sx={{ml: 1, color: 'text.secondary'}}
+                                />
                             )}
                         </MenuItem>
                     );
@@ -200,9 +222,9 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                 anchorEl={submenuAnchorEl}
                 placement="right-start"
                 transition
-                style={{ zIndex: 1300 }}
+                style={{zIndex: 1300}}
             >
-                {({ TransitionProps }) => (
+                {({TransitionProps}) => (
                     <Grow {...TransitionProps}>
                         <Paper
                             elevation={4}
@@ -215,22 +237,25 @@ export default function LocationButton({locationActions, onItemClick, onActionCl
                         >
                             <ClickAwayListener onClickAway={handleClose}>
                                 <MenuList>
-                                    {activeItem && locationActions[activeItem]?.map((action, index) => (
-                                        <MenuItem
-                                            key={index}
-                                            onClick={() => handleActionClick(action)}
-                                            sx={{
-                                                px: 2,
-                                                py: 1,
-                                                fontSize: '0.9rem',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(132, 204, 22, 0.15)',
-                                                },
-                                            }}
-                                        >
-                                            <ListItemText>{toSentenceCase(action)}</ListItemText>
-                                        </MenuItem>
-                                    ))}
+                                    {activeItem &&
+                                        locationActions[activeItem]?.map((action, index) => (
+                                            <MenuItem
+                                                key={index}
+                                                onClick={() => handleActionClick(action)}
+                                                sx={{
+                                                    px: 2,
+                                                    py: 1,
+                                                    fontSize: '0.9rem',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(132, 204, 22, 0.15)',
+                                                    },
+                                                }}
+                                            >
+                                                <ListItemText>
+                                                    {toSentenceCase(action)}
+                                                </ListItemText>
+                                            </MenuItem>
+                                        ))}
                                 </MenuList>
                             </ClickAwayListener>
                         </Paper>

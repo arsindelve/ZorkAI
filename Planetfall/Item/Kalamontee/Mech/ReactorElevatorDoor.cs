@@ -11,18 +11,22 @@ namespace Planetfall.Item.Kalamontee.Mech;
 ///     close it yields "You can't close it yourself." The elevator beyond is a flavor dead-end whose
 ///     buttons go nowhere.
 /// </summary>
-public class ReactorElevatorDoor : ItemBase, ICanBeExamined, IOpenAndClose
+public class ReactorElevatorDoor : ItemBase, IDoor
 {
     public override string[] NounsForMatching =>
         ["reactor elevator door", "elevator door", "metal door", "door"];
 
-    // The door is "currently open" per the elevator description, and there is no mechanism in the
-    // original game to ever change that state.
+    // The door starts open and there is no mechanism in the original game to ever change that state.
+    // The rooms on both sides still ask the door rather than assume it - see Doorway for why.
     public bool IsOpen { get; set; } = true;
 
     public bool HasEverBeenOpened { get; set; } = true;
 
-    public string ExaminationDescription => $"The door is {(IsOpen ? "open" : "closed")}. ";
+    // Defined in terms of DescribeAs so examining the door and reading a room description that reports
+    // it can never phrase the state differently. See IDoor.
+    public string ExaminationDescription => DescribeAs(IsOpen);
+
+    public string DescribeAs(bool isOpen) => $"The door is {(isOpen ? "open" : "closed")}. ";
 
     public string AlreadyOpen => "It is already open. ";
 

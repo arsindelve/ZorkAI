@@ -1,4 +1,5 @@
 using Amazon.Lambda.AspNetCoreServer;
+using GameEngine.Web;
 
 namespace EscapeRoom_Lambda;
 
@@ -29,6 +30,11 @@ public class LambdaEntryPoint :
     /// <param name="builder">The IWebHostBuilder to configure.</param>
     protected override void Init(IWebHostBuilder builder)
     {
+        // Must happen before the host builds the OpenAI client. OPEN_AI_KEY is not declared in any
+        // serverless.template, so a freshly created stack has no such env var and every request 502s
+        // during startup; this falls back to Secrets Manager. See OpenAiKeyResolver.
+        OpenAiKeyResolver.EnsureKeyAvailableAtStartup();
+
         builder
             .UseStartup<Startup>();
     }

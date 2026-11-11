@@ -10,9 +10,16 @@ internal class LabOffice : LocationBase
 
     protected override string GetContextBasedDescription(IContext context)
     {
+        // The door state is mutable, so this sentence has to be interpolated rather than
+        // hardcoded: the original branches on the door's OPENBIT and varies both the article
+        // and the adjective ("An open" / "A closed"). Hardcoding "A closed" made the room
+        // description contradict "examine door" and the live West exit on the same screen.
+        var doorDescription = Repository.GetItem<OfficeDoor>().IsOpen ? "An open" : "A closed";
+
         return
             "This is the office for storing files on Bio Lab experiments. A large and messy desk is surrounded by " +
-            "locked files. A small booth lies to the south. A closed door to the west is labelled \"Biioo Lab.\" " +
+            $"locked files. A small booth lies to the south. {doorDescription} door to the west is labelled " +
+            "\"Biioo Lab.\" " +
             "You realize with shock and horror that the only way out is through the mutant-infested Bio Lab. " +
             "\nOn the wall are three buttons: a white button labelled \"Lab Liits On\", a black button labelled " +
             "\"Lab Liits Of\", and a red button labelled \"Eemurjensee Sistum.\" ";

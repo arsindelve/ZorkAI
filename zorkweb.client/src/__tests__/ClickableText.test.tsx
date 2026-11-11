@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { ClickableText } from '@zork-ai/shared-types';
+import {render, fireEvent} from '@testing-library/react';
+import {ClickableText} from '@zork-ai/shared-types';
 
 // Helper: place a collapsed caret at `offset` inside the first text node of the
 // rendered clickable div, then click it (handleClick reads window.getSelection()).
@@ -23,10 +23,10 @@ function clickAtOffset(container: HTMLElement, offset: number) {
 describe('ClickableText word selection', () => {
     it('returns the whole first word when it starts the text node (no leading space)', () => {
         const onWordClick = jest.fn();
-        const { container } = render(
+        const {container} = render(
             <ClickableText exits={[]} onWordClick={onWordClick}>
                 {'north of house'}
-            </ClickableText>
+            </ClickableText>,
         );
 
         // Caret inside "north" (offset 2 = between 'o' and 'r').
@@ -37,10 +37,10 @@ describe('ClickableText word selection', () => {
 
     it('returns the whole word for a word in the middle of the text node', () => {
         const onWordClick = jest.fn();
-        const { container } = render(
+        const {container} = render(
             <ClickableText exits={[]} onWordClick={onWordClick}>
                 {'north of house'}
-            </ClickableText>
+            </ClickableText>,
         );
 
         // Caret inside "house" (text "north of house"; 'house' starts at index 9).

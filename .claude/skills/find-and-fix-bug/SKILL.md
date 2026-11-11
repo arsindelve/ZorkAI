@@ -30,7 +30,7 @@ unrelated working-tree changes unstaged; only stage the files for this fix.
 This repo has several testable components, each with its own runner. Choose the one that matches
 the code you're hunting in, and confirm the exact command to run a single test and a full suite:
 - **C# engine & games** — `dotnet test <Project>` (e.g. `UnitTests`, `ZorkOne.Tests`,
-  `Planetfall.Tests`, `Lambda.Tests`); single test via `--filter "FullyQualifiedName~<Name>"`.
+  `Planetfall.Tests`, `EscapeRoom.Tests`); single test via `--filter "FullyQualifiedName~<Name>"`.
   Note `dotnet test A B` errors with MSB1008 — run each project separately.
 - **Web clients** (`zorkweb.client`, `planetfallweb.client`, `shared-web-types`) — the
   React/TypeScript projects; use their `package.json` scripts (unit runner and/or Playwright).

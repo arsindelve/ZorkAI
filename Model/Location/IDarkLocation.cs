@@ -1,3 +1,5 @@
+using Model.Interface;
+
 namespace Model.Location;
 
 /// <summary>
@@ -16,8 +18,10 @@ public interface IDarkLocation
     ///     the regular description.
     ///     If the location is not dark or the player has a light source, the regular description of the location is returned
     ///     instead.
+    ///     The default (see <c>DarkLocation</c>) defers to the game via <see cref="IInfocomGame.DarkLocationDescription"/>;
+    ///     a specific location may override this for bespoke dark-room wording.
     /// </remarks>
-    string DarkDescription { get; }
+    string GetDarkDescription(IContext context);
 
     /// <summary>
     ///     Indicates whether the location is no longer dark.

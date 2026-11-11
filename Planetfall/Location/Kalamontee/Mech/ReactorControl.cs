@@ -8,30 +8,20 @@ internal class ReactorControl : LocationWithNoStartingItems
 {
     public override string Name => "Reactor Control";
 
-    private ReactorElevatorDoor Door => Repository.GetItem<ReactorElevatorDoor>();
+    // The far side of the Reactor Elevator's door. Nothing in this room's description claims a state for
+    // it, so there is nothing here to drift - but the exits still gate on it, via the same Doorway.
+    private Doorway Door => new(Repository.GetItem<ReactorElevatorDoor>());
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
+        var intoTheCar = Door.Passage(GetLocation<ReactorElevator>());
+
         return new Dictionary<Direction, MovementParameters>
         {
             { Direction.W, Go<MechCorridor>() },
             { Direction.Down, Go<ReactorAccessStairs>() },
-            {
-                Direction.E, new MovementParameters
-                {
-                    CanGo = _ => Door.IsOpen,
-                    Location = GetLocation<ReactorElevator>(),
-                    CustomFailureMessage = "The door is closed. "
-                }
-            },
-            {
-                Direction.In, new MovementParameters
-                {
-                    CanGo = _ => Door.IsOpen,
-                    Location = GetLocation<ReactorElevator>(),
-                    CustomFailureMessage = "The door is closed. "
-                }
-            }
+            { Direction.E, intoTheCar },
+            { Direction.In, intoTheCar }
         };
     }
 

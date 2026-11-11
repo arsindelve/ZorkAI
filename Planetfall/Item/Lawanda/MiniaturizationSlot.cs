@@ -7,8 +7,8 @@ namespace Planetfall.Item.Lawanda;
 
 internal class MiniaturizationSlot : SlotBase<MiniaturizationAccessCard, MiniaturizationSlot>
 {
-    public override string[] NounsForMatching { get; }
-        = ["miniaturization slot", "slot", "miniaturization card slot"];
+    public override string[] NounsForMatching =>
+        ["miniaturization slot", "slot", "miniaturization card slot"];
 
     protected override InteractionResult OnSuccessfulSlide(IContext context, string? afterMessage)
     {

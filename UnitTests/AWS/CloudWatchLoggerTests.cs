@@ -79,6 +79,86 @@ public class CloudWatchLoggerBehaviorTests
             json.Should().Contain("null");
         }
 
+        /// <summary>
+        ///     Issue #578: the terminal path is a wire contract between the Lambda that writes it and
+        ///     the harness that reads it, so it must land in the JSON as its NAME. Serialized as the
+        ///     default integer it would be unreadable in a log pane and would silently re-point at a
+        ///     different branch the moment a member is inserted above it.
+        /// </summary>
+        [Test]
+        public void Should_SerializeTerminalPath_ByName_AlongsideTheParsedIntentShape()
+        {
+            // Arrange
+            var log = new TurnLog
+            {
+                SessionId = "session-123",
+                Location = "West of House",
+                Score = 0,
+                Moves = 1,
+                Input = "press 3",
+                Response = "Nothing happens.",
+                ParsedIntent = "SimpleIntent verb='press' noun='' adjective='' adverb=''",
+                TerminalPath = TurnTerminalPath.NounNotPresent
+            };
+
+            // Act
+            var json = JsonConvert.SerializeObject(log);
+
+            // Assert
+            json.Should().Contain("\"TerminalPath\":\"NounNotPresent\"");
+            json.Should().NotContain("\"TerminalPath\":12");
+            json.Should().Contain("verb='press'");
+        }
+
+        [Test]
+        public void Should_RoundTripTheTurnDiagnostics_ThroughJson()
+        {
+            // Arrange
+            var log = new TurnLog
+            {
+                SessionId = "session-123",
+                Location = "West of House",
+                Score = 0,
+                Moves = 1,
+                Input = "tie sword to mailbox",
+                Response = "That accomplishes nothing.",
+                ParsedIntent = "MultiNounIntent verb='tie' nounOne='sword' nounTwo='mailbox' preposition='to'",
+                TerminalPath = TurnTerminalPath.MultiNounNoProcessorMatched
+            };
+
+            // Act
+            var restored = JsonConvert.DeserializeObject<TurnLog>(JsonConvert.SerializeObject(log));
+
+            // Assert
+            restored.Should().NotBeNull();
+            restored!.TerminalPath.Should().Be(TurnTerminalPath.MultiNounNoProcessorMatched);
+            restored.ParsedIntent.Should().Be(log.ParsedIntent);
+        }
+
+        /// <summary>
+        ///     A log built without the engine (a test, an older writer) reports Unknown rather than
+        ///     claiming a branch it never observed.
+        /// </summary>
+        [Test]
+        public void Should_DefaultTerminalPath_ToUnknown_WhenNotSet()
+        {
+            // Arrange
+            var log = new TurnLog
+            {
+                SessionId = "s",
+                Location = "L",
+                Score = 0,
+                Moves = 0,
+                Input = "i",
+                Response = "r"
+            };
+
+            // Assert
+            log.TerminalPath.Should().Be(TurnTerminalPath.Unknown);
+            log.ParsedIntent.Should().BeNull();
+            JsonConvert.SerializeObject(log).Should().Contain("\"TerminalPath\":\"Unknown\"");
+        }
+
         [Test]
         public void Should_SerializeGenerationLog_Correctly()
         {

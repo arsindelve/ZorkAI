@@ -120,8 +120,7 @@ public static class Repository
     private static IItem? GetPreciseMatchInInventory(string noun, IContext context)
     {
         return (context.GetAllItemsRecursively ?? [])
-            .FirstOrDefault(item => item.NounsForPreciseMatching
-                .Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
+            .FirstOrDefault(item => NounMatch.PreciselyNames(item, noun));
     }
 
     /// <summary>
@@ -200,7 +199,7 @@ public static class Repository
 
         return candidates.FirstOrDefault(item =>
             IsItemAccessible(item, context) &&
-            item.NounsForPreciseMatching.Any(n => n.Equals(noun, StringComparison.InvariantCultureIgnoreCase)));
+            NounMatch.PreciselyNames(item, noun));
     }
 
     /// <summary>
@@ -333,6 +332,12 @@ public static class Repository
         return _allItems.Values;
     }
 
+    /// <summary>All locations currently in the repository (the hint engine reads their state; read-only use).</summary>
+    public static IEnumerable<ILocation> GetAllLocations()
+    {
+        return _allLocations.Values;
+    }
+
     public static ILocation GetStartingLocation<T>() where T : IInfocomGame, new()
     {
         Reset();
@@ -352,10 +357,78 @@ public static class Repository
     }
 
     /// <summary>
-    /// For unit testing purposes only.
+    ///     Every noun the game advertises as scenery: each location's declared Scenery plus the game-wide
+    ///     <see cref="IInfocomGame.GlobalScenery" />. <see cref="GetNouns" /> covers per-location scenery
+    ///     too (through <see cref="LocationBase.SceneryNouns" />), but not GlobalScenery, which lives on the
+    ///     game rather than on any item or location - so a vocabulary that must know every noun unions this
+    ///     in, as <c>UnitTests.TestParser</c> and <see cref="DeterministicParser" /> both do. Built from
+    ///     item nouns alone, the test parser once made scenery appear to answer to nothing under test while
+    ///     it worked perfectly in play.
     /// </summary>
-    /// <returns></returns>
-    public static string[] GetNouns(string gameName = "ZorkOne")
+    public static string[] GetSceneryNouns(string gameName)
+    {
+        var assembly = Assembly.Load(gameName);
+        var nouns = new List<string>();
+
+        foreach (var type in assembly.GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false } ||
+                !type.IsSubclassOf(typeof(LocationBase)))
+                continue;
+
+            var property = type.GetProperty("Scenery",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+            if (property is null)
+                continue;
+
+            try
+            {
+                var instance = Activator.CreateInstance(type);
+                if (property.GetValue(instance) is IEnumerable<SceneryItem> scenery)
+                    nouns.AddRange(scenery.SelectMany(s => s.Nouns));
+            }
+            catch
+            {
+                // A location that cannot be constructed standalone simply contributes no scenery nouns.
+            }
+        }
+
+        // Global scenery lives on the game, not on any location, so it needs collecting separately -
+        // and it is precisely the set most likely to be typed in every room.
+        foreach (var type in assembly.GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false } ||
+                !typeof(IInfocomGame).IsAssignableFrom(type))
+                continue;
+
+            try
+            {
+                if (Activator.CreateInstance(type) is IInfocomGame game)
+                    nouns.AddRange(game.GlobalScenery.SelectMany(s => s.Nouns));
+            }
+            catch
+            {
+                // A game that cannot be constructed standalone contributes no global scenery nouns.
+            }
+        }
+
+        return nouns.Distinct().ToArray();
+    }
+
+    /// <summary>
+    ///     Every noun the game declares on its items and locations: item NounsForMatching, location
+    ///     NounsForMatching aliases, and location <see cref="LocationBase.SceneryNouns" />. The production
+    ///     <see cref="DeterministicParser" /> builds its vocabulary from this (plus
+    ///     <see cref="GetSceneryNouns" /> for game-wide scenery).
+    /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - it is the game assembly to reflect over,
+    /// and <see cref="Repository"/> is engine-level and game-agnostic. A default here would bake one
+    /// specific game into the shared engine and silently load the wrong game's nouns whenever a caller
+    /// omitted it. Callers already have the game name available (e.g. <c>context.Game.GameName</c>).
+    /// </remarks>
+    public static string[] GetNouns(string gameName)
     {
         lock (_allNouns)
         {
@@ -401,10 +474,14 @@ public static class Repository
     }
 
     /// <summary>
-    /// For god mode purposes only. 
+    /// For god mode purposes only.
     /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - see <see cref="GetNouns"/>. The engine
+    /// must never default to a specific game's assembly.
+    /// </remarks>
     /// <returns></returns>
-    public static void LoadAllLocations(string gameName = "ZorkOne")
+    public static void LoadAllLocations(string gameName)
     {
         lock (_allLocations)
         {
@@ -432,10 +509,14 @@ public static class Repository
     }
 
     /// <summary>
-    /// For god mode purposes only. 
+    /// For god mode purposes only.
     /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - see <see cref="GetNouns"/>. The engine
+    /// must never default to a specific game's assembly.
+    /// </remarks>
     /// <returns></returns>
-    public static void LoadAllItems(string gameName = "ZorkOne")
+    public static void LoadAllItems(string gameName)
     {
         lock (_allItems)
         {
@@ -488,10 +569,14 @@ public static class Repository
     }
 
     /// <summary>
-    /// For unit testing purposes only. 
+    /// For unit testing purposes only.
     /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - see <see cref="GetNouns"/>. The engine
+    /// must never default to a specific game's assembly.
+    /// </remarks>
     /// <returns></returns>
-    public static string[] GetContainers(string gameName = "ZorkOne")
+    public static string[] GetContainers(string gameName)
     {
         if (_allContainers.Length > 0) return _allContainers;
 

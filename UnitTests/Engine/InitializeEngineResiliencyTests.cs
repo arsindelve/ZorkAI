@@ -11,7 +11,22 @@ namespace UnitTests.Engine;
 
 public class InitializeEngineResiliencyTests
 {
-    private static GameEngine<ZorkI, ZorkIContext> BuildEngine(Mock<ISecretsManager> secrets)
+    private static GameEngine<ZorkI, ZorkIContext> BuildEngine(Mock<ISecretsManager> secrets,
+        bool keepCloudLoggingDefault = false)
+    {
+        return BuildEngine(secrets, out _, keepCloudLoggingDefault);
+    }
+
+    /// <summary>
+    ///     IGenerationClient.SystemPrompt is set-only, so tests that care about it observe the set on
+    ///     the mock rather than reading the property back.
+    /// </summary>
+    /// <param name="keepCloudLoggingDefault">
+    ///     Leaves CloudLoggingEnabled at the value GameEngine's constructor chose, for the one test
+    ///     that asserts on that default. Every other test wants it off — see below.
+    /// </param>
+    private static GameEngine<ZorkI, ZorkIContext> BuildEngine(Mock<ISecretsManager> secrets,
+        out Mock<IGenerationClient> generationClient, bool keepCloudLoggingDefault = false)
     {
         var takeAndDropParser = new Mock<IAITakeAndAndDropParser>();
         takeAndDropParser
@@ -46,9 +61,18 @@ public class InitializeEngineResiliencyTests
             Mock.Of<CloudWatch.ICloudWatchLogger<CloudWatch.Model.TurnLog>>(),
             Mock.Of<IParseConversation>());
 
+        // Required, not incidental. InitializeEngine otherwise calls CloudWatchLoggerFactory.Get,
+        // which constructs a real AmazonCloudWatchLogsClient and issues CreateLogGroup/CreateLogStream
+        // — three loggers per call. On any machine or runner with ambient AWS credentials these tests
+        // would create real log groups in whatever account those credentials belong to, and pay
+        // credential/IMDS latency where they don't. Tests here must touch no network and no AWS.
+        if (!keepCloudLoggingDefault)
+            engine.CloudLoggingEnabled = false;
+
         Repository.Reset();
         Repository.GetLocation<WestOfHouse>().Init();
         engine.Context.Verbosity = Verbosity.Verbose;
+        generationClient = client;
         return engine;
     }
 
@@ -70,5 +94,65 @@ public class InitializeEngineResiliencyTests
 
         // Assert
         output.Should().NotBeNullOrEmpty();
+    }
+
+    [Test]
+    public async Task InitializeEngine_StillAppliesTheNarratorSystemPrompt_When_EndpointConfigIsInvalid()
+    {
+        // A typo in the self-hosted endpoint variables (issue #383) used to throw from inside
+        // InitializeEngine's single shared try/catch, which skipped the system-prompt assignment
+        // underneath it and left the narrator running promptless for the rest of the session. The
+        // same hazard applied to a transient CloudWatch failure. Engine startup must not depend on -
+        // or even read - the AI endpoint configuration, and the prompt must survive whatever else fails.
+        var secrets = new Mock<ISecretsManager>();
+        secrets.Setup(s => s.GetSecret(It.IsAny<string>())).ReturnsAsync("THE NARRATOR PROMPT");
+
+        // Built before the variable is poisoned: a bad provider also throws from PronounResolver's
+        // constructor, and that loud, immediate failure is a separate concern from the silent one
+        // under test here. This isolates the startup path.
+        var engine = BuildEngine(secrets, out var generationClient);
+
+        var original = Environment.GetEnvironmentVariable("ZORKAI_PROVIDER");
+        try
+        {
+            Environment.SetEnvironmentVariable("ZORKAI_PROVIDER", "not-a-real-provider");
+
+            await engine.InitializeEngine();
+
+            generationClient.VerifySet(c => c.SystemPrompt = "THE NARRATOR PROMPT", Times.Once,
+                "the narrator's prompt must still be applied when endpoint configuration is broken");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ZORKAI_PROVIDER", original);
+        }
+    }
+
+    [TestCase("OPENAI_BASE_URL", "http://localhost:1234/v1")]
+    [TestCase("ZORKAI_PROVIDER", "ollama")]
+    public void CloudLoggingStaysEnabled_When_SelfHostedEndpointVariablesAreSet(string variable, string value)
+    {
+        // The endpoint variables say where the *model* lives, not whether we have AWS. OPENAI_BASE_URL
+        // especially is a generic name that proxies and gateways also use, so letting it reach the
+        // logging decision would mean a deployed Lambda silently stops emitting telemetry the moment
+        // someone routes it through an LLM proxy. Only an explicit opt-out may disable logging.
+        var original = Environment.GetEnvironmentVariable(variable);
+        try
+        {
+            Environment.SetEnvironmentVariable(variable, value);
+
+            var secrets = new Mock<ISecretsManager>();
+            secrets.Setup(s => s.GetSecret(It.IsAny<string>())).ReturnsAsync("prompt");
+
+            // The default is the whole subject here, so this is the one caller that must see it
+            // rather than the network-safe override the other tests need.
+            var engine = BuildEngine(secrets, keepCloudLoggingDefault: true);
+
+            engine.CloudLoggingEnabled.Should().BeTrue();
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable(variable, original);
+        }
     }
 }

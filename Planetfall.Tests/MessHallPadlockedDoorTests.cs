@@ -1,5 +1,6 @@
 using FluentAssertions;
 using GameEngine;
+using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee;
 using Planetfall.Item.Kalamontee.Admin;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
@@ -97,6 +98,54 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
         response.Should().Contain("springs open");
         Repository.GetItem<Padlock>().Locked.Should().BeFalse();
         Repository.GetItem<Padlock>().AttachedToDoor.Should().BeTrue();
+    }
+
+    // Issue #503: the steel key is a tiny thing you have just fished out of a crevice, so pocketing it
+    // is the natural move - and the padlock gated on the flat, top-level-only context.HasItem<Key>(),
+    // which sent the whole turn to the narrator instead of unlocking anything.
+    [Test]
+    public async Task UnlockPadlockWithKey_KeyInUniformPocket()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+
+        var key = Pocket<Key>();
+        key.CurrentLocation.Should().BeOfType<PatrolUniformPocket>();
+        target.Context.Items.Should().NotContain(key);
+
+        var response = await target.GetResponse("unlock padlock with key");
+        response.Should().Contain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeFalse();
+    }
+
+    // Same defect on the delegating path: "unlock door with key" routes through MessDoor, which had
+    // the identical flat check before handing off to the padlock.
+    [Test]
+    public async Task UnlockDoorWithKey_KeyInUniformPocket()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+
+        Pocket<Key>();
+
+        var response = await target.GetResponse("unlock door with key");
+        response.Should().Contain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeFalse();
+    }
+
+    // Issue #503 regression pin: the padlock resolves the key by TYPE from the repository, so the
+    // possession check is the only thing scoping it. A key sitting in another room must not unlock it.
+    [Test]
+    public async Task UnlockPadlockWithKey_KeyNotCarried_StaysLocked()
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+        Repository.GetLocation<MessHall>().ItemPlacedHere(Repository.GetItem<Key>());
+
+        var response = await target.GetResponse("unlock padlock with key");
+
+        response.Should().NotContain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeTrue();
     }
 
     [Test]

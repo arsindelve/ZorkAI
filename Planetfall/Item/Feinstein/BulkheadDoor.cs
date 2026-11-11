@@ -4,8 +4,47 @@ namespace Planetfall.Item.Feinstein;
 
 public class BulkheadDoor : ItemBase, IOpenAndClose
 {
+    /// <summary>
+    ///     The original states this as two objects that share one command: POD-DOOR
+    ///     (planetfall-source/globals.zil:1094 — synonyms DOOR/BULKHEAD, adjectives EMERGENCY/ESCAPE/POD)
+    ///     and GLOBAL-POD (globals.zil:904 — synonym POD, adjectives EMERGENCY/ESCAPE/PRIMARY), whose
+    ///     action routine sends OPEN straight to POD-DOOR (globals.zil:925). This port merges them into
+    ///     one item, so it has to carry the union of both name sets.
+    /// </summary>
+    /// <remarks>
+    ///     Every adjective+noun pair must be spelled out. The AI parser hands back either the whole
+    ///     phrase as one noun or an adjective/noun split, and SimpleIntent.MatchNounAndAdjective simply
+    ///     compares "adjective noun" against this list — there is no containment fallback on this path.
+    ///     Leaving "escape pod" and "pod bulkhead" out, the exact two phrases Deck Nine's own description
+    ///     teaches, meant "open escape pod" resolved to nothing and the narrator mocked the player for
+    ///     naming an object that wasn't there.
+    ///     <para>
+    ///         Trap when adding to this list: the LONGEST entry doubles as the item's display name
+    ///         (ExamineInteractionProcessor prints "nothing special about the {longest noun}"), so a new
+    ///         long synonym silently renames the door. "escape pod bulkhead" — POD-DOOR's own DESC — must
+    ///         stay the longest. It previously was not: "narrow emergency bulkhead" held that spot, which
+    ///         is GANGWAY-DOOR's name (globals.zil:1139), so "examine escape pod" answered about the
+    ///         bulkhead at the base of the gangway.
+    ///     </para>
+    ///     <para>
+    ///         Deliberately absent: the bare EMERGENCY qualifier on a door/bulkhead. The original shares
+    ///         that adjective across three objects in Deck Nine's scope — POD-DOOR, GANGWAY-DOOR
+    ///         (globals.zil:1139) and CORRIDOR-DOOR (globals.zil:1133), the latter two becoming
+    ///         referenceable when they slam shut (globals.zil:1216) — so "emergency bulkhead" and
+    ///         "emergency door" are ambiguous there, not names POD-DOOR owns. Claiming them here would
+    ///         make the pod door answer for the gangway bulkhead the turn the game narrates it closing.
+    ///         "emergency pod" IS kept: POD is GLOBAL-POD's synonym alone, so it is unambiguous.
+    ///     </para>
+    /// </remarks>
     public override string[] NounsForMatching =>
-        ["bulkhead", "bulkhead door", "door", "pod", "pod door", "escape pod door", "narrow emergency bulkhead"];
+    [
+        // POD-DOOR
+        "bulkhead", "door", "bulkhead door",
+        "escape bulkhead", "pod bulkhead", "escape pod bulkhead",
+        "escape door", "pod door", "escape pod door",
+        // GLOBAL-POD
+        "pod", "emergency pod", "escape pod", "primary pod"
+    ];
 
     public bool IsOpen { get; set; }
 

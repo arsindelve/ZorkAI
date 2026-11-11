@@ -53,12 +53,28 @@ public class OpenAIParser : OpenAIClientBase, IAIParser
 
         // Client is the IChatCompletionClient seam (issue #460): CompleteChatAsync returns the response
         // text directly, so no ChatCompletion unwrapping here.
-        var responseContent = await Client!.CompleteChatAsync(messages, options);
+        string responseContent;
+        try
+        {
+            responseContent = await Client!.CompleteChatAsync(messages, options);
+        }
+        catch (Exception ex)
+        {
+            // Self-hosted OpenAI-compatible servers (issue #383) talk to this same client, and some reject
+            // a json_schema response format (or the evaluation-only seed) outright. Without this retry
+            // every AI-parsed command would throw on those servers. Retry once with neither - the
+            // structured prompt still asks for the same JSON object - exactly as
+            // OpenAITakeAndDropListParser does.
+            Logger?.LogDebug(ex, "Structured response format rejected; retrying without it.");
+            responseContent = await Client!.CompleteChatAsync(messages, new ChatCompletionOptions { Temperature = 0f });
+        }
 
-        // Deserialize the validated JSON, render it to the canonical tag form, and reuse the existing,
-        // battle-tested intent-construction pipeline. Invalid/truncated JSON degrades to NullIntent rather
-        // than throwing. All of this lives in ParseResponse so it is unit-testable without the network.
-        return StructuredIntentParsing.ParseResponse(responseContent, input, Logger);
+        // Deserialize the JSON, render it to the canonical tag form, and reuse the existing, battle-tested
+        // intent-construction pipeline. Invalid/truncated JSON degrades to NullIntent rather than throwing.
+        // Local models (and the no-format retry above) wrap the object in code fences or prose, so extract
+        // it first; clean cloud output passes through unchanged.
+        return StructuredIntentParsing.ParseResponse(LlmJson.ExtractJsonObject(responseContent) ?? responseContent,
+            input, Logger);
     }
 
     public string LanguageModel => ModelName;

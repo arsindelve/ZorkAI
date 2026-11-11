@@ -5,5 +5,13 @@
     "shared-web-types",
     "zorkweb.client",
     "planetfallweb.client"
-  ]
+  ],
+  "scripts": {
+    "format": "prettier --write \"{shared-web-types,zorkweb.client,planetfallweb.client}/**/*.{ts,tsx,js,jsx,css,json,html}\"",
+    "format:check": "prettier --check \"{shared-web-types,zorkweb.client,planetfallweb.client}/**/*.{ts,tsx,js,jsx,css,json,html}\"",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
 }

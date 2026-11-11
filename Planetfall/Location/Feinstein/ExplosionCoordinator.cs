@@ -58,6 +58,15 @@ internal class ExplosionCoordinator : ITurnBasedActor
 
             case TurnWhenFeinsteinBlowsUp + 1:
             {
+                // Seal Deck Nine off from the gangway and the starboard corridor, matching the
+                // original, which clears OPENBIT on both bulkheads here (globals.zil:1214-1217)
+                // *before* printing the "crash shut" prose below. Without this the narration was
+                // cosmetic: Deck Nine's Up/East exits stayed open and walking through a "shut"
+                // bulkhead killed the player one turn later (issue #529). Closed no matter where the
+                // player is standing when this beat fires, exactly as the ZIL does it unconditionally.
+                Repository.GetItem<CorridorDoor>().IsOpen = false;
+                Repository.GetItem<GangwayDoor>().IsOpen = false;
+
                 action = context.CurrentLocation switch
                 {
                     _ when context.CurrentLocation is BlatherLocation =>

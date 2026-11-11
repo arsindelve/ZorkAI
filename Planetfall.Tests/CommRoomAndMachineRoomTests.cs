@@ -23,6 +23,22 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         GetLocation<MachineShop>().HasItem<Flask>().Should().BeTrue();
     }
     
+    // Issue #503: the flask is size 1 and fits the Patrol uniform pocket, where the flat
+    // context.HasItem<Flask>() counted it as "not carried" and the command fell to the narrator.
+    [Test]
+    public async Task PutFlaskUnderSpout_FlaskInUniformPocket_Success()
+    {
+        var target = GetTarget();
+        Pocket<Flask>();
+        StartHere<MachineShop>();
+
+        var response = await target.GetResponse("put flask under spout");
+
+        response.Should().Contain("The glass flask is now sitting under the spout.");
+        GetLocation<MachineShop>().FlaskUnderSpout.Should().BeTrue();
+        GetLocation<MachineShop>().HasItem<Flask>().Should().BeTrue();
+    }
+
     [Test]
     public async Task PutFlaskUnderSpout_Look()
     {
@@ -483,6 +499,104 @@ public class CommRoomAndMachineRoomTests : EngineTestsBase
         GetLocation<SystemsMonitors>().Fixed.Should().Contain("KUMUUNIKAASHUNZ");
         target.Context.Score.Should().Be(6);
         Console.WriteLine(GetLocation<SystemsMonitors>().GetDescriptionForGeneration(target.Context));
+    }
+
+    // Issue #547: the coolant pour resolved the flask through the repository-global singleton with no
+    // possession or scope check at all, so a player standing here empty-handed drained -- and consumed --
+    // a flask sitting anywhere on the map. In the original the possession check is the first thing the
+    // PUT/POUR branch does, before any state mutation (planetfall-source/compone.zil:2982-2985), and the
+    // fluid is only in scope when the flask is: pouring a flask you are not holding is not possible.
+    // Here the flask is on the floor of the Comm Room -- visible, so the refusal names it.
+    [Test]
+    public async Task PourLiquid_FlaskOnTheFloorHere_Refuses()
+    {
+        var target = GetTarget();
+        StartHere<CommRoom>();
+        GetLocation<CommRoom>().ItemPlacedHere(GetItem<Flask>());
+        GetItem<Flask>().LiquidColor = "black";
+
+        var response = await target.GetResponse("pour fluid into hole");
+
+        response.Should().Contain("You're not holding the flask.");
+        GetItem<Flask>().LiquidColor.Should().Be("black"); // not drained
+        GetLocation<CommRoom>().CurrentColor.Should().Be("black"); // puzzle did not advance
+        GetLocation<CommRoom>().IsFixed.Should().BeFalse();
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeFalse();
+    }
+
+    // Issue #547, repro A: the flask left behind in the next room over. The puzzle must not advance and
+    // the remote flask must not be silently emptied -- the player would have no way to connect the empty
+    // flask they later find to the command they typed a room away.
+    [Test]
+    public async Task PourLiquid_FlaskLeftInAnotherRoom_DoesNotDrainItOrAdvancePuzzle()
+    {
+        var target = GetTarget();
+        StartHere<CommRoom>();
+        GetLocation<TowerCore>().ItemPlacedHere(GetItem<Flask>());
+        GetItem<Flask>().LiquidColor = "black";
+
+        var response = await target.GetResponse("pour fluid into hole");
+
+        response.Should().NotContain("The liquid disappears into the hole.");
+        GetItem<Flask>().LiquidColor.Should().Be("black");
+        GetLocation<CommRoom>().CurrentColor.Should().Be("black");
+        GetLocation<CommRoom>().IsFixed.Should().BeFalse();
+    }
+
+    // Issue #547, repro B -- the destructive half, and the one that actually costs the player the game.
+    // Forgetting "take flask" after filling it is an ordinary slip the walkthrough's own "put flask under
+    // spout" step sets up. With the wrong color still in the abandoned flask, one pour here used to shut
+    // the send console down permanently (PermanentlyBroken), putting the 6 points out of reach forever.
+    [Test]
+    public async Task PourLiquid_FlaskLeftUnderSpout_DoesNotShutDownConsole()
+    {
+        var target = GetTarget();
+        Take<Flask>();
+        StartHere<MachineShop>();
+        await target.GetResponse("put flask under spout"); // flask leaves inventory
+        GetItem<Flask>().LiquidColor = "red"; // wrong color
+
+        StartHere<CommRoom>();
+        var response = await target.GetResponse("pour fluid into hole");
+
+        response.Should().NotContain("the send console shuts down");
+        GetLocation<CommRoom>().SystemIsCritical.Should().BeFalse();
+        GetItem<Flask>().LiquidColor.Should().Be("red");
+        target.Context.Score.Should().Be(0);
+    }
+
+    // Issue #547 guard, mirroring PutFlaskUnderSpout_FlaskInUniformPocket_Success: the possession check
+    // must be the container-aware IsCarrying<T>(), not the flat HasItem<T>(), or the flask carried in the
+    // Patrol uniform pocket counts as "not held" and the pour falls to the narrator again (issue #503).
+    [Test]
+    public async Task PourLiquid_FlaskInUniformPocket_Success()
+    {
+        var target = GetTarget();
+        Pocket<Flask>();
+        StartHere<CommRoom>();
+        GetItem<Flask>().LiquidColor = "black";
+
+        var response = await target.GetResponse("pour fluid into hole");
+
+        response.Should().Contain("and all go off except one, a gray light");
+        GetLocation<CommRoom>().CurrentColor.Should().Be("gray");
+    }
+
+    // Issue #547 defect 2: the funnel-shaped hole is printed in all three console states in the original
+    // -- only the "whose lights are all dark" clause is conditional (planetfall-source/compone.zil:2835-2846).
+    // The critical description dropped the sentence, so after a shutdown the room answered commands aimed
+    // at a hole it no longer mentioned.
+    [Test]
+    public async Task CommRoom_CriticalDescription_MentionsFunnelHole()
+    {
+        var target = GetTarget();
+        StartHere<CommRoom>();
+        GetLocation<CommRoom>().SystemIsCritical = true;
+
+        var response = await target.GetResponse("look");
+
+        response.Should().Contain("funnel-shaped hole");
+        response.Should().Contain("Kuulint Sistum Manyuuwul Oovuriid");
     }
 
     // Issue #463: a wrong-color pour shuts the send console down (SystemIsCritical) and the failure is

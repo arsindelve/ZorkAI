@@ -1,260 +1,260 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import {render, screen, fireEvent, act} from '@testing-library/react';
 import {InventoryButton} from '@zork-ai/shared-types';
 
 describe('InventoryButton Component', () => {
-  const mockOnInventoryClick = jest.fn();
-  const mockOnActionClick = jest.fn();
-  const sampleInventory = ['sword', 'lantern', 'leaflet', 'food'];
-  const sampleInventoryActions: Record<string, string[]> = {
-    'sword': ['examine sword', 'drop sword'],
-    'lantern': ['examine lantern', 'turn on lantern', 'drop lantern'],
-    'leaflet': ['read leaflet', 'examine leaflet', 'drop leaflet'],
-    'food': ['eat food', 'examine food', 'drop food']
-  };
+    const mockOnInventoryClick = jest.fn();
+    const mockOnActionClick = jest.fn();
+    const sampleInventory = ['sword', 'lantern', 'leaflet', 'food'];
+    const sampleInventoryActions: Record<string, string[]> = {
+        sword: ['examine sword', 'drop sword'],
+        lantern: ['examine lantern', 'turn on lantern', 'drop lantern'],
+        leaflet: ['read leaflet', 'examine leaflet', 'drop leaflet'],
+        food: ['eat food', 'examine food', 'drop food'],
+    };
 
-  beforeEach(() => {
-    mockOnInventoryClick.mockClear();
-    mockOnActionClick.mockClear();
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  test('renders the inventory button', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+    beforeEach(() => {
+        mockOnInventoryClick.mockClear();
+        mockOnActionClick.mockClear();
+        jest.useFakeTimers();
     });
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    expect(buttonElement).toBeInTheDocument();
-    expect(buttonElement).toHaveTextContent('Inventory');
-  });
-
-  test('displays the correct badge count', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
-    const badge = document.querySelector('.MuiBadge-badge');
-    expect(badge).toBeInTheDocument();
-    expect(badge).toHaveTextContent('4');
-  });
+    test('renders the inventory button', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-  test('opens menu when clicked', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    act(() => {
-      jest.runAllTimers();
+        const buttonElement = screen.getByTestId('inventory-button');
+        expect(buttonElement).toBeInTheDocument();
+        expect(buttonElement).toHaveTextContent('Inventory');
     });
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    fireEvent.click(buttonElement);
+    test('displays the correct badge count', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Items displayed in Sentence Case
-    expect(screen.getByText('Sword')).toBeInTheDocument();
-    expect(screen.getByText('Lantern')).toBeInTheDocument();
-    expect(screen.getByText('Leaflet')).toBeInTheDocument();
-    expect(screen.getByText('Food')).toBeInTheDocument();
-  });
+        act(() => {
+            jest.runAllTimers();
+        });
 
-  test('calls onInventoryClick when an item is clicked', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+        const badge = document.querySelector('.MuiBadge-badge');
+        expect(badge).toBeInTheDocument();
+        expect(badge).toHaveTextContent('4');
     });
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    fireEvent.click(buttonElement);
+    test('opens menu when clicked', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Click item displayed in Sentence Case
-    const swordItem = screen.getByText('Sword');
-    fireEvent.click(swordItem);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    // Callback receives original lowercase value
-    expect(mockOnInventoryClick).toHaveBeenCalledWith('sword');
-  });
+        const buttonElement = screen.getByTestId('inventory-button');
+        fireEvent.click(buttonElement);
 
-  test('closes menu after selecting an item', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+        // Items displayed in Sentence Case
+        expect(screen.getByText('Sword')).toBeInTheDocument();
+        expect(screen.getByText('Lantern')).toBeInTheDocument();
+        expect(screen.getByText('Leaflet')).toBeInTheDocument();
+        expect(screen.getByText('Food')).toBeInTheDocument();
     });
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    fireEvent.click(buttonElement);
+    test('calls onInventoryClick when an item is clicked', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Click item displayed in Sentence Case
-    const lanternItem = screen.getByText('Lantern');
-    fireEvent.click(lanternItem);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    expect(screen.queryByText('Lantern')).not.toBeVisible();
-  });
+        const buttonElement = screen.getByTestId('inventory-button');
+        fireEvent.click(buttonElement);
 
-  test('button is enabled after loading', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        // Click item displayed in Sentence Case
+        const swordItem = screen.getByText('Sword');
+        fireEvent.click(swordItem);
 
-    act(() => {
-      jest.runAllTimers();
+        // Callback receives original lowercase value
+        expect(mockOnInventoryClick).toHaveBeenCalledWith('sword');
     });
 
-    const buttonElement = screen.getByTestId('inventory-button');
+    test('closes menu after selecting an item', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    expect(buttonElement).not.toBeDisabled();
-    expect(buttonElement).toBeVisible();
-  });
+        act(() => {
+            jest.runAllTimers();
+        });
 
-  test('renders empty inventory correctly', () => {
-    render(
-      <InventoryButton
-        inventory={[]}
-        inventoryActions={{}}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        const buttonElement = screen.getByTestId('inventory-button');
+        fireEvent.click(buttonElement);
 
-    act(() => {
-      jest.runAllTimers();
+        // Click item displayed in Sentence Case
+        const lanternItem = screen.getByText('Lantern');
+        fireEvent.click(lanternItem);
+
+        expect(screen.queryByText('Lantern')).not.toBeVisible();
     });
 
-    const badge = document.querySelector('.MuiBadge-badge');
-    expect(badge).toBeInTheDocument();
-    expect(badge).toHaveTextContent('0');
+    test('button is enabled after loading', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    fireEvent.click(buttonElement);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    const menuItems = document.querySelectorAll('.MuiMenuItem-root');
-    expect(menuItems.length).toBe(0);
-  });
+        const buttonElement = screen.getByTestId('inventory-button');
 
-  test('shows chevron icon for items with actions', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+        expect(buttonElement).not.toBeDisabled();
+        expect(buttonElement).toBeVisible();
     });
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    fireEvent.click(buttonElement);
+    test('renders empty inventory correctly', () => {
+        render(
+            <InventoryButton
+                inventory={[]}
+                inventoryActions={{}}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Items with actions should show chevron icons
-    const chevronIcons = document.querySelectorAll('[data-testid="ChevronRightIcon"]');
-    expect(chevronIcons.length).toBe(4); // All items have actions
-  });
+        act(() => {
+            jest.runAllTimers();
+        });
 
-  test('opens submenu on hover and calls onActionClick when action is clicked', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={sampleInventoryActions}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        const badge = document.querySelector('.MuiBadge-badge');
+        expect(badge).toBeInTheDocument();
+        expect(badge).toHaveTextContent('0');
 
-    act(() => {
-      jest.runAllTimers();
+        const buttonElement = screen.getByTestId('inventory-button');
+        fireEvent.click(buttonElement);
+
+        const menuItems = document.querySelectorAll('.MuiMenuItem-root');
+        expect(menuItems.length).toBe(0);
     });
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    fireEvent.click(buttonElement);
+    test('shows chevron icon for items with actions', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Hover over the sword item (displayed in Sentence Case)
-    const swordItem = screen.getByText('Sword');
-    fireEvent.mouseEnter(swordItem);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    // Check that submenu actions are displayed (Sentence Case)
-    expect(screen.getByText('Examine sword')).toBeInTheDocument();
-    expect(screen.getByText('Drop sword')).toBeInTheDocument();
+        const buttonElement = screen.getByTestId('inventory-button');
+        fireEvent.click(buttonElement);
 
-    // Click an action
-    fireEvent.click(screen.getByText('Examine sword'));
-
-    // Callback receives original lowercase value
-    expect(mockOnActionClick).toHaveBeenCalledWith('examine sword');
-  });
-
-  test('falls back to inventory array when inventoryActions is empty', () => {
-    render(
-      <InventoryButton
-        inventory={sampleInventory}
-        inventoryActions={{}}
-        onInventoryClick={mockOnInventoryClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+        // Items with actions should show chevron icons
+        const chevronIcons = document.querySelectorAll('[data-testid="ChevronRightIcon"]');
+        expect(chevronIcons.length).toBe(4); // All items have actions
     });
 
-    const badge = document.querySelector('.MuiBadge-badge');
-    expect(badge).toHaveTextContent('4');
+    test('opens submenu on hover and calls onActionClick when action is clicked', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={sampleInventoryActions}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    const buttonElement = screen.getByTestId('inventory-button');
-    fireEvent.click(buttonElement);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    // Items displayed in Sentence Case
-    expect(screen.getByText('Sword')).toBeInTheDocument();
-    expect(screen.getByText('Lantern')).toBeInTheDocument();
-  });
+        const buttonElement = screen.getByTestId('inventory-button');
+        fireEvent.click(buttonElement);
+
+        // Hover over the sword item (displayed in Sentence Case)
+        const swordItem = screen.getByText('Sword');
+        fireEvent.mouseEnter(swordItem);
+
+        // Check that submenu actions are displayed (Sentence Case)
+        expect(screen.getByText('Examine sword')).toBeInTheDocument();
+        expect(screen.getByText('Drop sword')).toBeInTheDocument();
+
+        // Click an action
+        fireEvent.click(screen.getByText('Examine sword'));
+
+        // Callback receives original lowercase value
+        expect(mockOnActionClick).toHaveBeenCalledWith('examine sword');
+    });
+
+    test('falls back to inventory array when inventoryActions is empty', () => {
+        render(
+            <InventoryButton
+                inventory={sampleInventory}
+                inventoryActions={{}}
+                onInventoryClick={mockOnInventoryClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
+
+        act(() => {
+            jest.runAllTimers();
+        });
+
+        const badge = document.querySelector('.MuiBadge-badge');
+        expect(badge).toHaveTextContent('4');
+
+        const buttonElement = screen.getByTestId('inventory-button');
+        fireEvent.click(buttonElement);
+
+        // Items displayed in Sentence Case
+        expect(screen.getByText('Sword')).toBeInTheDocument();
+        expect(screen.getByText('Lantern')).toBeInTheDocument();
+    });
 });

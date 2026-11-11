@@ -21,6 +21,11 @@ internal class ExitSubLocationEngine : IIntentEngine
         if (context.CurrentLocation is ISubLocation currentAsSubLocation)
             return (null, currentAsSubLocation.GetOut(context));
 
+        // Symmetric to EnterSubLocationEngine: resolve only once the noun names one thing (issue #532).
+        var ambiguous = NounDisambiguator.Check(exit.NounOne, context, "exit {0}");
+        if (ambiguous is not null)
+            return (ambiguous, ambiguous.InteractionMessage);
+
         var subLocation = Repository.GetItemInScope(exit.NounOne, context);
         if (subLocation == null)
         {

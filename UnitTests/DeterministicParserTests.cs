@@ -348,3 +348,26 @@ public class DeterministicParserPlanetfallTests
         simple.Noun.Should().Be(noun);
     }
 }
+
+[TestFixture]
+public class DeterministicParserStationfallTests
+{
+    [SetUp]
+    public void Setup()
+    {
+        Repository.Reset();
+    }
+
+    [Test]
+    public void GameWideScenery_ResolvesToASimpleIntent()
+    {
+        // "ceiling" is declared only in StationfallGame.GlobalScenery - on the game, not on any item or
+        // location - so a vocabulary built from GetNouns alone never sees it.
+        var result = new DeterministicParser("Stationfall").Parse("examine the ceiling");
+
+        result.Should().BeOfType<SimpleIntent>();
+        var simple = (SimpleIntent)result!;
+        simple.Verb.Should().Be("examine");
+        simple.Noun.Should().Be("ceiling");
+    }
+}

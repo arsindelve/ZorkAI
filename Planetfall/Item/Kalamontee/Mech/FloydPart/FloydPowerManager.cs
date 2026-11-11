@@ -5,7 +5,7 @@ public class FloydPowerManager(Floyd floyd)
     public InteractionResult Activate(IContext context)
     {
         if (floyd.HasDied)
-            return new PositiveInteractionResult("As you touch Floyd's on-off switch, it falls off in your hands. ");
+            return new PositiveInteractionResult(FloydConstants.ActivateDead);
 
         if (floyd.IsOn)
             return new PositiveInteractionResult("He's already been activated. ");
@@ -34,8 +34,7 @@ public class FloydPowerManager(Floyd floyd)
     public InteractionResult Deactivate(IContext context)
     {
         if (floyd.HasDied)
-            return
-                new PositiveInteractionResult("I'm afraid that Floyd has already been turned off, permanently, and gone to that great robot shop in the sky. ");
+            return new PositiveInteractionResult(FloydConstants.DeactivateDead);
         
         if (!floyd.IsOn)
             return new PositiveInteractionResult("The robot doesn't seem to be on. ");

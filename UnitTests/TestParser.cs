@@ -28,7 +28,10 @@ public class TestParser : IntentParser
             "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
             "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
             "lower", "raise", "get", "carry", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift", "shake",
-            "oil", "lubricate", "cross", "through", "go", "break", "smash", "squeeze", "attack", "kill", "salute"
+            "oil", "lubricate", "cross", "through", "go", "break", "smash", "squeeze", "attack", "kill", "salute",
+            // Ordinary verbs the originals answer for that this parser could not see at all, so any
+            // object handling them looked unimplemented under test while working in play.
+            "pour", "crumple", "taste", "destroy"
         ];
 
         _allNouns = Repository.GetNouns(gameName);
@@ -45,10 +48,19 @@ public class TestParser : IntentParser
             "games", "tapes", "controls", "control panel", "light", "red light", "equipment", "rainbow"
         ];
 
-        _allNouns = _allNouns.Union(specialNouns).ToArray();
+        // Scenery nouns too. Without these the parser is blind to every noun a room advertises but
+        // does not back with an item, so scenery answers to nothing under test while working fine in
+        // play - which made a whole class of content look implemented when it had never been exercised.
+        _allNouns = _allNouns
+            .Union(specialNouns)
+            .Union(Repository.GetSceneryNouns(gameName))
+            .ToArray();
 
-        // Initialize the JSON-based resolver for O(1) lookups
-        _resolver = IntentMappingResolver.ForGame("base");
+        // Initialize the JSON-based resolver for O(1) lookups. This must follow the game, not be
+        // pinned to "base": the loader already supports a per-game overlay that extends base
+        // (IntentMappingLoader.LoadConfigurationInternal), and hardcoding "base" here meant no game
+        // could ever use one. Games without an overlay fall back to base, so this is inert for them.
+        _resolver = IntentMappingResolver.ForGame(gameName);
     }
 
     public override Task<IntentBase> DetermineComplexIntentType(string? input, string locationDescription,

@@ -27,6 +27,30 @@ jobs:
     - name: .NET tests
       run: dotnet test --no-build --verbosity normal
 
+  # Lint + format gate for all web workspaces. Runs on a plain runner (no browsers
+  # needed) so it stays fast. `npm run lint` fans out to every workspace's ESLint
+  # (--max-warnings 0) and `npm run format:check` verifies Prettier formatting, so
+  # any new lint error or unformatted file fails the PR.
+  web-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '24'
+
+    - name: Install workspace dependencies
+      run: npm ci --legacy-peer-deps
+
+    - name: ESLint (all web workspaces)
+      run: npm run lint
+
+    - name: Prettier formatting check
+      run: npm run format:check
+
   # Web jobs run inside the official Playwright image: browsers + all OS deps are
   # preinstalled (at /ms-playwright), so there is no `playwright install` download
   # step that can hang. The image tag MUST match the @playwright/test version in

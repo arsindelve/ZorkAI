@@ -6,6 +6,7 @@ using GameEngine.Item;
 using Model.AIGeneration;
 using Model.AIParsing;
 using Model.Interface;
+using Model.Location;
 using Moq;
 using ZorkOne;
 using ZorkOne.GlobalCommand;
@@ -51,6 +52,34 @@ public class EngineTestsBase : EngineTestsBaseCommon<ZorkIContext>
         return engine;
     }
     
+    /// <summary>
+    ///     An engine wired to the real <see cref="IntentParser" /> (over a no-op AI parser) instead of the
+    ///     TestParser, so the global-command factory — score/look/inventory/quit/restart/diagnose and the
+    ///     bare "take" prompt — runs its production matching. This one line used to open nearly every
+    ///     global-command test.
+    /// </summary>
+    protected GameEngine<ZorkI, ZorkIContext> GetTargetWithRealParser()
+    {
+        return GetTarget(new IntentParser(Mock.Of<IAIParser>(), new ZorkOneGlobalCommandFactory()));
+    }
+
+    /// <summary>
+    ///     Builds an engine already standing in <typeparamref name="TLocation" /> carrying a lit lantern.
+    ///     Almost every underground-room test needs exactly this, and the state MUST be applied after
+    ///     GetTarget() — GetTarget calls Repository.Reset(), which rebuilds every location singleton from
+    ///     its Init() (e.g. ReservoirSouth.Init() sets IsFull = true), silently undoing anything set earlier.
+    /// </summary>
+    protected GameEngine<ZorkI, ZorkIContext> GetLitTargetAt<TLocation>(IIntentParser? parser = null)
+        where TLocation : class, ILocation, new()
+    {
+        var target = GetTarget(parser);
+        target.Context.CurrentLocation = Repository.GetLocation<TLocation>();
+        var lantern = Repository.GetItem<Lantern>();
+        target.Context.Take(lantern);
+        lantern.IsOn = true;
+        return target;
+    }
+
     /// <summary>
     /// Stands in for the real AI take/drop list parser. A multi-item command ("drop lamp and sword")
     /// is split on "and"/commas into its individual nouns, mirroring what the LLM does; a single-item

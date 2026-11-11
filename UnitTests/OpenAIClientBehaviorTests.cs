@@ -86,6 +86,30 @@ public class ChatGPTClientBehaviorTests
             It.IsAny<ChatCompletionOptions>()), Times.Once);
     }
 
+    // NormalizeQuotes is the client's output-sanitizing step: the model likes to emit typographic
+    // quotes, which then leak into a game whose text is otherwise plain ASCII. Merged in from the
+    // former standalone ChatGPTClientTests.
+    [Test]
+    public void NormalizeQuotes_ConvertsCurlyDoubleQuotes_ToStraight()
+    {
+        var input = "Floyd points. “This one is broken.”";
+        ChatGPTClient.NormalizeQuotes(input).Should().Be("Floyd points. \"This one is broken.\"");
+    }
+
+    [Test]
+    public void NormalizeQuotes_ConvertsCurlyApostrophes_ToStraight()
+    {
+        ChatGPTClient.NormalizeQuotes("Floyd’s gears feel creaky.")
+            .Should().Be("Floyd's gears feel creaky.");
+    }
+
+    [Test]
+    public void NormalizeQuotes_LeavesStraightQuotesUntouched()
+    {
+        const string already = "Floyd asks, \"What's that?\"";
+        ChatGPTClient.NormalizeQuotes(already).Should().Be(already);
+    }
+
     private static Mock<IChatCompletionClient> CompletionReturning(string response)
     {
         var completion = new Mock<IChatCompletionClient>();
@@ -187,6 +211,41 @@ public class OpenAIParsingBehaviorTests
     }
 
     [Test]
+    public async Task Parser_WhenTheServerRejectsTheJsonSchemaFormat_RetriesWithoutItAndStillParses()
+    {
+        // Self-hosted OpenAI-compatible servers (issue #383) may reject a json_schema response format
+        // outright. The parser must retry once without it - as OpenAITakeAndDropListParser does - rather
+        // than throw, and the free-form reply then arrives wrapped in code fences.
+        var completion = new Mock<IChatCompletionClient>();
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
+                It.Is<ChatCompletionOptions>(o => o.ResponseFormat != null)))
+            .ThrowsAsync(new InvalidOperationException("response_format json_schema is not supported"));
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
+                It.Is<ChatCompletionOptions>(o => o.ResponseFormat == null)))
+            .ReturnsAsync("```json\n{\"intent\":\"move\",\"verb\":\"walk\",\"nouns\":[],\"preposition\":null," +
+                          "\"direction\":\"north\",\"adjective\":null}\n```");
+        var target = new OpenAIParser(null, completion.Object);
+
+        var result = await target.AskTheAIParser("head north", "A corridor", "session");
+
+        result.Should().BeOfType<MoveIntent>().Which.Direction.Should().Be(Direction.N);
+    }
+
+    [Test]
+    public async Task Parser_ToleratesProseAndCodeFencesAroundTheJson()
+    {
+        // A local model that honours the format can still wrap the object in fences and chatter.
+        var completion = CompletionReturning(
+            "Here is the parse:\n```json\n{\"intent\":\"move\",\"verb\":\"walk\",\"nouns\":[]," +
+            "\"preposition\":null,\"direction\":\"north\",\"adjective\":null}\n```");
+        var target = new OpenAIParser(null, completion.Object);
+
+        var result = await target.AskTheAIParser("head north", "A corridor", "session");
+
+        result.Should().BeOfType<MoveIntent>().Which.Direction.Should().Be(Direction.N);
+    }
+
+    [Test]
     public async Task TakeAndDropParser_DeserializesItemsAndBuildsTheCorrectPrompt()
     {
         IReadOnlyList<ChatMessage>? messages = null;
@@ -226,38 +285,75 @@ public class OpenAIParsingBehaviorTests
 }
 
 [TestFixture]
-public class OpenAiHintLanguageModelBehaviorTests
+public class OpenAiHintOracleBehaviorTests
 {
+    private static readonly HintPersona Persona = new("Be dry.", "Testfall");
+
     [Test]
-    public async Task Solve_IncludesKnowledgeContextHistoryAndQuestion()
+    public async Task Answer_PutsTheStaticKnowledgeFirst_AndThePlayerLast()
     {
         IReadOnlyList<ChatMessage>? messages = null;
         var completion = new Mock<IChatCompletionClient>();
         completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
                 It.IsAny<ChatCompletionOptions>()))
             .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
-            .ReturnsAsync("Use the ladder.");
-        var target = new OpenAiHintLanguageModel(null, completion.Object);
+            .ReturnsAsync("  Look at the ladder.  ");
+        var target = new OpenAiHintOracle(null, completion.Object);
 
-        var result = await target.Solve("ladder docs", "at the rift",
-            [new HintExchange("Where next?", "Look around.")], "How do I cross?", new HintPersona("Be dry."));
+        var result = await target.Answer("THE BIBLE", Persona, "Location: the rift",
+            [new HintExchange("Where next?", "Look around.")], "How do I cross?");
 
-        result.Should().Be("Use the ladder.");
-        messages![1].Content[0].Text.Should().Contain("ladder docs").And.Contain("at the rift")
-            .And.Contain("Where next?").And.Contain("How do I cross?");
+        result.Should().Be("Look at the ladder.");
+        var system = messages![0].Content[0].Text;
+        system.Should().StartWith("Be dry.");
+        system.Should().Contain(OpenAiHintOracle.Brief);
+        system.Should().Contain("GAME KNOWLEDGE: Testfall");
+        system.Should().EndWith("THE BIBLE"); // the cacheable prefix holds nothing about this player
+        system.Should().NotContain("the rift");
+
+        var user = messages[1].Content[0].Text;
+        user.Should().Contain("Location: the rift");
+        user.Should().Contain("PLAYER: Where next?").And.Contain("YOU: Look around.");
+        user.Should().Contain("How do I cross?");
+        user.IndexOf("SITUATION", StringComparison.Ordinal).Should().BeLessThan(user.IndexOf("How do I cross?", StringComparison.Ordinal));
     }
 
     [Test]
-    public async Task Reveal_WhenProviderFails_ReturnsCompleteSolution()
+    public async Task Answer_AnEmptyQuestion_IsTheHintButton()
     {
+        IReadOnlyList<ChatMessage>? messages = null;
         var completion = new Mock<IChatCompletionClient>();
-        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
-                It.IsAny<ChatCompletionOptions>()))
-            .ThrowsAsync(new InvalidOperationException("offline"));
-        var target = new OpenAiHintLanguageModel(Mock.Of<ILogger>(), completion.Object);
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .Callback<IReadOnlyList<ChatMessage>, ChatCompletionOptions>((m, _) => messages = m)
+            .ReturnsAsync("A nudge.");
 
-        var result = await target.Reveal("at the rift", "Use the ladder", [], "More?", new HintPersona("Be dry."));
+        await new OpenAiHintOracle(null, completion.Object).Answer("B", Persona, "S", [], "");
 
-        result.Should().Be("Use the ladder");
+        messages![1].Content[0].Text.Should().Contain("pressed the hint button");
+        messages[1].Content[0].Text.Should().Contain("first thing they have asked");
+    }
+
+    [Test]
+    public async Task Answer_FailsClosed()
+    {
+        var failing = new Mock<IChatCompletionClient>();
+        failing.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+        (await new OpenAiHintOracle(Mock.Of<ILogger>(), failing.Object) { RetryDelay = TimeSpan.Zero }
+            .Answer("B", Persona, "S", [], "q")).Should().BeNull();
+        failing.Verify(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()),
+            Times.Exactly(2)); // one retry, then decline
+
+        var flaky = new Mock<IChatCompletionClient>();
+        flaky.SetupSequence(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ThrowsAsync(new InvalidOperationException("429"))
+            .ReturnsAsync("A nudge.");
+        (await new OpenAiHintOracle(Mock.Of<ILogger>(), flaky.Object) { RetryDelay = TimeSpan.Zero }
+            .Answer("B", Persona, "S", [], "q")).Should().Be("A nudge."); // the retry can succeed
+
+        var empty = new Mock<IChatCompletionClient>();
+        empty.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(), It.IsAny<ChatCompletionOptions>()))
+            .ReturnsAsync("   ");
+        (await new OpenAiHintOracle(null, empty.Object).Answer("B", Persona, "S", [], "q")).Should().BeNull();
     }
 }

@@ -269,6 +269,89 @@ public class KitchenAndCanteenTests : EngineTestsBase
     // TODO: drink dont have it
 
     [Test]
+    public async Task ExamineMachine_EmptyNiche_DescribesAnEmptyNiche()
+    {
+        // Issue #504: the empty-niche wording must not leak the canteen sentence. Both fixed halves
+        // of the original description stay put; only the middle sentence is conditional.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var response = await target.GetResponse("examine machine");
+
+        response.Should().Contain("This wall-mounted unit contains an octagonal niche beneath a spout");
+        response.Should().Contain("Above the spout is a button");
+        response.Should().Contain("Hii Prooteen Likwid Dispensur");
+        response.Should().NotContain("canteen");
+    }
+
+    [Test]
+    public async Task ExamineMachine_CanteenInNiche_MentionsTheCanteen()
+    {
+        // Issue #504: examining the machine used to return a constant, so it described an empty niche
+        // even with the canteen resting in it - contradicting the room listing in the very same turn.
+        // The original splices a canteen sentence between the two fixed halves.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        GetItem<KitchenMachine>().ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("examine machine");
+
+        response.Should().Contain("A canteen is resting in the niche, its mouth lying just below the spout");
+        response.Should().Contain("This wall-mounted unit contains an octagonal niche beneath a spout");
+        response.Should().Contain("Above the spout is a button");
+        response.Should().Contain("Hii Prooteen Likwid Dispensur");
+    }
+
+    [Test]
+    public async Task ExamineNiche_CanteenInNiche_MentionsTheCanteen()
+    {
+        // Issue #504: "examine niche" is the natural "where did my canteen go?" follow-up and routes to
+        // the same description, so it must admit what is in the niche too.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        GetItem<KitchenMachine>().ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("examine niche");
+
+        response.Should().Contain("A canteen is resting in the niche, its mouth lying just below the spout");
+    }
+
+    [Test]
+    public async Task LookInNiche_CanteenInNiche_MentionsTheCanteen()
+    {
+        // Issue #504: the machine is transparent (TRANSBIT in the original), so looking into the niche
+        // must reveal the canteen rather than repeating the empty-niche constant.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        GetItem<KitchenMachine>().ItemPlacedHere<Canteen>();
+
+        var response = await target.GetResponse("look in niche");
+
+        response.Should().Contain("canteen");
+    }
+
+    [Test]
+    public async Task PutCanteenInNiche_ThenExamineMachine_AgreesWithTheRoomDescription()
+    {
+        // Issue #504: the defect was a self-contradiction inside a single turn - "look" reported the
+        // canteen while "examine machine" denied it. Whenever the niche holds something, both views
+        // must agree. This is the assertion that would have caught the bug from the start, and it
+        // generalises to the #438 family of descriptions asserting a mutable fact as a literal.
+        var target = GetTarget();
+        StartHere<Kitchen>();
+        target.Context.ItemPlacedHere<Canteen>();
+
+        await target.GetResponse("put canteen in niche");
+        GetItem<KitchenMachine>().Items.Should().NotBeEmpty();
+
+        var roomDescription = await target.GetResponse("look");
+        var examineDescription = await target.GetResponse("examine machine");
+
+        roomDescription.Should().Contain("canteen");
+        examineDescription.Should().Contain("canteen");
+    }
+
+    [Test]
     public async Task PutBrushInCanteen_TypeRefusal_NamesTheItem_AndIsNotBlank()
     {
         var target = GetTarget();
@@ -284,5 +367,19 @@ public class KitchenAndCanteenTests : EngineTestsBase
         response.Should().NotBeNullOrWhiteSpace();
         response.Should().Contain("brush");
         GetItem<Canteen>().Items.Should().BeEmpty();
+    }
+
+    // Same stray mid-sentence "\n" artifact fixed in the Booth 1/2 descriptions under issue #520 -
+    // an identical "labelled\n" break, here in the dispenser's examination text.
+    [Test]
+    public async Task KitchenMachine_Description_HasNoStrayMidSentenceLineBreak()
+    {
+        var target = GetTarget();
+        StartHere<Kitchen>();
+
+        var response = await target.GetResponse("examine machine");
+
+        response.Should().Contain("The machine is labelled \"Hii Prooteen Likwid Dispensur.\"");
+        response.Should().NotContain("labelled\n");
     }
 }

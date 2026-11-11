@@ -1,4 +1,5 @@
 {
-  "base_url": "http://localhost:5000/ZorkOne",
-  "version": "0.2.12"
+    "base_url": "http://localhost:5000/ZorkOne",
+    "version": "0.2.12",
+    "hints_enabled": false
 }

@@ -1,17 +1,17 @@
-import React from "react";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
-import Button from "@mui/material/Button";
-import { Typography, Paper, Box, Divider, Skeleton } from "@mui/material";
+import React from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import {Typography, Paper, Box, Divider, Skeleton} from '@mui/material';
 import UpdateIcon from '@mui/icons-material/Update';
 
 /**
  * Decodes HTML entities in the release notes.
  */
 const decodeHTML = (html: string) => {
-    const txt = document.createElement("textarea");
+    const txt = document.createElement('textarea');
     txt.innerHTML = html;
     return txt.value;
 };
@@ -19,42 +19,43 @@ const decodeHTML = (html: string) => {
 const ReleaseNotesModal: React.FC<{
     open: boolean;
     handleClose: () => void;
-    releases: { date: string; name: string; notes: string }[];
+    releases: {date: string; name: string; notes: string}[];
     gameName: string;
-}> = ({ open, handleClose, releases, gameName }) => {
-
+}> = ({open, handleClose, releases, gameName}) => {
     // Function to render loading skeletons
     const renderSkeletons = () => {
-        return Array(3).fill(0).map((_, index) => (
-            <Paper
-                key={`skeleton-${index}`}
-                elevation={2}
-                sx={{
-                    p: 3,
-                    mb: 3,
-                    borderRadius: '8px',
-                    bgcolor: 'background.paper',
-                }}
-            >
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Skeleton variant="circular" width={24} height={24} sx={{ mr: 1 }} />
-                    <Skeleton variant="text" width={200} height={32} />
-                    <Skeleton variant="text" width={120} height={24} sx={{ ml: 2 }} />
-                </Box>
+        return Array(3)
+            .fill(0)
+            .map((_, index) => (
+                <Paper
+                    key={`skeleton-${index}`}
+                    elevation={2}
+                    sx={{
+                        p: 3,
+                        mb: 3,
+                        borderRadius: '8px',
+                        bgcolor: 'background.paper',
+                    }}
+                >
+                    <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
+                        <Skeleton variant="circular" width={24} height={24} sx={{mr: 1}} />
+                        <Skeleton variant="text" width={200} height={32} />
+                        <Skeleton variant="text" width={120} height={24} sx={{ml: 2}} />
+                    </Box>
 
-                <Skeleton variant="text" width="100%" height={20} />
-                <Skeleton variant="text" width="95%" height={20} />
-                <Skeleton variant="text" width="90%" height={20} />
-                <Skeleton variant="text" width="97%" height={20} />
-                <Skeleton variant="text" width="85%" height={20} />
+                    <Skeleton variant="text" width="100%" height={20} />
+                    <Skeleton variant="text" width="95%" height={20} />
+                    <Skeleton variant="text" width="90%" height={20} />
+                    <Skeleton variant="text" width="97%" height={20} />
+                    <Skeleton variant="text" width="85%" height={20} />
 
-                <Box sx={{ mt: 2 }}>
-                    <Skeleton variant="text" width="92%" height={20} />
-                    <Skeleton variant="text" width="88%" height={20} />
-                    <Skeleton variant="text" width="94%" height={20} />
-                </Box>
-            </Paper>
-        ));
+                    <Box sx={{mt: 2}}>
+                        <Skeleton variant="text" width="92%" height={20} />
+                        <Skeleton variant="text" width="88%" height={20} />
+                        <Skeleton variant="text" width="94%" height={20} />
+                    </Box>
+                </Paper>
+            ));
     };
 
     return (
@@ -68,7 +69,7 @@ const ReleaseNotesModal: React.FC<{
                 style: {
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    maxHeight: '90vh'
+                    maxHeight: '90vh',
                 },
             }}
         >
@@ -80,7 +81,7 @@ const ReleaseNotesModal: React.FC<{
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1,
-                    py: 2
+                    py: 2,
                 }}
             >
                 <UpdateIcon fontSize="large" />
@@ -89,13 +90,11 @@ const ReleaseNotesModal: React.FC<{
                 </Typography>
             </DialogTitle>
 
-            <DialogContent sx={{ p: 3, pb: 1 }}>
+            <DialogContent sx={{p: 3, pb: 1}}>
                 {releases.length === 0 ? (
-                    <Box sx={{ pt: 2, pb: 2 }}>
-                        {renderSkeletons()}
-                    </Box>
+                    <Box sx={{pt: 2, pb: 2}}>{renderSkeletons()}</Box>
                 ) : (
-                    <Box sx={{ pt: 1 }}>
+                    <Box sx={{pt: 1}}>
                         {releases.map((release) => (
                             <Paper
                                 key={release.date}
@@ -108,8 +107,8 @@ const ReleaseNotesModal: React.FC<{
                                     transition: 'all 0.2s',
                                     '&:hover': {
                                         transform: 'translateY(-2px)',
-                                        boxShadow: 4
-                                    }
+                                        boxShadow: 4,
+                                    },
                                 }}
                             >
                                 <Typography
@@ -119,7 +118,7 @@ const ReleaseNotesModal: React.FC<{
                                         mb: 1,
                                         color: 'grey.800',
                                         display: 'flex',
-                                        alignItems: 'center'
+                                        alignItems: 'center',
                                     }}
                                 >
                                     {release.name}
@@ -129,20 +128,20 @@ const ReleaseNotesModal: React.FC<{
                                         sx={{
                                             ml: 2,
                                             color: 'text.secondary',
-                                            fontWeight: 'normal'
+                                            fontWeight: 'normal',
                                         }}
                                     >
                                         {new Date(release.date).toLocaleDateString()}
                                     </Typography>
                                 </Typography>
 
-                                <Divider sx={{ mb: 2 }} />
+                                <Divider sx={{mb: 2}} />
 
                                 <Box
                                     dangerouslySetInnerHTML={{__html: decodeHTML(release.notes)}}
                                     sx={{
-                                        whiteSpace: "normal",
-                                        wordWrap: "break-word",
+                                        whiteSpace: 'normal',
+                                        wordWrap: 'break-word',
                                         color: 'grey.800',
                                         fontSize: '1rem',
                                         lineHeight: 1.6,
@@ -150,41 +149,41 @@ const ReleaseNotesModal: React.FC<{
                                             pl: 4,
                                             mb: 2,
                                             listStyleType: 'disc',
-                                            listStylePosition: 'outside'
+                                            listStylePosition: 'outside',
                                         },
                                         '& ol': {
                                             pl: 4,
                                             mb: 2,
                                             listStyleType: 'decimal',
-                                            listStylePosition: 'outside'
+                                            listStylePosition: 'outside',
                                         },
                                         '& li': {
                                             mb: 0.5,
                                             ml: 0,
-                                            display: 'list-item'
+                                            display: 'list-item',
                                         },
                                         '& h2': {
                                             fontSize: '1.25rem',
                                             fontWeight: 'bold',
                                             mt: 2,
-                                            mb: 1
+                                            mb: 1,
                                         },
                                         '& h3': {
                                             fontSize: '1.1rem',
                                             fontWeight: 'bold',
                                             mt: 1.5,
-                                            mb: 1
+                                            mb: 1,
                                         },
                                         '& p': {
-                                            mb: 1
+                                            mb: 1,
                                         },
                                         '& a': {
                                             color: 'primary.main',
                                             textDecoration: 'none',
                                             '&:hover': {
-                                                textDecoration: 'underline'
-                                            }
-                                        }
+                                                textDecoration: 'underline',
+                                            },
+                                        },
                                     }}
                                 />
                             </Paper>
@@ -193,7 +192,7 @@ const ReleaseNotesModal: React.FC<{
                 )}
             </DialogContent>
 
-            <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
+            <DialogActions sx={{p: 2, bgcolor: 'grey.100'}}>
                 <Button
                     onClick={handleClose}
                     variant="outlined"
@@ -204,8 +203,8 @@ const ReleaseNotesModal: React.FC<{
                         color: 'grey.800',
                         '&:hover': {
                             borderColor: 'grey.800',
-                            bgcolor: 'grey.100'
-                        }
+                            bgcolor: 'grey.100',
+                        },
                     }}
                 >
                     Close

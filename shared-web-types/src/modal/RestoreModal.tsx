@@ -1,27 +1,26 @@
-import {ISavedGame} from "../SavedGame";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
+import {ISavedGame} from '../SavedGame';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 import moment from 'moment';
-import {useGameContext} from "../context/GameContext";
+import {useGameContext} from '../context/GameContext';
 import RestoreIcon from '@mui/icons-material/Restore';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Typography, Paper, Box, Divider, IconButton } from "@mui/material";
-import React, { useState } from "react";
-import ConfirmationDialog from "./ConfirmationDialog";
+import {Typography, Paper, Box, Divider, IconButton} from '@mui/material';
+import React, {useState} from 'react';
+import ConfirmationDialog from './ConfirmationDialog';
 
 interface RestoreModalProps {
     open: boolean;
     setOpen: (open: boolean) => void;
-    games: ISavedGame[]
+    games: ISavedGame[];
 }
 
 function RestoreModal(props: RestoreModalProps) {
-
     const {setRestoreGameRequest, setDeleteGameRequest} = useGameContext();
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [gameToDelete, setGameToDelete] = useState<ISavedGame | null>(null);
@@ -54,7 +53,7 @@ function RestoreModal(props: RestoreModalProps) {
     return (
         <Dialog
             data-testid="restore-game-modal"
-            maxWidth={"md"}
+            maxWidth={'md'}
             open={props.open}
             fullWidth={true}
             aria-labelledby="alert-dialog-title"
@@ -62,8 +61,8 @@ function RestoreModal(props: RestoreModalProps) {
             PaperProps={{
                 style: {
                     borderRadius: '12px',
-                    overflow: 'hidden'
-                }
+                    overflow: 'hidden',
+                },
             }}
         >
             <DialogTitle
@@ -74,7 +73,7 @@ function RestoreModal(props: RestoreModalProps) {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1,
-                    py: 2
+                    py: 2,
                 }}
             >
                 <RestoreIcon fontSize="large" />
@@ -84,8 +83,8 @@ function RestoreModal(props: RestoreModalProps) {
             </DialogTitle>
 
             {!props.games.length && (
-                <Box sx={{ p: 4, textAlign: 'center' }}>
-                    <SportsEsportsIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+                <Box sx={{p: 4, textAlign: 'center'}}>
+                    <SportsEsportsIcon sx={{fontSize: 60, color: 'text.secondary', mb: 2}} />
                     <Typography variant="h6" color="text.secondary">
                         You don't have any previously saved games.
                     </Typography>
@@ -93,11 +92,13 @@ function RestoreModal(props: RestoreModalProps) {
             )}
 
             {props.games.length > 0 && (
-                <DialogContent sx={{ maxHeight: '60vh', p: 3 }}>
+                <DialogContent sx={{maxHeight: '60vh', p: 3}}>
+                    <Divider sx={{mb: 3}} />
 
-                    <Divider sx={{ mb: 3 }} />
-
-                    <Box data-testid="restore-game-list" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box
+                        data-testid="restore-game-list"
+                        sx={{display: 'flex', flexDirection: 'column', gap: 2}}
+                    >
                         {props.games.map((game) => (
                             <Paper
                                 data-testid="restore-game-item"
@@ -109,37 +110,59 @@ function RestoreModal(props: RestoreModalProps) {
                                     transition: 'all 0.2s',
                                     '&:hover': {
                                         transform: 'translateY(-2px)',
-                                        boxShadow: 4
-                                    }
+                                        boxShadow: 4,
+                                    },
                                 }}
                             >
-                                <Box sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
-                                }}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
-                                        <Typography variant="h6" fontWeight="bold" sx={{ color: 'grey.800' }}>
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 1,
+                                            flex: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="h6"
+                                            fontWeight="bold"
+                                            sx={{color: 'grey.800'}}
+                                        >
                                             {game.name}
                                         </Typography>
 
-                                        <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
-                                            <AccessTimeIcon fontSize="small" sx={{ mr: 1 }} />
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                color: 'text.secondary',
+                                            }}
+                                        >
+                                            <AccessTimeIcon fontSize="small" sx={{mr: 1}} />
                                             <Typography variant="body2">
-                                                {moment.utc(game.date).local().format('MMMM Do, h:mm a')}
+                                                {moment
+                                                    .utc(game.date)
+                                                    .local()
+                                                    .format('MMMM Do, h:mm a')}
                                             </Typography>
                                         </Box>
                                     </Box>
 
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
                                         <IconButton
                                             onClick={(e) => handleDeleteClick(game, e)}
                                             sx={{
                                                 color: 'error.main',
                                                 '&:hover': {
                                                     bgcolor: 'error.light',
-                                                    color: 'error.contrastText'
-                                                }
+                                                    color: 'error.contrastText',
+                                                },
                                             }}
                                             title="Delete saved game"
                                         >
@@ -155,8 +178,8 @@ function RestoreModal(props: RestoreModalProps) {
                                                 px: 2,
                                                 bgcolor: 'grey.800',
                                                 '&:hover': {
-                                                    bgcolor: 'grey.700'
-                                                }
+                                                    bgcolor: 'grey.700',
+                                                },
                                             }}
                                         >
                                             Restore
@@ -169,7 +192,7 @@ function RestoreModal(props: RestoreModalProps) {
                 </DialogContent>
             )}
 
-            <DialogActions sx={{ p: 2, bgcolor: 'grey.100' }}>
+            <DialogActions sx={{p: 2, bgcolor: 'grey.100'}}>
                 <Button
                     onClick={() => handleClose(undefined)}
                     variant="outlined"
@@ -180,8 +203,8 @@ function RestoreModal(props: RestoreModalProps) {
                         color: 'grey.800',
                         '&:hover': {
                             borderColor: 'grey.800',
-                            bgcolor: 'grey.100'
-                        }
+                            bgcolor: 'grey.100',
+                        },
                     }}
                 >
                     Cancel

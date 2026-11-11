@@ -26,6 +26,20 @@ public interface IContext : ICanContainItems
     List<T> GetItems<T>();
 
     /// <summary>
+    /// Determines whether the adventurer is carrying an item of the given type, including nested inside
+    /// any container they carry or wear (the Patrol uniform pocket, a sack, and so on).
+    /// </summary>
+    /// <remarks>
+    /// Prefer this over <see cref="ICanContainItems.HasItem{T}" /> when gating a player action on
+    /// possession. HasItem is flat - top level of inventory only - so a pocketed item fails it and the
+    /// action falls silently through to the narrator (issue #503). Use HasItem only when you genuinely
+    /// mean "in your hands, not in a container".
+    /// </remarks>
+    /// <typeparam name="TItem">The type of item to look for.</typeparam>
+    /// <returns>True if the item is carried, directly or nested; otherwise false.</returns>
+    bool IsCarrying<TItem>() where TItem : IItem, new();
+
+    /// <summary>
     /// Sometimes, a major event in the game will change the circumstances so drastically that we need to update the
     /// system prompt with this new information. For example, after the explosion of the Feinstein in Planetfall, we no
     /// longer want the AI to think the player is in space. 

@@ -1,225 +1,225 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import {render, screen, fireEvent, act} from '@testing-library/react';
 import {LocationButton} from '@zork-ai/shared-types';
 
 describe('LocationButton Component', () => {
-  const mockOnItemClick = jest.fn();
-  const mockOnActionClick = jest.fn();
-  const sampleLocationActions: Record<string, string[]> = {
-    'console': ['examine console', 'use console'],
-    'door': ['open door', 'examine door'],
-    'panel': ['examine panel', 'press panel'],
-    'window': ['look through window', 'examine window']
-  };
+    const mockOnItemClick = jest.fn();
+    const mockOnActionClick = jest.fn();
+    const sampleLocationActions: Record<string, string[]> = {
+        console: ['examine console', 'use console'],
+        door: ['open door', 'examine door'],
+        panel: ['examine panel', 'press panel'],
+        window: ['look through window', 'examine window'],
+    };
 
-  beforeEach(() => {
-    mockOnItemClick.mockClear();
-    mockOnActionClick.mockClear();
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  test('renders the location button', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+    beforeEach(() => {
+        mockOnItemClick.mockClear();
+        mockOnActionClick.mockClear();
+        jest.useFakeTimers();
     });
 
-    const buttonElement = screen.getByTestId('location-button');
-    expect(buttonElement).toBeInTheDocument();
-    expect(buttonElement).toHaveTextContent('Location');
-  });
-
-  test('displays the correct badge count', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+    afterEach(() => {
+        jest.useRealTimers();
     });
 
-    const badge = document.querySelector('.MuiBadge-badge');
-    expect(badge).toBeInTheDocument();
-    expect(badge).toHaveTextContent('4');
-  });
+    test('renders the location button', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-  test('opens menu when clicked', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    act(() => {
-      jest.runAllTimers();
+        const buttonElement = screen.getByTestId('location-button');
+        expect(buttonElement).toBeInTheDocument();
+        expect(buttonElement).toHaveTextContent('Location');
     });
 
-    const buttonElement = screen.getByTestId('location-button');
-    fireEvent.click(buttonElement);
+    test('displays the correct badge count', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Items displayed in Sentence Case
-    expect(screen.getByText('Console')).toBeInTheDocument();
-    expect(screen.getByText('Door')).toBeInTheDocument();
-    expect(screen.getByText('Panel')).toBeInTheDocument();
-    expect(screen.getByText('Window')).toBeInTheDocument();
-  });
+        act(() => {
+            jest.runAllTimers();
+        });
 
-  test('calls onItemClick when an item is clicked', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+        const badge = document.querySelector('.MuiBadge-badge');
+        expect(badge).toBeInTheDocument();
+        expect(badge).toHaveTextContent('4');
     });
 
-    const buttonElement = screen.getByTestId('location-button');
-    fireEvent.click(buttonElement);
+    test('opens menu when clicked', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Click item displayed in Sentence Case
-    const consoleItem = screen.getByText('Console');
-    fireEvent.click(consoleItem);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    // Callback receives original lowercase value
-    expect(mockOnItemClick).toHaveBeenCalledWith('console');
-  });
+        const buttonElement = screen.getByTestId('location-button');
+        fireEvent.click(buttonElement);
 
-  test('closes menu after selecting an item', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+        // Items displayed in Sentence Case
+        expect(screen.getByText('Console')).toBeInTheDocument();
+        expect(screen.getByText('Door')).toBeInTheDocument();
+        expect(screen.getByText('Panel')).toBeInTheDocument();
+        expect(screen.getByText('Window')).toBeInTheDocument();
     });
 
-    const buttonElement = screen.getByTestId('location-button');
-    fireEvent.click(buttonElement);
+    test('calls onItemClick when an item is clicked', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Click item displayed in Sentence Case
-    const doorItem = screen.getByText('Door');
-    fireEvent.click(doorItem);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    expect(screen.queryByText('Door')).not.toBeVisible();
-  });
+        const buttonElement = screen.getByTestId('location-button');
+        fireEvent.click(buttonElement);
 
-  test('button is enabled after loading', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        // Click item displayed in Sentence Case
+        const consoleItem = screen.getByText('Console');
+        fireEvent.click(consoleItem);
 
-    act(() => {
-      jest.runAllTimers();
+        // Callback receives original lowercase value
+        expect(mockOnItemClick).toHaveBeenCalledWith('console');
     });
 
-    const buttonElement = screen.getByTestId('location-button');
+    test('closes menu after selecting an item', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    expect(buttonElement).not.toBeDisabled();
-    expect(buttonElement).toBeVisible();
-  });
+        act(() => {
+            jest.runAllTimers();
+        });
 
-  test('renders empty location correctly', () => {
-    render(
-      <LocationButton
-        locationActions={{}}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        const buttonElement = screen.getByTestId('location-button');
+        fireEvent.click(buttonElement);
 
-    act(() => {
-      jest.runAllTimers();
+        // Click item displayed in Sentence Case
+        const doorItem = screen.getByText('Door');
+        fireEvent.click(doorItem);
+
+        expect(screen.queryByText('Door')).not.toBeVisible();
     });
 
-    const badge = document.querySelector('.MuiBadge-badge');
-    expect(badge).toBeInTheDocument();
-    expect(badge).toHaveTextContent('0');
+    test('button is enabled after loading', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    const buttonElement = screen.getByTestId('location-button');
-    fireEvent.click(buttonElement);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    const menuItems = document.querySelectorAll('.MuiMenuItem-root');
-    expect(menuItems.length).toBe(0);
-  });
+        const buttonElement = screen.getByTestId('location-button');
 
-  test('shows chevron icon for items with actions', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
-
-    act(() => {
-      jest.runAllTimers();
+        expect(buttonElement).not.toBeDisabled();
+        expect(buttonElement).toBeVisible();
     });
 
-    const buttonElement = screen.getByTestId('location-button');
-    fireEvent.click(buttonElement);
+    test('renders empty location correctly', () => {
+        render(
+            <LocationButton
+                locationActions={{}}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Items with actions should show chevron icons
-    const chevronIcons = document.querySelectorAll('[data-testid="ChevronRightIcon"]');
-    expect(chevronIcons.length).toBe(4); // All items have actions
-  });
+        act(() => {
+            jest.runAllTimers();
+        });
 
-  test('opens submenu on hover and calls onActionClick when action is clicked', () => {
-    render(
-      <LocationButton
-        locationActions={sampleLocationActions}
-        onItemClick={mockOnItemClick}
-        onActionClick={mockOnActionClick}
-      />
-    );
+        const badge = document.querySelector('.MuiBadge-badge');
+        expect(badge).toBeInTheDocument();
+        expect(badge).toHaveTextContent('0');
 
-    act(() => {
-      jest.runAllTimers();
+        const buttonElement = screen.getByTestId('location-button');
+        fireEvent.click(buttonElement);
+
+        const menuItems = document.querySelectorAll('.MuiMenuItem-root');
+        expect(menuItems.length).toBe(0);
     });
 
-    const buttonElement = screen.getByTestId('location-button');
-    fireEvent.click(buttonElement);
+    test('shows chevron icon for items with actions', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
 
-    // Hover over the console item (displayed in Sentence Case)
-    const consoleItem = screen.getByText('Console');
-    fireEvent.mouseEnter(consoleItem);
+        act(() => {
+            jest.runAllTimers();
+        });
 
-    // Check that submenu actions are displayed (Sentence Case)
-    expect(screen.getByText('Examine console')).toBeInTheDocument();
-    expect(screen.getByText('Use console')).toBeInTheDocument();
+        const buttonElement = screen.getByTestId('location-button');
+        fireEvent.click(buttonElement);
 
-    // Click an action
-    fireEvent.click(screen.getByText('Examine console'));
+        // Items with actions should show chevron icons
+        const chevronIcons = document.querySelectorAll('[data-testid="ChevronRightIcon"]');
+        expect(chevronIcons.length).toBe(4); // All items have actions
+    });
 
-    // Callback receives original lowercase value
-    expect(mockOnActionClick).toHaveBeenCalledWith('examine console');
-  });
+    test('opens submenu on hover and calls onActionClick when action is clicked', () => {
+        render(
+            <LocationButton
+                locationActions={sampleLocationActions}
+                onItemClick={mockOnItemClick}
+                onActionClick={mockOnActionClick}
+            />,
+        );
+
+        act(() => {
+            jest.runAllTimers();
+        });
+
+        const buttonElement = screen.getByTestId('location-button');
+        fireEvent.click(buttonElement);
+
+        // Hover over the console item (displayed in Sentence Case)
+        const consoleItem = screen.getByText('Console');
+        fireEvent.mouseEnter(consoleItem);
+
+        // Check that submenu actions are displayed (Sentence Case)
+        expect(screen.getByText('Examine console')).toBeInTheDocument();
+        expect(screen.getByText('Use console')).toBeInTheDocument();
+
+        // Click an action
+        fireEvent.click(screen.getByText('Examine console'));
+
+        // Callback receives original lowercase value
+        expect(mockOnActionClick).toHaveBeenCalledWith('examine console');
+    });
 });

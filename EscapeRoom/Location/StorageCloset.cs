@@ -8,7 +8,7 @@ public class StorageCloset : DarkLocation
 {
     public override string Name => "Storage Closet";
 
-    public override string DarkDescription =>
+    public override string GetDarkDescription(IContext context) =>
         "It is pitch dark. You can't see a thing. You should find a light source before exploring further.";
 
     protected override string GetContextBasedDescription(IContext context)

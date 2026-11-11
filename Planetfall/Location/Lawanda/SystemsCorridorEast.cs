@@ -21,7 +21,7 @@ internal class SystemsCorridorEast : LocationWithNoStartingItems
     {
         return
             "The hallway ends here with a large doorway leading east, and smaller doorways " +
-            "to the north\nand south. The northern doorway is labelled \"Planateree Kors Kontrool.\" " +
+            "to the north and south. The northern doorway is labelled \"Planateree Kors Kontrool.\" " +
             "The hallway itself leads west. ";
     }
 }

@@ -90,10 +90,23 @@ public abstract class ChatWithCompanion
             if (lambdaResponse == null)
                 throw new Exception("Failed to deserialize Lambda response");
 
+            // The AWS invocation can succeed (outer HTTP 200) while the Lambda itself reports a
+            // failure in its OWN envelope - e.g. {"statusCode":500,"body":"{\"error\":\"Error code:
+            // 404\"}"} when its upstream OpenAI call fails. Surface that verbatim instead of
+            // pressing on to dereference a body that never carried a result: the old code did the
+            // latter and threw a NullReferenceException, which masked the real cause and reached the
+            // player as the generic "Floyd doesn't understand" fallback (issue #562).
+            if (lambdaResponse.StatusCode is < 200 or >= 300)
+                throw new Exception(
+                    $"{AssistantName} Lambda reported status {lambdaResponse.StatusCode}: {lambdaResponse.Body}");
+
             // Parse the body content (which is a JSON string)
             var bodyContent = JsonSerializer.Deserialize<BodyContent>(lambdaResponse.Body);
 
-            if (bodyContent?.Results.Response == null)
+            // Null-safe through Results as well: an error or otherwise degenerate body deserializes
+            // to a BodyContent whose Results is null, so the '?.' has to guard THAT hop, not just
+            // bodyContent - guarding only the first hop was the NullReferenceException above.
+            if (bodyContent?.Results?.Response == null)
                 throw new Exception("Failed to extract message from Lambda response");
 
             // Map the internal metadata to the public metadata type
@@ -120,7 +133,7 @@ public abstract class ChatWithCompanion
 
     private record BodyContent(
         [property: JsonPropertyName("results")]
-        Results Results
+        Results? Results
     );
 
     [UsedImplicitly]

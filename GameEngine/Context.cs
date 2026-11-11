@@ -296,6 +296,29 @@ public abstract class Context<T> : IContext where T : IInfocomGame, new()
         return Items.OfType<TItem>().Any();
     }
 
+    /// <summary>
+    ///     Checks whether the adventurer is carrying an item of type T, <b>including</b> inside any
+    ///     container they are carrying or wearing - the Patrol uniform pocket above all.
+    /// </summary>
+    /// <remarks>
+    ///     This is the check a gameplay gate almost always wants. <see cref="HasItem{TItem}" /> is
+    ///     deliberately flat (it answers "is this at the top level of my inventory"), so gating an
+    ///     action on it silently breaks the moment the player pockets the item: the handler returns
+    ///     <c>NoNounMatchInteractionResult</c> and the turn goes to the narrator, giving the player no
+    ///     hint that where they are carrying the thing is the problem. That was issue #503 - a card in
+    ///     the uniform pocket wouldn't slide, and the key in the pocket wouldn't unlock the padlock.
+    ///     The original games are, if anything, more permissive: the parser's <c>(HAVE)</c> flag
+    ///     reaches into open carried containers.
+    /// </remarks>
+    /// <typeparam name="TItem">The type of item to check.</typeparam>
+    /// <returns>True if the item is in inventory or nested in something in inventory.</returns>
+    public bool IsCarrying<TItem>() where TItem : IItem, new()
+    {
+        // Strictly a superset of HasItem: a top-level item's CurrentLocation can be stale (see the
+        // note in RemoveItem), so check flat membership first and only then walk the container chain.
+        return HasItem<TItem>() || Repository.IsItemPossessedBy(Repository.GetItem<TItem>(), this);
+    }
+
     public (bool HasItem, IItem? TheItem) HasMatchingNoun(string? noun, bool lookInsideContainers = true)
     {
         foreach (var i in Items)

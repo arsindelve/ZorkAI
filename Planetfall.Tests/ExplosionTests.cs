@@ -534,6 +534,38 @@ public class ExplosionTests : EngineTestsBase
         response.Should().Contain("autopilot searches for a reasonable destination");
     }
 
+    /// <summary>
+    /// Issue #354 follow-up: ExplosionCoordinator gates each narration beat of the Feinstein explosion
+    /// sequence on an exact Context.Moves value via a switch statement, and only removes itself as an
+    /// actor in the death cases. Free commands (look/score/inventory/time) run actors without advancing
+    /// Moves, so without a guard, the same narration beat would re-fire on every consecutive free command
+    /// issued while Moves is frozen at the triggering value. (Merged in from the former one-test
+    /// ExplosionCoordinatorTests.)
+    /// </summary>
+    [Test]
+    public async Task CoordinatorNarration_DoesNotRepeat_OnConsecutiveFreeCommands()
+    {
+        var engine = GetTarget();
+        StartHere<DeckEight>();
+
+        var explosionCoordinator = new ExplosionCoordinator();
+        engine.Context.RegisterActor(explosionCoordinator);
+
+        // One turn away from the explosion beat - "wait" below advances Moves to the trigger value.
+        engine.Context.Moves = ExplosionCoordinator.TurnWhenFeinsteinBlowsUp - 1;
+
+        var explosionResponse = await engine.GetResponse("wait");
+        explosionResponse.Should().Contain("A massive explosion rocks the ship");
+
+        // Free command: Moves stays frozen at TurnWhenFeinsteinBlowsUp, but actors still run.
+        var lookResponse = await engine.GetResponse("look");
+        lookResponse.Should().NotContain("A massive explosion rocks the ship");
+
+        // Same again - the guard must hold across repeated free commands, not just once.
+        var scoreResponse = await engine.GetResponse("score");
+        scoreResponse.Should().NotContain("A massive explosion rocks the ship");
+    }
+
     // Issue #376: "get in web" / "enter web" resolve to an EnterSubLocationIntent whose noun is
     // looked up via Repository.GetItemInScope - but SafetyWeb was never actually seeded into the
     // pod's Items list by EscapePod.Init() (only BulkheadDoor was), so the scope lookup always
@@ -798,6 +830,153 @@ public class ExplosionTests : EngineTestsBase
             response.Should().Contain("You're already in the safety web.");
             pod.SubLocation.Should().BeOfType<SafetyWeb>();
             pod.TurnsAfterStanding.Should().Be(0);
+        }
+    }
+
+    // Issue #529: during the Feinstein explosion, one turn after the pod door opens, the game narrates
+    // that "a narrow emergency bulkhead at the base of the gangway and a wider one along the corridor to
+    // starboard both crash shut". In the original those two doors (CORRIDOR-DOOR / GANGWAY-DOOR) have
+    // their OPENBIT cleared, sealing Deck Nine's East and Up exits so the escape pod is the only way out
+    // (planetfall-source/globals.zil:1211-1216 closes both doors before printing the same message;
+    // globals.zil:493-507 gate DECK-NINE's EAST/UP on them). The port kept the prose but never modelled
+    // the doors: Up and E stayed freely traversable, and walking through a "shut" bulkhead dropped the
+    // player into Reactor Lobby / Gangway and killed them one turn later - a death the original makes
+    // impossible by simply refusing the move.
+    [TestFixture]
+    public class BulkheadSealTests : EngineTestsBase
+    {
+        // Drop the player on Deck Nine with the random ambassador/Blather encounter (DeckNine.Act rolls
+        // 1-6 on moves 2-6) pinned off, so the escape sequence advances deterministically.
+        private GameEngine<PlanetfallGame, PlanetfallContext> DeckNineTarget()
+        {
+            var target = GetTarget();
+            var noSpawn = new Mock<IRandomChooser>();
+            noSpawn.Setup(r => r.RollDice(6)).Returns(3); // neither 1 (ambassador) nor 2 (Blather)
+            Repository.GetLocation<DeckNine>().Chooser = noSpawn.Object;
+            target.Context.CurrentLocation = Repository.GetLocation<DeckNine>();
+            return target;
+        }
+
+        // Advance the explosion until the "both crash shut" beat has fired, staying on Deck Nine.
+        // Nine idle waits (moves 1-9), the tenth command is the explosion (pod door opens), the
+        // eleventh is the seal.
+        private static async Task WaitUntilBulkheadsCrashShut(
+            GameEngine<PlanetfallGame, PlanetfallContext> target)
+        {
+            var response = "";
+            for (var i = 0; i < 11; i++)
+                response = await target.GetResponse("wait");
+
+            response.Should().Contain("both crash shut");
+        }
+
+        [Test]
+        public async Task AfterBulkheadsCrashShut_EastIsBlocked()
+        {
+            var target = DeckNineTarget();
+            await WaitUntilBulkheadsCrashShut(target);
+
+            var response = await target.GetResponse("east");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+        }
+
+        [Test]
+        public async Task AfterBulkheadsCrashShut_UpIsBlocked()
+        {
+            var target = DeckNineTarget();
+            await WaitUntilBulkheadsCrashShut(target);
+
+            var response = await target.GetResponse("up");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+        }
+
+        // The original refuses the move outright; the port let you walk out and be killed the very next
+        // beat. Once sealed, leaving through the corridor must not end the run.
+        [Test]
+        public async Task AfterBulkheadsCrashShut_PlayerDoesNotDieFromLeaving()
+        {
+            var target = DeckNineTarget();
+            await WaitUntilBulkheadsCrashShut(target);
+
+            var afterEast = await target.GetResponse("east");
+            var afterOneMoreTurn = await target.GetResponse("wait");
+
+            afterEast.Should().NotContain("You have died");
+            afterOneMoreTurn.Should().NotContain("You have died");
+            target.Context.DeathCounter.Should().Be(0);
+        }
+
+        // Regression guard: before the seal (at the explosion turn itself), East is still a real exit to
+        // the Reactor Lobby - the fix gates the exit on the bulkhead, it does not amputate it. Green
+        // before and after the fix.
+        [Test]
+        public async Task BeforeBulkheadsCrashShut_EastStillReachesReactorLobby()
+        {
+            var target = DeckNineTarget();
+
+            // Nine waits (moves 1-9); the tenth command is the explosion turn, doors still open.
+            for (var i = 0; i < 9; i++)
+                await target.GetResponse("wait");
+
+            await target.GetResponse("east");
+
+            target.Context.CurrentLocation.Should().BeOfType<ReactorLobby>();
+        }
+
+        // The two exits back onto Deck Nine are gated on the same bulkheads (globals.zil:646 gates the
+        // Gangway's DOWN on GANGWAY-DOOR; globals.zil:629 gates the Reactor Lobby's WEST on
+        // CORRIDOR-DOOR). The DeckNine-side tests above already prove ExplosionCoordinator closes both
+        // doors at the seal, so these characterize the return-exit gates themselves: open before the
+        // seal, refused after. Driven by the door state directly rather than the 11-wait sequence
+        // because once the bulkheads shut, both rooms are one turn from the unconditional move-12
+        // explosion death - a player can't stand in either and try the door without being killed first.
+        // A fresh target per state keeps the two halves independent (GetTarget resets the Repository).
+        [Test]
+        public async Task GangwayDownToDeckNine_IsGatedOnTheNarrowBulkhead()
+        {
+            // Open (the door's start state): Down is a real exit back to Deck Nine.
+            var openTarget = GetTarget();
+            openTarget.Context.CurrentLocation = Repository.GetLocation<Gangway>();
+            Repository.GetItem<GangwayDoor>().IsOpen = true;
+
+            (await openTarget.GetResponse("down")).Should().NotContain("The emergency bulkhead is closed.");
+            openTarget.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+
+            // Closed (as ExplosionCoordinator leaves it after the seal): Down is refused, no escape back.
+            var sealedTarget = GetTarget();
+            sealedTarget.Context.CurrentLocation = Repository.GetLocation<Gangway>();
+            Repository.GetItem<GangwayDoor>().IsOpen = false;
+
+            var response = await sealedTarget.GetResponse("down");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            sealedTarget.Context.CurrentLocation.Should().BeOfType<Gangway>();
+        }
+
+        [Test]
+        public async Task ReactorLobbyWestToDeckNine_IsGatedOnTheWideBulkhead()
+        {
+            // Open (the door's start state): West is a real exit back to Deck Nine.
+            var openTarget = GetTarget();
+            openTarget.Context.CurrentLocation = Repository.GetLocation<ReactorLobby>();
+            Repository.GetItem<CorridorDoor>().IsOpen = true;
+
+            (await openTarget.GetResponse("west")).Should().NotContain("The emergency bulkhead is closed.");
+            openTarget.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+
+            // Closed (as ExplosionCoordinator leaves it after the seal): West is refused, no escape back.
+            var sealedTarget = GetTarget();
+            sealedTarget.Context.CurrentLocation = Repository.GetLocation<ReactorLobby>();
+            Repository.GetItem<CorridorDoor>().IsOpen = false;
+
+            var response = await sealedTarget.GetResponse("west");
+
+            response.Should().Contain("The emergency bulkhead is closed.");
+            sealedTarget.Context.CurrentLocation.Should().BeOfType<ReactorLobby>();
         }
     }
 

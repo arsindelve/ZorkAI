@@ -2,12 +2,14 @@ using System.Reflection;
 using FluentAssertions;
 using GameEngine;
 using GameEngine.Item;
+using GameEngine.Item.ItemProcessor;
 using GameEngine.Location;
 using Model.AIGeneration;
 using Model.AIParsing;
 using Model.Intent;
 using Model.Interaction;
 using Moq;
+using Planetfall.Item.Lawanda.Lab;
 using Planetfall.Location.Lawanda;
 
 namespace Planetfall.Tests;
@@ -118,6 +120,45 @@ public class SceneryInvariantTests : EngineTestsBase
                         new SimpleIntent { Verb = "take", Noun = noun }, engine.Context, client, factory);
                     take.InteractionMessage.Should().Be(s.CannotBeTakenReason, $"{type.Name} take '{noun}'");
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Issue #577: the test above proves the refusal exists; this proves a player can reach it.
+    ///     The live parser classifies a take as a TakeIntent or a SimpleIntent depending on the noun,
+    ///     and only the SimpleIntent shape ever consulted scenery, so every authored reason in the game
+    ///     was a coin flip from the player's seat — one phrasing answered, the canonical "take" got
+    ///     improvised prose. A room's scenery is not finished until both shapes say the same thing.
+    /// </summary>
+    [Test]
+    public async Task EverySceneryTakeRefusal_IsAlsoReachable_ThroughTheTakeIntentPath()
+    {
+        var engine = GetTarget();
+
+        // Carried and lit, as a player exploring Resida would be: nothing is scenery in the dark, so
+        // an unlit sweep would measure the darkness refusal instead of the authored one.
+        engine.Context.Take(Repository.GetItem<Lamp>());
+        Repository.GetItem<Lamp>().IsOn = true;
+
+        var processor = new TakeOrDropInteractionProcessor(Mock.Of<IAITakeAndAndDropParser>());
+
+        foreach (var (type, scenery) in LocationsWithScenery())
+        {
+            var loc = (LocationBase)Activator.CreateInstance(type)!;
+            loc.Init();
+            engine.Context.CurrentLocation = loc;
+            engine.Context.ItIsDarkHere.Should().BeFalse($"{type.Name} must be lit for this sweep");
+
+            foreach (var s in scenery.Where(s => s.CannotBeTakenReason is not null))
+            {
+                var noun = s.Nouns[0];
+
+                var (_, message) = await processor.Process(
+                    new TakeIntent { Noun = noun, OriginalInput = $"take {noun}" },
+                    engine.Context, Mock.Of<IGenerationClient>());
+
+                message.Should().Be(s.CannotBeTakenReason, $"{type.Name} take '{noun}'");
             }
         }
     }

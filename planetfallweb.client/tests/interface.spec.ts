@@ -1,8 +1,8 @@
 /**
  * Zork Game Interface Tests
- * 
+ *
  * These tests verify the basic game interface functionality.
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,12 +10,17 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, handlePlanetfallRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import {
+    closeWelcomeModal,
+    handlePlanetfallRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
 
 test.describe('Game Interface', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/Planetfall', handlePlanetfallRoute);
 
@@ -66,5 +71,4 @@ test.describe('Game Interface', () => {
         expect(textContent).toBeTruthy();
         expect(textContent?.length).toBeGreaterThan(0);
     });
-
 });

@@ -30,12 +30,21 @@ describe('Server', () => {
 
         const result = await new Server().gameInput({input: 'take towel', sessionId: 'session-1'});
 
-        expect(client.post).toHaveBeenCalledWith('', {input: 'take towel', sessionId: 'session-1'}, {
-            headers: {Accept: 'application/json'},
-        });
-        expect(Mixpanel.track).toHaveBeenCalledWith('Played a Turn', expect.objectContaining({
-            input: 'take towel', output: 'Taken.', clientId: 'client-123',
-        }));
+        expect(client.post).toHaveBeenCalledWith(
+            '',
+            {input: 'take towel', sessionId: 'session-1'},
+            {
+                headers: {Accept: 'application/json'},
+            },
+        );
+        expect(Mixpanel.track).toHaveBeenCalledWith(
+            'Played a Turn',
+            expect.objectContaining({
+                input: 'take towel',
+                output: 'Taken.',
+                clientId: 'client-123',
+            }),
+        );
         expect(result).toBe(data);
     });
 
@@ -57,7 +66,8 @@ describe('Server', () => {
         await expect(new Server().getSavedGames('client-1')).resolves.toBe(games);
         expect(client.get).toHaveBeenCalledWith('saveGame', {params: {sessionId: 'client-1'}});
         expect(Mixpanel.track).toHaveBeenCalledWith('Listed Saved Games', {
-            clientId: 'client-1', gameCount: 2,
+            clientId: 'client-1',
+            gameCount: 2,
         });
     });
 
@@ -70,22 +80,43 @@ describe('Server', () => {
     });
 
     test('saves, restores, and deletes using the API contract', async () => {
-        client.post.mockResolvedValueOnce({data: 'Saved.'}).mockResolvedValueOnce({data: {response: 'Restored.'}});
+        client.post
+            .mockResolvedValueOnce({data: 'Saved.'})
+            .mockResolvedValueOnce({data: {response: 'Restored.'}});
         client.delete.mockResolvedValue({});
         const server = new Server();
-        const saveRequest = {id: 'save-1', clientId: 'client-1', sessionId: 'session-1', name: 'My save'};
+        const saveRequest = {
+            id: 'save-1',
+            clientId: 'client-1',
+            sessionId: 'session-1',
+            name: 'My save',
+        };
 
         await expect(server.saveGame(saveRequest)).resolves.toBe('Saved.');
-        await expect(server.gameRestore('save-1', 'client-1', 'session-2')).resolves.toEqual({response: 'Restored.'});
+        await expect(server.gameRestore('save-1', 'client-1', 'session-2')).resolves.toEqual({
+            response: 'Restored.',
+        });
         await server.deleteSavedGame('save-1', 'session-2');
 
         expect(client.post).toHaveBeenNthCalledWith(1, 'saveGame', saveRequest, {
             headers: {Accept: 'application/json'},
         });
-        expect(client.post).toHaveBeenNthCalledWith(2, 'restoreGame', expect.objectContaining({
-            id: 'save-1', clientId: 'client-1', sessionId: 'session-2',
-        }), {headers: {Accept: 'application/json'}});
-        expect(client.delete).toHaveBeenCalledWith('saveGame/save-1', {params: {sessionId: 'session-2'}});
-        expect(Mixpanel.track).toHaveBeenCalledWith('Delete Saved Game', expect.objectContaining({gameId: 'save-1'}));
+        expect(client.post).toHaveBeenNthCalledWith(
+            2,
+            'restoreGame',
+            expect.objectContaining({
+                id: 'save-1',
+                clientId: 'client-1',
+                sessionId: 'session-2',
+            }),
+            {headers: {Accept: 'application/json'}},
+        );
+        expect(client.delete).toHaveBeenCalledWith('saveGame/save-1', {
+            params: {sessionId: 'session-2'},
+        });
+        expect(Mixpanel.track).toHaveBeenCalledWith(
+            'Delete Saved Game',
+            expect.objectContaining({gameId: 'save-1'}),
+        );
     });
 });

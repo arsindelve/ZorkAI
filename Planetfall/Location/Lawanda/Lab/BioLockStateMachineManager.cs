@@ -37,17 +37,46 @@ public class BioLockStateMachineManager
         LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
 
     /// <summary>
+    /// Reset the transient lab-sequence sub-state so the choreography can be restarted cleanly. Called
+    /// when the player abandons the sequence mid-flight (walks out of Bio Lock East while Floyd is away).
+    /// The "Floyd has offered / has been introduced" flags (<see cref="FloydHasSaidLookAMiniCard"/>,
+    /// <see cref="FloydHasSaidNeedToGetCard"/>, <see cref="HasWaitedOneTurnInBioLockEast"/>) are
+    /// deliberately preserved - Floyd still remembers he volunteered - but the sequence position and every
+    /// counter return to their defaults so a later re-entry does not resume a frozen mid-sequence state
+    /// (issue #493 review: otherwise returning fires the "you failed to close the door" death with Floyd
+    /// standing right next to the player, having followed them out).
+    /// </summary>
+    public void ResetSequence()
+    {
+        LabSequenceState = FloydLabSequenceState.NotStarted;
+        FloydWaitingForDoorOpenCount = 0;
+        TurnsAfterFloydRushedIn = 0;
+        FloydFightingTurnCount = 0;
+        TurnsAfterDoorReopened = 0;
+    }
+
+    /// <summary>
     /// Handle turn-based actions for Floyd in BioLockEast
     /// </summary>
-    public string HandleTurnAction(bool isFloydHereAndOn, bool computerRoomFloydHasExpressedConcern, IContext context, Floyd floyd)
+    public string HandleTurnAction(bool isFloydHereAndAlive, bool computerRoomFloydHasExpressedConcern, IContext context, Floyd floyd)
     {
+        // Once the sequence has finished - Floyd sacrificed himself and his body lies here (EndSequence),
+        // or he died trapped in the lab (the NeedToReopenDoor terminal branch) - this actor must stay
+        // silent, or re-entering the room re-registers the actor and the leftover FloydHasSaidNeedToGetCard
+        // flag falls into the "waiting for door open" branch below, making Floyd's corpse cheerfully ask
+        // the player to open the door again (issue #493). This guard is now belt-and-braces: the caller
+        // passes Floyd.IsHereAndAlive, which is false for the body, where it used to pass a bare IsOn test
+        // that the corpse satisfied (EndSequence deliberately leaves IsOn true - see Floyd.IsAlive, #545).
+        if (LabSequenceState == FloydLabSequenceState.Completed)
+            return string.Empty;
+
         // During the lab sequence, Floyd is not in the room (he's in the lab fighting)
         var isFloydInLab = LabSequenceState == FloydLabSequenceState.FloydRushedInNeedToCloseDoor ||
                            LabSequenceState == FloydLabSequenceState.DoorClosedFloydFighting ||
                            LabSequenceState == FloydLabSequenceState.NeedToReopenDoor ||
                            LabSequenceState == FloydLabSequenceState.DoorReopenedNeedToCloseAgain;
 
-        if (!isFloydInLab && !isFloydHereAndOn)
+        if (!isFloydInLab && !isFloydHereAndAlive)
             return string.Empty;
 
         // First turn in BioLockEast: Floyd doesn't say anything yet
@@ -156,7 +185,7 @@ public class BioLockStateMachineManager
         var bioLockEast = Repository.GetLocation<BioLockEast>();
         var floyd = Repository.GetItem<Floyd>();
 
-        var isFloydReady = FloydHasSaidNeedToGetCard && floyd.IsHereAndIsOn(context);
+        var isFloydReady = FloydHasSaidNeedToGetCard && floyd.IsHereAndAlive(context);
 
         // If Floyd is ready to go get the card, start the sequence
         if (isFloydReady && LabSequenceState == FloydLabSequenceState.NotStarted)

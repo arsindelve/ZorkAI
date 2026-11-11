@@ -1,6 +1,7 @@
 using ChatLambda;
 using FluentAssertions;
 using Moq;
+using Planetfall.AI;
 using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Location.Kalamontee.Mech;
 

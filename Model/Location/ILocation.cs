@@ -82,6 +82,21 @@ public interface ILocation
         IItemProcessorFactory itemProcessorFactory);
 
     /// <summary>
+    ///     Resolves a noun to the inert scenery it names (issue #315) — this room's own first, then the
+    ///     game's <see cref="IInfocomGame.GlobalScenery" /> — or null when it names none.
+    ///     <para>
+    ///         The single seam for that lookup. <see cref="RespondToSimpleInteraction" /> is not the only
+    ///         way a take reaches a room: the parser also emits a bare take intent, which the engine
+    ///         dispatches to the take processor instead, and that path used to resolve real items only.
+    ///         The authored "you can't take that" therefore answered "get wall" and not "take wall"
+    ///         (issue #577). Both paths ask this, so a noun cannot be scenery to one and unknown to the
+    ///         other. Callers must check <see cref="IContext.ItIsDarkHere" /> first: scenery is seen, not
+    ///         felt for.
+    ///     </para>
+    /// </summary>
+    SceneryItem? MatchScenery(SimpleIntent action, IContext context);
+
+    /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="MultiNounIntent" /> corresponding
     ///     of a verb and two nouns. Does that combination do anything in this location? The default implementation
     ///     of the base class checks each item in this locations and asks them if they provide any interaction. This

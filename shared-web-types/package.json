@@ -1,13 +1,24 @@
 {
-  "name": "@zork-ai/shared-types",
-  "version": "1.0.0",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "peerDependencies": {
-    "@mui/icons-material": "^5.15.15",
-    "@mui/material": "^5.15.15",
-    "mixpanel-browser": "^2.58.0",
-    "moment": "^2.30.0",
-    "react": "^18.2.0 || ^19.0.0"
-  }
+    "name": "@zork-ai/shared-types",
+    "version": "1.0.0",
+    "type": "module",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "scripts": {
+        "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
+    },
+    "peerDependencies": {
+        "@mui/icons-material": "^5.15.15",
+        "@mui/material": "^5.15.15",
+        "mixpanel-browser": "^2.58.0",
+        "moment": "^2.30.0",
+        "react": "^18.2.0 || ^19.0.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.0.0",
+        "eslint": "^9.0.0",
+        "eslint-plugin-react-hooks": "^5.0.0",
+        "globals": "^16.0.0",
+        "typescript-eslint": "^8.0.0"
+    }
 }

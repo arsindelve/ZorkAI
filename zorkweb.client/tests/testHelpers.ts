@@ -1,11 +1,29 @@
 /**
  * Test Helper Functions
- * 
+ *
  * This file contains helper functions used across multiple test files.
  */
 
-import { Page, Route } from '@playwright/test';
-import { mockResponses } from './mockResponses';
+import {Page, Route} from '@playwright/test';
+import {mockResponses} from './mockResponses';
+
+/**
+ * Stop the room artwork from loading.
+ *
+ * The first arrival in a room with art drops an establishing shot over the transcript
+ * for a few seconds. Left alone the suite would fetch those files from S3 - real
+ * network, in every test - and spend that time with the transcript covered, so clicks
+ * aimed at a word or a button would land on the plate instead. Aborting the request
+ * makes the component skip the plate, exactly as it does for a room with no art.
+ *
+ * `locationImage.spec.ts` fulfils this route instead of aborting it, and is where the
+ * feature itself is covered.
+ */
+export async function blockLocationArtwork(page: Page) {
+    await page.route('https://zorkai-assets.s3.amazonaws.com/locations/*', (route) =>
+        route.abort(),
+    );
+}
 
 /**
  * Helper function to close the welcome modal
@@ -13,6 +31,8 @@ import { mockResponses } from './mockResponses';
  * and then closes it by clicking the close button.
  */
 export async function closeWelcomeModal(page: Page) {
+    await blockLocationArtwork(page);
+
     // Navigate to the application
     await page.goto('/');
 
@@ -30,10 +50,13 @@ export async function closeWelcomeModal(page: Page) {
  */
 export async function waitForGameResponse(page: Page) {
     // Wait for any response to appear after submitting the command
-    await page.waitForFunction(() => {
-        const paragraphs = document.querySelectorAll('[data-testid="game-response"]');
-        return paragraphs.length > 1; // More than just the initial loading text
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+        () => {
+            const paragraphs = document.querySelectorAll('[data-testid="game-response"]');
+            return paragraphs.length > 1; // More than just the initial loading text
+        },
+        {timeout: 10000},
+    );
 }
 
 /**
@@ -45,15 +68,21 @@ export async function handleZorkOneRoute(route: Route) {
 
     if (method === 'GET') {
         // Return the mock init response
-        await route.fulfill({ 
-            status: 200, 
+        await route.fulfill({
+            status: 200,
             contentType: 'application/json',
-            body: JSON.stringify(mockResponses.init)
+            body: JSON.stringify(mockResponses.init),
         });
     } else if (method === 'POST') {
         // Get the request body to determine which mock response to return
         const body = route.request().postDataJSON();
-        let response: { score: number; moves: number; locationName: string; response: string; inventory: string[]; };
+        let response: {
+            score: number;
+            moves: number;
+            locationName: string;
+            response: string;
+            inventory: string[];
+        };
 
         // Select the appropriate mock response based on the input
         if (body.input === 'look around') {
@@ -76,14 +105,14 @@ export async function handleZorkOneRoute(route: Route) {
             // Default response for any other command
             response = {
                 ...mockResponses.look,
-                response: `You entered: ${body.input}`
+                response: `You entered: ${body.input}`,
             };
         }
 
-        await route.fulfill({ 
-            status: 200, 
+        await route.fulfill({
+            status: 200,
             contentType: 'application/json',
-            body: JSON.stringify(response)
+            body: JSON.stringify(response),
         });
     }
 }
@@ -93,10 +122,10 @@ export async function handleZorkOneRoute(route: Route) {
  * This function intercepts requests to the saveGame endpoint and returns a success message
  */
 export async function handleSaveGameRoute(route: Route) {
-    await route.fulfill({ 
-        status: 200, 
+    await route.fulfill({
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify("Game saved successfully")
+        body: JSON.stringify('Game saved successfully'),
     });
 }
 
@@ -105,10 +134,10 @@ export async function handleSaveGameRoute(route: Route) {
  * This function intercepts requests to the restoreGame endpoint and returns the initial game state
  */
 export async function handleRestoreGameRoute(route: Route) {
-    await route.fulfill({ 
-        status: 200, 
+    await route.fulfill({
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(mockResponses.init)
+        body: JSON.stringify(mockResponses.init),
     });
 }
 
@@ -117,9 +146,9 @@ export async function handleRestoreGameRoute(route: Route) {
  * This function intercepts requests to the getSavedGames endpoint and returns mock saved games
  */
 export async function handleGetSavedGamesRoute(route: Route) {
-    await route.fulfill({ 
-        status: 200, 
+    await route.fulfill({
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(mockResponses.savedGames)
+        body: JSON.stringify(mockResponses.savedGames),
     });
 }

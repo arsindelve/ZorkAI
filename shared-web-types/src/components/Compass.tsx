@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
-import {Mixpanel} from "../utils/Mixpanel";
-import {Direction} from "../Directions";
+import React, {useEffect, useState} from 'react';
+import {Mixpanel} from '../utils/Mixpanel';
+import {Direction} from '../Directions';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
@@ -43,18 +43,31 @@ const COMPASS_STYLES = `
 // vertical control id ("up"/"down"), so the matching control can flash when the
 // player moves. Returns null for non-movement commands.
 export const parseMoveDirection = (input: string): string | null => {
-    const c = (input ?? "").trim().toLowerCase().replace(/^go\s+/, "");
+    const c = (input ?? '')
+        .trim()
+        .toLowerCase()
+        .replace(/^go\s+/, '');
     const map: Record<string, string> = {
-        n: "North", north: "North",
-        s: "South", south: "South",
-        e: "East", east: "East",
-        w: "West", west: "West",
-        ne: "NorthEast", northeast: "NorthEast",
-        nw: "NorthWest", northwest: "NorthWest",
-        se: "SouthEast", southeast: "SouthEast",
-        sw: "SouthWest", southwest: "SouthWest",
-        u: "up", up: "up",
-        d: "down", down: "down"
+        n: 'North',
+        north: 'North',
+        s: 'South',
+        south: 'South',
+        e: 'East',
+        east: 'East',
+        w: 'West',
+        west: 'West',
+        ne: 'NorthEast',
+        northeast: 'NorthEast',
+        nw: 'NorthWest',
+        northwest: 'NorthWest',
+        se: 'SouthEast',
+        southeast: 'SouthEast',
+        sw: 'SouthWest',
+        southwest: 'SouthWest',
+        u: 'up',
+        up: 'up',
+        d: 'down',
+        down: 'down',
     };
     return map[c] ?? null;
 };
@@ -62,11 +75,16 @@ export const parseMoveDirection = (input: string): string | null => {
 interface CompassProps extends React.HTMLAttributes<HTMLDivElement> {
     onCompassClick?: (direction: string) => void; // Callback with the chosen direction
     exits?: string[]; // Available exits (string indices into the Direction map)
-    pingMove?: { id: string; nonce: number }; // Direction the player just moved (flashes that control)
+    pingMove?: {id: string; nonce: number}; // Direction the player just moved (flashes that control)
 }
 
-const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className, pingMove, ...rest }) => {
-
+const Compass: React.FC<CompassProps> = ({
+    onCompassClick,
+    exits = [],
+    className,
+    pingMove,
+    ...rest
+}) => {
     // Briefly flash the control for the direction just moved.
     const [pinging, setPinging] = useState<string | null>(null);
     useEffect(() => {
@@ -81,14 +99,14 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
     const isDirectionAvailable = (directionId: string): boolean => {
         // Map SVG IDs to Direction enum values
         const directionMap: Record<string, Direction> = {
-            "North": Direction.North,
-            "South": Direction.South,
-            "East": Direction.East,
-            "West": Direction.West,
-            "NorthEast": Direction.Northeast,
-            "NorthWest": Direction.Northwest,
-            "SouthEast": Direction.Southeast,
-            "SouthWest": Direction.Southwest
+            North: Direction.North,
+            South: Direction.South,
+            East: Direction.East,
+            West: Direction.West,
+            NorthEast: Direction.Northeast,
+            NorthWest: Direction.Northwest,
+            SouthEast: Direction.Southeast,
+            SouthWest: Direction.Southwest,
         };
 
         // Get the Direction enum value for this ID
@@ -107,11 +125,11 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
             8: Direction.In,
             9: Direction.Out,
             10: Direction.Up,
-            11: Direction.Down
+            11: Direction.Down,
         };
 
         // Convert exits from strings to integers and map to Direction enum values
-        const availableDirections = exits.map(exit => {
+        const availableDirections = exits.map((exit) => {
             const exitIndex = parseInt(exit, 10);
             return directionIndexMap[exitIndex];
         });
@@ -151,7 +169,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
         const direction = getClosestDirection(compassAngle);
 
         Mixpanel.track('Click Compass', {
-            "direction": direction,
+            direction: direction,
         });
 
         // Emit the angle to the callback
@@ -161,14 +179,14 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
     function getClosestDirection(degrees: number): string {
         // Define the 8 compass directions
         const directions = [
-            "North",     // 0° (or 360°)
-            "Northeast", // 45°
-            "East",      // 90°
-            "Southeast", // 135°
-            "South",     // 180°
-            "Southwest", // 225°
-            "West",      // 270°
-            "Northwest", // 315°
+            'North', // 0° (or 360°)
+            'Northeast', // 45°
+            'East', // 90°
+            'Southeast', // 135°
+            'South', // 180°
+            'Southwest', // 225°
+            'West', // 270°
+            'Northwest', // 315°
         ];
 
         // Each direction covers a range of 45° (360° divided by 8 segments).
@@ -183,7 +201,7 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
 
     // Up/Down are not angular, so they get discrete controls beside the rose rather
     // than wedges. Indices: 10 = Up, 11 = Down (see directionIndexMap above).
-    const exitIndices = exits.map(exit => parseInt(exit, 10));
+    const exitIndices = exits.map((exit) => parseInt(exit, 10));
     const upAvailable = exitIndices.includes(10);
     const downAvailable = exitIndices.includes(11);
 
@@ -204,7 +222,9 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
         color: available
             ? 'var(--compass-btn-text, #ecfccb)'
             : 'color-mix(in srgb, var(--compass-btn-idle, #d6d3d1) 28%, transparent)',
-        background: available ? 'color-mix(in srgb, var(--compass-accent, #84cc16) 18%, transparent)' : 'transparent',
+        background: available
+            ? 'color-mix(in srgb, var(--compass-accent, #84cc16) 18%, transparent)'
+            : 'transparent',
         opacity: available ? 'var(--compass-pulse)' : undefined,
         cursor: available ? 'pointer' : 'default',
     });
@@ -225,22 +245,22 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                         aria-label="up"
                         data-testid="compass-up"
                         disabled={!upAvailable}
-                        onClick={(e) => handleVerticalClick(e, "up")}
-                        className={`flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all ${pinging === "up" ? "vbtn-ping" : ""}`}
+                        onClick={(e) => handleVerticalClick(e, 'up')}
+                        className={`flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all ${pinging === 'up' ? 'vbtn-ping' : ''}`}
                         style={verticalButtonStyle(upAvailable)}
                     >
-                        <KeyboardArrowUpIcon fontSize="small"/>
+                        <KeyboardArrowUpIcon fontSize="small" />
                     </button>
                     <button
                         type="button"
                         aria-label="down"
                         data-testid="compass-down"
                         disabled={!downAvailable}
-                        onClick={(e) => handleVerticalClick(e, "down")}
-                        className={`flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all ${pinging === "down" ? "vbtn-ping" : ""}`}
+                        onClick={(e) => handleVerticalClick(e, 'down')}
+                        className={`flex items-center justify-center w-9 h-9 rounded-md border-2 cursor-pointer transition-all ${pinging === 'down' ? 'vbtn-ping' : ''}`}
                         style={verticalButtonStyle(downAvailable)}
                     >
-                        <KeyboardArrowDownIcon fontSize="small"/>
+                        <KeyboardArrowDownIcon fontSize="small" />
                     </button>
                 </div>
 
@@ -250,66 +270,89 @@ const Compass: React.FC<CompassProps> = ({onCompassClick, exits = [], className,
                     id="Layer_1"
                     data-name="Layer 1"
                     data-testid="compass-rose"
-                    data-ping={pinging && pinging !== "up" && pinging !== "down" ? pinging : undefined}
+                    data-ping={
+                        pinging && pinging !== 'up' && pinging !== 'down' ? pinging : undefined
+                    }
                     viewBox="-10 -10 70.4 70.4"
                     className="cursor-pointer w-36 lg:w-44 h-auto"
                     onClick={handleClick}
                 >
                     {/* Background rectangle to catch all clicks (covers the padded viewBox) */}
-                    <rect x="-10" y="-10" width="70.4" height="70.4" fill="transparent" style={{ pointerEvents: 'all' }} />
+                    <rect
+                        x="-10"
+                        y="-10"
+                        width="70.4"
+                        height="70.4"
+                        fill="transparent"
+                        style={{pointerEvents: 'all'}}
+                    />
 
                     {/* Framing ring just outside the wedge tips so the dial reads as a compass */}
-                    <circle className="compass-ring" cx="25.2" cy="25.2" r="27" style={{ pointerEvents: 'none' }} />
+                    <circle
+                        className="compass-ring"
+                        cx="25.2"
+                        cy="25.2"
+                        r="27"
+                        style={{pointerEvents: 'none'}}
+                    />
 
                     {/* compass wedges */}
                     <polygon
                         id="West"
-                        className={`cls-1 ${isDirectionAvailable("West") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('West') ? 'available' : ''}`}
                         points="25.2 25.2 13.56 21.76 0 25.2 13.56 28.65 25.2 25.2"
                     />
                     <polygon
                         id="East"
-                        className={`cls-1 ${isDirectionAvailable("East") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('East') ? 'available' : ''}`}
                         points="50.4 25.2 38.76 21.76 25.2 25.2 38.76 28.65 50.4 25.2"
                     />
                     <polygon
                         id="North"
-                        className={`cls-1 ${isDirectionAvailable("North") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('North') ? 'available' : ''}`}
                         points="25.2 0 21.76 11.64 25.2 25.2 28.65 11.64 25.2 0"
                     />
                     <polygon
                         id="South"
-                        className={`cls-1 ${isDirectionAvailable("South") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('South') ? 'available' : ''}`}
                         points="25.2 25.2 21.76 36.84 25.2 50.4 28.65 36.84 25.2 25.2"
                     />
                     <polygon
                         id="NorthEast"
-                        className={`cls-1 ${isDirectionAvailable("NorthEast") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('NorthEast') ? 'available' : ''}`}
                         points="36.06 14.35 29.45 17.76 25.2 25.2 32.64 20.96 36.06 14.35"
                     />
                     <polygon
                         id="NorthWest"
-                        className={`cls-1 ${isDirectionAvailable("NorthWest") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('NorthWest') ? 'available' : ''}`}
                         points="25.2 25.2 21.78 18.59 14.35 14.35 18.59 21.78 25.2 25.2"
                     />
                     <polygon
                         id="SouthEast"
-                        className={`cls-1 ${isDirectionAvailable("SouthEast") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('SouthEast') ? 'available' : ''}`}
                         points="25.2 25.2 28.62 31.81 36.06 36.06 31.81 28.62 25.2 25.2"
                     />
                     <polygon
                         id="SouthWest"
-                        className={`cls-1 ${isDirectionAvailable("SouthWest") ? "available" : ""}`}
+                        className={`cls-1 ${isDirectionAvailable('SouthWest') ? 'available' : ''}`}
                         points="14.35 36.06 20.96 32.64 25.2 25.2 17.76 29.44 14.35 36.06"
                     />
 
                     {/* Cardinal labels in the padded margin outside the dial
                         (decorative; clicks fall through) */}
-                    <g style={{ pointerEvents: 'none' }}>
-                        <text className="compass-label" x="25.2" y="-5.8">N</text>
-                        <text className="compass-label" x="56.2" y="25.2">E</text>
-                        <text className="compass-label" x="25.2" y="56.2">S</text>
-                        <text className="compass-label" x="-5.8" y="25.2">W</text>
+                    <g style={{pointerEvents: 'none'}}>
+                        <text className="compass-label" x="25.2" y="-5.8">
+                            N
+                        </text>
+                        <text className="compass-label" x="56.2" y="25.2">
+                            E
+                        </text>
+                        <text className="compass-label" x="25.2" y="56.2">
+                            S
+                        </text>
+                        <text className="compass-label" x="-5.8" y="25.2">
+                            W
+                        </text>
                     </g>
                 </svg>
             </div>

@@ -34,9 +34,7 @@ public class ChatGPTClient : OpenAIClientBase, IGenerationClient
     private IChatCompletionClient? _companionClient;
 
     private IChatCompletionClient? CompanionClient =>
-        _companionClient ??= ApiKey is null
-            ? null
-            : new OpenAIChatCompletionClient(new ChatClient(model: CompanionModelName, apiKey: ApiKey));
+        _companionClient ??= CreateAdditionalClient(CompanionModelName);
 
     public Action? OnGenerate { get; set; }
 

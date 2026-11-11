@@ -38,9 +38,13 @@ public sealed class WalkthroughBioLock : WalkthroughTestBase
         var door = Repository.GetItem<BioLockInnerDoor>();
         door.IsOpen = false;
 
-        // Place Floyd in BioLockEast and turn him on
+        // Place Floyd in BioLockEast and bring him back to life. HasDied must be reset explicitly:
+        // the whole fixture shares one engine and Repository ([OneTimeSetUp]), so a preceding test
+        // that kills Floyd (PlayerWaitsTooLong_FloydDies) leaves the flag set on the singleton, and
+        // every liveness check now reads Floyd.IsAlive, which is IsOn AND not dead (issue #545).
         bioLockEast.ItemPlacedHere(floyd);
         floyd.IsOn = true;
+        floyd.HasDied = false;
 
         // Set the computer room concern flag
         computerRoom.FloydHasExpressedConcern = true;
@@ -87,6 +91,11 @@ public sealed class WalkthroughBioLock : WalkthroughTestBase
     [TestCase("close door", null, "The door closes", "And not a moment too soon", "From within the lab you hear ferocious growlings", "the sounds of a skirmish", "high-pitched metallic scream")]
     [TestCase("z", null, "Time passes", "You hear, slightly muffled by the door, three fast knocks", "followed by the distinctive sound of tearing metal")]
     [TestCase("z", null, "Time passes", "You hear a final metallic scream from behind the door", "followed by the sound of Floyd's body being torn apart", "Floyd is dead")]
+    // Issue #545: Floyd died trapped in the lab, so he has no location at all. Addressing him takes
+    // the absent-talker path, which used to hand him to the narrator - who answered a question about
+    // a friend the player had just heard torn apart by inventing a whereabouts for him.
+    [TestCase("floyd, are you okay", null, "Floyd is gone", "There will be no answer")]
+    [TestCase("ask floyd about the card", null, "Floyd is gone")]
     public async Task PlayerWaitsTooLong_FloydDies(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 
@@ -98,6 +107,13 @@ public sealed class WalkthroughBioLock : WalkthroughTestBase
     [TestCase("z", null, "Time passes", "You hear, slightly muffled by the door, three fast knocks", "followed by the distinctive sound of tearing metal")]
     [TestCase("open door", null, "The door opens", "Floyd stumbles out of the Bio Lab", "clutching the mini-booth card", "The mutations rush toward the open doorway")]
     [TestCase("close door", null, "The door closes", "And not a moment too soon", "Floyd staggers to the ground", "dropping the mini card", "badly torn apart", "loose wires and broken circuits", "Oil flows from his lubrication system", "only moments to live", "You drop to your knees and cradle Floyd's head", "Floyd did it", "got card", "Floyd a good friend", "Floyd smiles with contentment", "his eyes close", "in memory of a brave friend")]
+    // Issue #545, proved against the state the player actually reaches rather than a hand-set
+    // HasDied: the body is lying in this room with its IsOn deliberately left true by EndSequence,
+    // which is exactly what made every post-mortem path serve living-Floyd responses.
+    [TestCase("floyd, are you okay", null, "You speak your friend's name", "no answer comes")]
+    [TestCase("take floyd", null, "lay him gently back down")]
+    [TestCase("examine floyd", null, "a tremendous sense of loss overcomes you")]
+    [TestCase("deactivate floyd", null, "already been turned off, permanently")]
     public async Task SuccessfulSequence_FloydSacrificesHimself(string input, string? setup, params string[] expectedResponses)
         => await DoWithSetup(input, setup, expectedResponses);
 

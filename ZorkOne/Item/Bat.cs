@@ -46,7 +46,7 @@ public class Bat : ItemBase
             {
                 var destination = batRoom.CarryPlayerOff(context);
                 var destinationDescription = context.ItIsDarkHere
-                    ? ((DarkLocation)destination).DarkDescription
+                    ? ((DarkLocation)destination).GetDarkDescription(context)
                     : destination.GetDescription(context);
 
                 return new PositiveInteractionResult($"{BatRoom.CarryOffText}\n\n{destinationDescription} ");

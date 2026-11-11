@@ -1,8 +1,8 @@
 /**
  * Zork Game State Tests
- * 
+ *
  * These tests verify the functionality of game state display (location, score, moves).
- * 
+ *
  * NOTE: API Mocking
  * To avoid dependency on the backend API (which may not always be running),
  * these tests use Playwright's route interception to mock API responses.
@@ -10,12 +10,18 @@
  */
 
 import {test, expect} from '@playwright/test';
-import { closeWelcomeModal, waitForGameResponse, handleZorkOneRoute, handleSaveGameRoute, handleRestoreGameRoute, handleGetSavedGamesRoute } from './testHelpers';
+import {
+    closeWelcomeModal,
+    waitForGameResponse,
+    handleZorkOneRoute,
+    handleSaveGameRoute,
+    handleRestoreGameRoute,
+    handleGetSavedGamesRoute,
+} from './testHelpers';
 
 test.describe('Game State', () => {
-
     // Set up API mocking before each test
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({page}) => {
         // Intercept requests to the API endpoints
         await page.route('http://localhost:5000/ZorkOne', handleZorkOneRoute);
 
@@ -43,12 +49,17 @@ test.describe('Game State', () => {
         await page.route('http://localhost:5000/ZorkOne/restoreGame', handleRestoreGameRoute);
     });
 
-    test('Location - when API returns a location, that location name is displayed in the header', async ({page}) => {
+    test('Location - when API returns a location, that location name is displayed in the header', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Verify initial location in header
         const headerLocation = page.locator('[data-testid="header-location"]');
@@ -69,12 +80,17 @@ test.describe('Game State', () => {
         await expect(headerLocation).toHaveText('North of House');
     });
 
-    test('Score - when API returns a score, that score is displayed in the header', async ({page}) => {
+    test('Score - when API returns a score, that score is displayed in the header', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Verify initial score in header
         const headerScore = page.locator('[data-testid="header-score"]');
@@ -96,12 +112,17 @@ test.describe('Game State', () => {
         await expect(headerScore).toContainText('10');
     });
 
-    test('Moves - when API returns moves, those moves are displayed in the header', async ({page}) => {
+    test('Moves - when API returns moves, those moves are displayed in the header', async ({
+        page,
+    }) => {
         // Close the welcome modal using the helper function
         await closeWelcomeModal(page);
 
         // Wait for the input field to be visible
-        await page.waitForSelector('[data-testid="game-input"]', {state: 'visible', timeout: 10000});
+        await page.waitForSelector('[data-testid="game-input"]', {
+            state: 'visible',
+            timeout: 10000,
+        });
 
         // Verify initial moves in header
         const headerMoves = page.locator('[data-testid="header-moves"]');
@@ -122,5 +143,4 @@ test.describe('Game State', () => {
         await expect(headerMoves).toContainText('Moves');
         await expect(headerMoves).toContainText('1');
     });
-
 });

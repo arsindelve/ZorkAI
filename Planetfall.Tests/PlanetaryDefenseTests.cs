@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Text.RegularExpressions;
+using FluentAssertions;
 using GameEngine;
 using GameEngine.Item;
 using GameEngine.Item.ItemProcessor;
@@ -232,6 +233,46 @@ public class PlanetaryDefenseTests : EngineTestsBase
         var response = await target.GetResponse("put fried in panel");
 
         response.Should().Contain("The card clicks neatly into the socket");
+    }
+
+    [Test]
+    public async Task PutShinyInPanel_SaysTheCardClicksIntoTheSocketExactlyOnce()
+    {
+        // Issue #513: the shiny-board branch of FromitzAccessPanel.ItemPlacedHereResult appended a
+        // string that re-contained the unconditional base sentence, so solving the puzzle stuttered:
+        // "The card clicks neatly into the socket. The card clicks neatly into the socket. The warning
+        // lights stop flashing." The ZIL (comptwo.zil GOOD-BOARD arm) emits the socket sentence once and
+        // then the warning-lights clause. Count occurrences - a Contains assertion passes on the
+        // duplicate, which is why the existing tests stayed green.
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<ShinyFromitzBoard>();
+        await target.GetResponse("remove second");
+
+        var response = await target.GetResponse("put shiny in panel");
+
+        Regex.Matches(response!, Regex.Escape("The card clicks neatly into the socket.")).Count
+            .Should().Be(1);
+        response.Should().Contain("The warning lights stop flashing");
+        target.Context.Score.Should().Be(6);
+    }
+
+    [Test]
+    public async Task PutFriedInPanel_SaysTheCardClicksIntoTheSocketExactlyOnce_AndNothingElse()
+    {
+        // Issue #513: guards the other arm - a board that doesn't solve the puzzle gets the base
+        // sentence once and no warning-lights clause.
+        var target = GetTarget();
+        StartHere<PlanetaryDefense>();
+        GetItem<FromitzAccessPanel>().IsOpen = true;
+        Take<FriedFromitzBoard>();
+
+        var response = await target.GetResponse("put fried in panel");
+
+        Regex.Matches(response!, Regex.Escape("The card clicks neatly into the socket.")).Count
+            .Should().Be(1);
+        response.Should().NotContain("The warning lights stop flashing");
     }
 
     [Test]

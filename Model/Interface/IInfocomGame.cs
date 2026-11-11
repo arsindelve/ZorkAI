@@ -1,3 +1,4 @@
+using Model.Location;
 namespace Model.Interface;
 
 /// <summary>
@@ -27,6 +28,14 @@ public interface IInfocomGame
     string SystemPromptSecretKey { get; }
 
     string StartText { get; }
+
+    /// <summary>
+    ///     The text shown when the adventurer is in a dark location with no light source, unless the
+    ///     specific location supplies its own wording. This lives on the game — not the engine's
+    ///     <c>DarkLocation</c> base class — so a game's flavor text (e.g. Zork's "eaten by a grue")
+    ///     never has to be hardcoded into the shared engine.
+    /// </summary>
+    string DarkLocationDescription { get; }
 
     /// <summary>
     ///     Represents the default save game name for an Infocom game.
@@ -72,5 +81,32 @@ public interface IInfocomGame
     /// Listing the types here also makes a not-yet-instantiated NPC "known" despite lazy loading.
     /// Defaults to none.
     /// </summary>
+    /// <summary>
+    ///     Scenery that answers in every room: walls, floor, ceiling, the air, the player's own body.
+    ///     The originals make these global objects, so the game recognises them anywhere and gives a
+    ///     stock reply. Without them every room silently defers those nouns to the AI narrator, which
+    ///     invents an answer the player cannot distinguish from a real one - the single largest source
+    ///     of improvised narration in this engine.
+    ///     Checked only after the room's own Scenery, so a room with something particular to say about
+    ///     its walls always wins.
+    /// </summary>
+    IReadOnlyList<SceneryItem> GlobalScenery => [];
+
     IReadOnlyList<Type> TalkableCharacterTypes => [];
+
+    /// <summary>
+    ///     Called once per restore, immediately after the saved <see cref="Repository" /> state has been
+    ///     installed, so a game can migrate a blob written by an older build. Defaults to doing nothing.
+    /// </summary>
+    /// <remarks>
+    ///     A location's <c>Init()</c> never runs again on restore — the saved <c>Items</c> list IS the
+    ///     room's contents. So whenever a release changes which object a room starts with, every
+    ///     in-flight session keeps the old one forever, and in the stateless deployment (which rehydrates
+    ///     from the session blob every turn) that is permanent rather than merely stale. This is the hook
+    ///     for repairing that. Implementations must be idempotent: it also runs on blobs that are already
+    ///     current.
+    /// </remarks>
+    void AfterRestore(IContext context)
+    {
+    }
 }

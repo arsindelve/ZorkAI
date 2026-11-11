@@ -2,7 +2,7 @@ using Model.AIGeneration;
 
 namespace Planetfall.Item.Lawanda;
 
-internal class MedicineBottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeRead, ICanBeExamined
+internal class MedicineBottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeRead
 {
     public override string[] NounsForMatching => ["medicine bottle", "bottle", "vial"];
 
@@ -17,8 +17,14 @@ internal class MedicineBottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped
 
     public override bool IsTransparent => true;
 
-    public string ExaminationDescription => ReadDescription;
-
+    // Issue #514: do NOT re-implement ICanBeExamined here. The engine normalizes "look in <noun>" /
+    // "look inside <noun>" to "examine <noun>" (GameEngine.NormalizeLookAt, issue #396), so the examine
+    // text IS this container's contents listing. Aliasing ExaminationDescription to ReadDescription made
+    // both verbs print the label - byte-identical whether the bottle was full or empty, the one container
+    // in the game that would not say what was inside it. Inheriting OpenAndCloseContainerBase's explicit
+    // ICanBeExamined member gives the sibling-container behavior: "The medicine bottle contains: ..." or
+    // "The medicine bottle is empty." (always visible - the bottle is transparent). The label stays on
+    // the READ path below and on "read/examine label" in RespondToSimpleInteraction.
     public string ReadDescription => "\"Dizeez supreshun medisin -- eksperimentul\"";
 
     public string OnTheGroundDescription(ILocation currentLocation)

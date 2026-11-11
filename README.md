@@ -161,6 +161,71 @@ AI is used sparingly and strategically—simple commands never touch the LLM. Th
 - **3,400+ Tests** — Comprehensive test coverage ensuring game accuracy
 - **Serverless Deployment** — AWS Lambda backend, React frontends, DynamoDB persistence
 - **Extensible Architecture** — Add new games by implementing locations and items; the engine does the rest
+- **Self-Hosted / Offline Play** — Point the AI at your own LM Studio, Ollama, or koboldcpp server and play with no cloud at all
+
+---
+
+## Play It Offline (Self-Hosted AI)
+
+Going somewhere with no network? The console version can run entirely on your machine, with all AI
+features — the parser, the narrator, and even conversations with Floyd — served by any local,
+OpenAI-compatible server such as [Ollama](https://ollama.com), [LM Studio](https://lmstudio.ai),
+or [koboldcpp](https://github.com/LostRuins/koboldcpp).
+
+```bash
+# Ollama
+ollama pull llama3.1:8b
+dotnet run --project Console ZorkOne --provider ollama --model llama3.1:8b
+
+# LM Studio (with a model loaded and the local server running)
+dotnet run --project Console ZorkOne --provider lmstudio
+
+# koboldcpp
+dotnet run --project Console Planetfall --provider koboldcpp
+
+# Any other OpenAI-compatible server
+dotnet run --project Console ZorkOne --endpoint http://gpu-box:8080/v1 --model my-model
+```
+
+The same settings work as environment variables (`ZORKAI_PROVIDER`, `OPENAI_BASE_URL`,
+`OPENAI_MODEL`) for the flag-averse. In self-hosted mode:
+
+- **No AWS, no OpenAI key, no network required** — saves go to local files (`~/.zorkai`, or set
+  `ZORKAI_SAVE_DIR`), the narrator uses a built-in system prompt (customize with
+  `ZORKAI_SYSTEM_PROMPT`), and cloud logging is skipped entirely.
+- **Floyd still talks.** Companion conversations route through your local model with the
+  characters' personality prompts.
+- **Model advice:** use a capable instruct model — 7B–8B or better is recommended. The model does
+  double duty as command parser and narrator; tiny models will misparse commands in ways that look
+  like game bugs.
+
+A fully deterministic **classic mode** — no LLM at all, with the parser and characters behaving
+exactly as they did in the 1983 originals — is planned as a follow-up (see issue #383 discussion).
+
+### Running the game backends locally, 24/7
+
+The same de-clouding applies to the four HTTP backends, so you can keep all of them running on your
+own machine with no AWS account and no OpenAI key:
+
+```bash
+ollama pull qwen3:14b        # or any capable instruct model
+docker compose up -d --build
+```
+
+| Game | Endpoint |
+|------|----------|
+| Zork One | `http://localhost:5100/ZorkOne` |
+| Planetfall | `http://localhost:5101/Planetfall` |
+| Escape Room | `http://localhost:5102/EscapeRoom` |
+| Stationfall | `http://localhost:5103/Stationfall` |
+
+`restart: unless-stopped` brings them back after a reboot, and sessions and saved games live on a
+named volume, so state survives rebuilds and restarts. By default the containers use an Ollama
+already running on your host; set `OPENAI_BASE_URL` and `OPENAI_MODEL` to point anywhere else, or
+run `docker compose --profile bundled-ollama up -d` to get a containerized Ollama instead.
+
+Remember that the model is doing the parsing: with nothing listening at the endpoint, movement and
+the global commands still work, but anything needing the AI parser will not.
 
 ---
 
