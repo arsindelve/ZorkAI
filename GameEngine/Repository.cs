@@ -474,6 +474,39 @@ public static class Repository
     }
 
     /// <summary>
+    ///     Every name a player may give a room as a "go to" destination: each location's display
+    ///     <see cref="ILocation.Name" /> plus its <see cref="ILocation.NounsForMatching" /> aliases - the same
+    ///     terms <c>DestinationNavigation</c> matches against. Room names are not nouns (nothing in
+    ///     <see cref="GetNouns" /> says "Kitchen"), so a parser that wants to know whether a destination is
+    ///     real must ask here, not there.
+    /// </summary>
+    public static string[] GetDestinationNames(string gameName)
+    {
+        var names = new List<string>();
+
+        foreach (var type in Assembly.Load(gameName).GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false } ||
+                !type.IsSubclassOf(typeof(LocationBase)))
+                continue;
+
+            try
+            {
+                var location = (LocationBase)Activator.CreateInstance(type)!;
+                names.Add(location.Name);
+                names.AddRange(location.NounsForMatching);
+            }
+            catch
+            {
+                // A location that cannot be constructed standalone contributes no destination names; the AI
+                // parser still covers it.
+            }
+        }
+
+        return names.Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().ToArray();
+    }
+
+    /// <summary>
     /// For god mode purposes only.
     /// </summary>
     /// <remarks>

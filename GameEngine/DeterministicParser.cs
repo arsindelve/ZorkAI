@@ -109,7 +109,25 @@ public class DeterministicParser
         var nouns = new HashSet<string>(Repository.GetNouns(gameName), StringComparer.OrdinalIgnoreCase);
         nouns.UnionWith(Repository.GetSceneryNouns(gameName));
 
-        return new Vocabulary(nouns);
+        // Room names are a separate vocabulary: "kitchen" is a destination, not a noun. Stored padded and
+        // article-free so IsKnownDestination can do DestinationNavigation's whole-word phrase match.
+        var destinations = Repository.GetDestinationNames(gameName)
+            .Select(name => $" {Normalize(name)} ")
+            .Distinct()
+            .ToArray();
+
+        return new Vocabulary(nouns, destinations);
+    }
+
+    /// <summary>
+    ///     True when <paramref name="destination" /> is a whole word or phrase of some room's name or alias -
+    ///     the rule <c>DestinationNavigation</c> resolves "go to" by ("office" -> "Lab Office"). A word that
+    ///     names no room defers to the AI rather than becoming a "go to" the engine can only refuse.
+    /// </summary>
+    private bool IsKnownDestination(string destination)
+    {
+        var target = $" {destination} ";
+        return _vocab.DestinationTerms.Any(term => term.Contains(target, StringComparison.Ordinal));
     }
 
     /// <summary>
@@ -136,7 +154,9 @@ public class DeterministicParser
             var dir = DirectionParser.ParseDirection(destination);
             if (dir != Direction.Unknown)
                 return new MoveIntent { Direction = dir, Message = original };
-            return _vocab.Nouns.Contains(destination)
+            // Gate on ROOM names, not nouns: "kitchen" is not a noun, so checking the noun vocabulary here
+            // rejected every real destination and sent "go to the kitchen" to the AI.
+            return IsKnownDestination(destination)
                 ? new GoToDestinationIntent { Destination = destination, Message = original }
                 : null;
         }
@@ -214,5 +234,5 @@ public class DeterministicParser
         return lowered.Trim();
     }
 
-    private readonly record struct Vocabulary(HashSet<string> Nouns);
+    private readonly record struct Vocabulary(HashSet<string> Nouns, string[] DestinationTerms);
 }

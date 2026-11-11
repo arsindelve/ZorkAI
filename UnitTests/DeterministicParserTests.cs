@@ -347,6 +347,24 @@ public class DeterministicParserPlanetfallTests
         simple.Verb.Should().Be(verb);
         simple.Noun.Should().Be(noun);
     }
+
+    [Test]
+    public void TravelPrefix_WithAWholeWordOfARoomName_BecomesGoToDestinationIntent()
+    {
+        // DestinationNavigation lets the player use any whole word of a room's name ("go to the office"
+        // -> "Lab Office"), so the parser's known-destination gate must accept the same terms. "office"
+        // is deliberately a word that names rooms but no object, so the noun vocabulary cannot vouch for it.
+        var result = _parser.Parse("go to the office");
+
+        result.Should().BeOfType<GoToDestinationIntent>();
+        ((GoToDestinationIntent)result!).Destination.Should().Be("office");
+    }
+
+    [Test]
+    public void TravelPrefix_WithAFragmentOfARoomName_FallsBackToAi()
+    {
+        _parser.Parse("go to the offi").Should().BeNull();
+    }
 }
 
 [TestFixture]
