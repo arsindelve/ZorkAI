@@ -59,7 +59,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
         }
 
-        if (action.Match(Verbs.ReadDialVerbs, ["dial"]) && context.CurrentLocation is RecArea)
+        if (action.Match(Verbs.ReadVerbs, ["dial"]) && context.CurrentLocation is RecArea)
             return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult($"The dial is set to {Code}. "));
 

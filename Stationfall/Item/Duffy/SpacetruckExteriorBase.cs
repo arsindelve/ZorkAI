@@ -58,7 +58,7 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
             if (action.MatchVerb(Verbs.OpenHatchVerbs))
                 return new PositiveInteractionResult(OperateHatch(true, context));
 
-            if (action.MatchVerb(Verbs.Exactly.CloseOrShut))
+            if (action.MatchVerb(Verbs.CloseItemVerbs))
                 return new PositiveInteractionResult(OperateHatch(false, context));
 
             if (action.MatchVerb(Verbs.SearchVerbs))

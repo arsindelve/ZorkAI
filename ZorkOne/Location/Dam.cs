@@ -66,7 +66,7 @@ public class Dam : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (Verbs.Exactly.Turn.Contains(action.Verb.ToLowerInvariant()) && action.Noun?.ToLowerInvariant() == "bolt")
+        if (Verbs.TurnByHandVerbs.Contains(action.Verb.ToLowerInvariant()) && action.Noun?.ToLowerInvariant() == "bolt")
             return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

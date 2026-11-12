@@ -24,6 +24,34 @@ public class DamTests : EngineTestsBase
         response.Should().Contain("sluice gates");
     }
 
+    // Verbs.TurnByHandVerbs and Verbs.TurnWithToolVerbs: "twist" and "rotate" are "turn".
+    [TestCase("twist the bolt")]
+    [TestCase("rotate the bolt")]
+    public async Task TurnBolt_BareHands_InOtherWords(string input)
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Dam>();
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("Your bare hands don't appear to be enough");
+    }
+
+    // Through the production grammar: the unit-test parser builds a two-noun intent only for the
+    // sentences in its static table, and these are not in it.
+    [TestCase("twist bolt with wrench")]
+    [TestCase("rotate bolt with wrench")]
+    public async Task CannotTurnBolt_InOtherWords(string input)
+    {
+        var target = GetTarget(Walkthrough.DeterministicFirst.Parser());
+        target.Context.CurrentLocation = Repository.GetLocation<Dam>();
+        target.Context.Take(Repository.GetItem<Wrench>());
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("best effort");
+    }
+
     [Test]
     public async Task CannotTurnBolt()
     {

@@ -81,7 +81,7 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
         IContext context)
     {
         // Handle "unlock door with key"
-        if (action.Match<BrassKey>(Verbs.Exactly.Unlock, NounsForMatching, ["with", "using"]))
+        if (action.Match<BrassKey>(Verbs.UnlockVerbs, NounsForMatching, ["with", "using"]))
         {
             if (!context.HasItem<BrassKey>())
                 return new PositiveInteractionResult("You don't have the key. ");
@@ -92,7 +92,7 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
         }
 
         // Handle "lock door with key"
-        if (action.Match<BrassKey>(Verbs.Exactly.Lock, NounsForMatching, ["with", "using"]))
+        if (action.Match<BrassKey>(Verbs.LockVerbs, NounsForMatching, ["with", "using"]))
         {
             if (!context.HasItem<BrassKey>())
                 return new PositiveInteractionResult("You don't have the key. ");
@@ -108,7 +108,7 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Handle "unlock door" when player has key
-        if (action.Match(Verbs.Exactly.Unlock, NounsForMatching))
+        if (action.Match(Verbs.UnlockVerbs, NounsForMatching))
         {
             if (context.HasItem<BrassKey>())
             {
@@ -121,7 +121,7 @@ public class ExitDoor : ItemBase, IOpenAndClose, ICanBeExamined
         }
 
         // Handle "lock door" when player has key
-        if (action.Match(Verbs.Exactly.Lock, NounsForMatching))
+        if (action.Match(Verbs.LockVerbs, NounsForMatching))
         {
             if (context.HasItem<BrassKey>())
             {

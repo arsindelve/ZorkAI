@@ -50,7 +50,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
         IItemProcessorFactory itemProcessorFactory
         )
     {
-        if (action.Match(Verbs.Exactly.Count, NounsForMatching))
+        if (action.Match(Verbs.CountVerbs, NounsForMatching))
             return new PositiveInteractionResult("There are 69,105 leaves here. ");
 
         if (action.Match(Verbs.RummageVerbs, NounsForMatching))
@@ -73,7 +73,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
             );
         }
 
-        if (action.Match(Verbs.Exactly.Burn, NounsForMatching))
+        if (action.Match(Verbs.BurnVerbs, NounsForMatching))
         {
             var matches = Repository.GetItem<Matchbook>();
             var candles = Repository.GetItem<Candles>();

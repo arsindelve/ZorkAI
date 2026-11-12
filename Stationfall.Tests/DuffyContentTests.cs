@@ -72,6 +72,21 @@ public class DuffyContentTests : EngineTestsBase
             Repository.GetItem<DockingBayHatch>().IsOpen.Should().BeFalse();
         }
 
+        // Verbs.CloseItemVerbs: from outside, the truck is closed, shut or sealed by its hatch.
+        [TestCase("close truck")]
+        [TestCase("shut truck")]
+        [TestCase("seal truck")]
+        public async Task ClosingTheTruckFromOutside_ShutsItsHatch(string input)
+        {
+            await WalkToCargoBay();
+            await _target.GetResponse("open hatch");
+            Repository.GetItem<SpacetruckHatch>().IsOpen.Should().BeTrue();
+
+            await _target.GetResponse(input);
+
+            Repository.GetItem<SpacetruckHatch>().IsOpen.Should().BeFalse();
+        }
+
         [Test]
         public async Task RefusesToOpenInDeepSpace()
         {
@@ -236,6 +251,15 @@ public class DuffyContentTests : EngineTestsBase
         {
             // The refusal has to name the remedy, or the player is left rattling a door for no reason.
             (await _target.GetResponse("open door")).Should().Contain("validated Assignment Completion Form");
+        }
+
+        // Verbs.CloseItemVerbs: it is already closed, however the player says to close it.
+        [TestCase("close door")]
+        [TestCase("shut door")]
+        [TestCase("seal door")]
+        public async Task IsAlreadyClosed_HoweverThePlayerSaysToCloseIt(string input)
+        {
+            (await _target.GetResponse(input)).Should().Contain("It's already closed");
         }
 
         [Test]

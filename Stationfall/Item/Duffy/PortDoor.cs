@@ -34,7 +34,7 @@ public class PortDoor : ItemBase, ICanBeExamined
             return new PositiveInteractionResult(
                 "You must insert a validated Assignment Completion Form in the slot. ");
 
-        if (action.MatchVerb(Verbs.Exactly.CloseOrShut))
+        if (action.MatchVerb(Verbs.CloseItemVerbs))
             return new PositiveInteractionResult("It's already closed. ");
 
         if (action.MatchVerb(Verbs.KnockVerbs))

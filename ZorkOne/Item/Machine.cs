@@ -44,7 +44,7 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!IsOpen && action.Match(Verbs.Exactly.Open, ["lid"]))
+        if (!IsOpen && action.Match(Verbs.OpenItemLidVerbs, ["lid"]))
         {
             IsOpen = true;
             return new PositiveInteractionResult(NowOpen(context.CurrentLocation));
@@ -56,7 +56,7 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
             return new PositiveInteractionResult(NowClosed(context.CurrentLocation));
         }
 
-        if (Verbs.Exactly.Turn.Contains(action.Verb.ToLowerInvariant()) && action.Noun?.ToLowerInvariant() == "switch")
+        if (Verbs.TurnByHandVerbs.Contains(action.Verb.ToLowerInvariant()) && action.Noun?.ToLowerInvariant() == "switch")
             return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

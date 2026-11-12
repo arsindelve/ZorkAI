@@ -125,19 +125,58 @@ public static class Verbs
     public static readonly VerbFamily PlaceVerbs = new("place", "put", "move");
 
     /// <summary>
-    ///     Taking something off or out of what holds it. Not <see cref="TakeVerbs" />: "remove" is not a
-    ///     way to pick an object up off the floor.
+    ///     Taking something off or out of what holds it: the padlock off the door, the battery out of
+    ///     the laser. Not <see cref="TakeVerbs" />: "remove" is not a way to pick an object up off the floor.
     /// </summary>
     public static readonly VerbFamily RemoveVerbs = new("remove", "take");
 
-    /// <summary>For a lock, where "open it with the key" and "unlock it" are the same request.</summary>
-    public static readonly VerbFamily UnlockVerbs = new("unlock", "open");
+    /// <summary>
+    ///     Trying to get open a thing that is shut tight - a sealed can, a boarded-up door. Not
+    ///     <see cref="OpenVerbs" />: nobody lifts a can to open it.
+    /// </summary>
+    public static readonly VerbFamily OpenItemVerbs = new("open", "pry", "force", "unseal");
+
+    /// <summary>Opening a thing by its lid, which is as often lifted or raised as opened.</summary>
+    public static readonly VerbFamily OpenItemLidVerbs = new("open", "lift", "raise");
+
+    /// <summary>Closing a hatch, a door or a box, which is as often shut or sealed.</summary>
+    public static readonly VerbFamily CloseItemVerbs = new("close", "shut", "seal");
+
+    /// <summary>
+    ///     Hauling a thing up: the basket on its chain, the corner of the rug. Not <see cref="OpenVerbs" />,
+    ///     which happens to contain "raise" - "open the basket" must not raise it.
+    /// </summary>
+    public static readonly VerbFamily RaiseVerbs = new("raise", "lift", "hoist");
+
+    public static readonly VerbFamily LowerVerbs = new("lower");
+
+    /// <summary>Setting fire to something, with or without saying what with.</summary>
+    public static readonly VerbFamily BurnVerbs = new("burn", "light", "torch", "ignite");
+
+    public static readonly VerbFamily CountVerbs = new("count");
+
+    /// <summary>
+    ///     Getting a lock open, where "open it with the key" and "unlock it" are the same request.
+    ///     For a door that also opens in the ordinary way, use <see cref="UnlockVerbs" />.
+    /// </summary>
+    public static readonly VerbFamily OpenLockVerbs = new("unlock", "open");
+
+    /// <summary>
+    ///     Unlocking something that opens separately once it is unlocked (the grating, a door): "open"
+    ///     is not in here, because opening it is the next step.
+    /// </summary>
+    public static readonly VerbFamily UnlockVerbs = new("unlock");
+
+    public static readonly VerbFamily LockVerbs = new("lock");
 
     /// <summary>Setting a dial or a control to a value: "set the laser to 5", "turn the dial to 5".</summary>
     public static readonly VerbFamily SetVerbs = new("set", "turn");
 
     /// <summary>Working a fitting with a tool: "turn the bolt with the wrench", "use the wrench on the bolt".</summary>
-    public static readonly VerbFamily TurnWithToolVerbs = new("turn", "use", "apply");
+    public static readonly VerbFamily TurnWithToolVerbs = new("turn", "twist", "rotate", "use", "apply");
+
+    /// <summary>Trying to work that same fitting with nothing but your hands.</summary>
+    public static readonly VerbFamily TurnByHandVerbs = new("turn", "twist", "rotate");
 
     /// <summary>Entering something on a keyboard or keypad, where a player also says "press" and "push".</summary>
     public static readonly VerbFamily KeyInVerbs = new("type", "punch", "key", "press", "push");
@@ -155,8 +194,6 @@ public static class Verbs
     public static readonly VerbFamily AttackVerbs = new([..KillVerbs, "kick"]);
 
     public static readonly VerbFamily BoardSpacetruckVerbs = new("enter", "board", "get in", "climb in");
-
-    public static readonly VerbFamily BurnBookVerbs = new("light", "burn", "torch");
 
     public static readonly VerbFamily ChooseVerbs = new("pick", "choose", "select", "requisition", "hire");
 
@@ -235,10 +272,6 @@ public static class Verbs
 
     public static readonly VerbFamily LeaveSeatVerbs = new("leave", "exit");
 
-    public static readonly VerbFamily LiftRugVerbs = new("lift", "hoist", "raise");
-
-    public static readonly VerbFamily LightCandlesVerbs = new("light", "burn");
-
     public static readonly VerbFamily ListenVerbs = new("listen", "listen to", "hear");
 
     public static readonly VerbFamily LookInBinVerbs =
@@ -284,10 +317,6 @@ public static class Verbs
 
     public static readonly VerbFamily PutInThermosVerbs = new("put", "place", "insert", "drop");
 
-    public static readonly VerbFamily ReadDialVerbs = new("examine", "look", "look at", "inspect", "read");
-
-    public static readonly VerbFamily ReadMonitorVerbs = new("examine", "look at", "read");
-
     public static readonly VerbFamily RetractVerbs = new("retract", "collapse", "shorten", "close", "contract");
 
     // Retrieving the key WITH the magnet. The take family comes from Verbs.TakeVerbs rather than a partial
@@ -304,8 +333,6 @@ public static class Verbs
     public static readonly VerbFamily RingBellVerbs = new("ring", "activate", "shake");
 
     public static readonly VerbFamily RummageVerbs = new("move", "search");
-
-    public static readonly VerbFamily SealBoxVerbs = new("close", "shut", "seal");
 
     public static readonly VerbFamily ShakeVerbs = new("shake", "agitate", "rattle");
 
@@ -358,8 +385,12 @@ public static class Verbs
     /// </summary>
     public static readonly VerbFamily PutVerbs = new("put", "place", "jam", "shove", "push");
 
-    /// <summary>What anything readable answers (<c>ReadInteractionProcessor</c>).</summary>
-    public static readonly VerbFamily ReadVerbs = new("read", "examine", "look", "look at");
+    /// <summary>
+    ///     Reading what something says. <c>ReadInteractionProcessor</c> answers it for every readable
+    ///     item; rooms and fixtures match on it for writing that is not an item of its own - a label, a
+    ///     screen, a dial, a carving.
+    /// </summary>
+    public static readonly VerbFamily ReadVerbs = new("read", "examine", "look", "look at", "inspect");
 
     /// <summary>
     ///     What gives an item's examination text (<c>ExamineInteractionProcessor</c>). Not the same words
@@ -387,6 +418,9 @@ public static class Verbs
 
     public static readonly VerbFamily TurnOffVerbs =
         new("deactivate", "turn off", "extinguish", "blow out", "disable");
+
+    /// <summary>A bare "turn", when the parser could not tell on from off; the adverb decides.</summary>
+    public static readonly VerbFamily TurnVerbs = new("turn");
 
     /// <summary>
     ///     Putting clothing on and taking it off (<c>ClothingOnAndOffProcessor</c>). "don" / "doff" are
@@ -418,34 +452,4 @@ public static class Verbs
     ///     blue door" would otherwise come out as a verb and a noun that nothing answers.
     /// </summary>
     public static readonly VerbFamily DisembarkVerbs = new("exit", "leave", "disembark");
-
-    /// <summary>
-    ///     One word, or two, and deliberately nothing else. A handler that matches one of these answers
-    ///     that word and none of its synonyms: the tin can answers "open" and not "pry", the basket
-    ///     answers "raise" and not "lift".
-    ///     <para>
-    ///         Do not swap one for the wider family of the same name to save typing - that changes what
-    ///         the object answers. Widening is a decision to make on its own, against the original game.
-    ///     </para>
-    /// </summary>
-    public static class Exactly
-    {
-        public static readonly VerbFamily Open = new("open");
-        public static readonly VerbFamily CloseOrShut = new("close", "shut");
-
-        /// <summary>
-        ///     Reading what is written on something that is not itself a readable item - a label, a
-        ///     screen, a carving. Narrower than <see cref="ReadVerbs" />: no "look".
-        /// </summary>
-        public static readonly VerbFamily ReadOrExamine = new("read", "examine");
-        public static readonly VerbFamily Raise = new("raise");
-        public static readonly VerbFamily Lower = new("lower");
-        public static readonly VerbFamily Lock = new("lock");
-        public static readonly VerbFamily Unlock = new("unlock");
-        public static readonly VerbFamily Turn = new("turn");
-        public static readonly VerbFamily Use = new("use");
-        public static readonly VerbFamily Remove = new("remove");
-        public static readonly VerbFamily Burn = new("burn");
-        public static readonly VerbFamily Count = new("count");
-    }
 }

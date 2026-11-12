@@ -78,7 +78,7 @@ public class LivingRoom : LocationBase
         string[] nouns =
             ["lettering", "gothic lettering", "strange gothic lettering", "engraving", "engravings", "door"];
 
-        if (action.Match(Verbs.Exactly.ReadOrExamine, nouns))
+        if (action.Match(Verbs.ReadVerbs, nouns))
             return new PositiveInteractionResult(
                 "The engravings translate to \"This space intentionally left blank.\"");
 

@@ -48,7 +48,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             return new PositiveInteractionResult("Taken. ");
         }
 
-        if (action.Match(Verbs.UnlockVerbs, NounsForMatching))
+        if (action.Match(Verbs.OpenLockVerbs, NounsForMatching))
         {
             if (!Locked)
                 return new PositiveInteractionResult("The padlock is already open. ");
@@ -67,8 +67,8 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             ? [..NounsForMatching, "door"]
             : NounsForMatching;
 
-        var match = action.Match<Key>(Verbs.UnlockVerbs, nounsToMatch, ["with", "using"]);
-        match |= action.Match(Verbs.Exactly.Use, Repository.GetItem<Key>().NounsForMatching, nounsToMatch, ["on"]);
+        var match = action.Match<Key>(Verbs.OpenLockVerbs, nounsToMatch, ["with", "using"]);
+        match |= action.Match(Verbs.UseOnVerbs, Repository.GetItem<Key>().NounsForMatching, nounsToMatch, ["on"]);
 
         if (match)
         {

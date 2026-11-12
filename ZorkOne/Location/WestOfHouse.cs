@@ -67,7 +67,7 @@ public class WestOfHouse : LocationBase
         if (action.Match(Verbs.ExamineVerbs, nouns))
             return new PositiveInteractionResult("The door is closed. ");
 
-        if (action.Match(Verbs.Exactly.Open, nouns))
+        if (action.Match(Verbs.OpenItemVerbs, nouns))
             return new PositiveInteractionResult("The door cannot be opened. ");
 
         if (action.Match(Verbs.ExamineVerbs, ["house", "white house"]))

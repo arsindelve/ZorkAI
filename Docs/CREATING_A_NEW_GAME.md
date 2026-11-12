@@ -685,7 +685,7 @@ public class ExitDoor : OpenAndCloseBase, ICanBeExamined, ICannotBeTaken
         MultiNounIntent action, IContext context, IGenerationClient client)
     {
         // Check for "unlock door with key"
-        if (action.Match(Verbs.Exactly.Unlock, NounsForMatching, ["with", "using"]))
+        if (action.Match(Verbs.UnlockVerbs, NounsForMatching, ["with", "using"]))
         {
             var key = Repository.GetItem<Key>();
 
@@ -1544,7 +1544,7 @@ public override Task<InteractionResult?> RespondToMultiNounInteraction(
 
 // Verbs are matched against a declared VerbFamily, never an inline list of strings.
 // Every grouping of two or more verbs is declared in Model/Verbs.cs, once, and matched from there:
-//     Verbs.UnlockVerbs ("unlock", "open"), Verbs.PushVerbs, Verbs.RingBellVerbs ...
+//     Verbs.UnlockVerbs ("unlock"), Verbs.OpenLockVerbs ("unlock", "open"), Verbs.RingBellVerbs ...
 // Only a single verb that nothing else uses is declared on the class that answers it:
 private static readonly VerbFamily DigVerb = new("dig");
 

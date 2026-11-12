@@ -405,8 +405,13 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - **The same words are never declared twice.** Before declaring a family, look in `Verbs.cs`; if another
   class already declares those exact words, move the family to `Verbs.cs` and use it from both.
   `VerbFamilyDeclarationTests.NoTwoFamiliesHoldTheSameWords` fails on a repeat and names both fields.
-- **`Verbs.Exactly.*` is one word on purpose** (`Verbs.Exactly.Open`, `.Turn`, `.Use`, `.Lock` ...): the
-  handler answers that word and none of its synonyms. It is not a shorter way to write `Verbs.OpenVerbs`.
+- **A grouping is named for the usage, and its words fit that usage.** "Open" is not one thing:
+  `Verbs.OpenVerbs` is what every ordinary container and door answers (open, lift, pry, unbar ...),
+  `Verbs.OpenItemLidVerbs` is opening a thing by its lid (open, lift, raise), `Verbs.OpenItemVerbs` is trying
+  to get a shut-tight thing open (open, pry, force, unseal), `Verbs.OpenLockVerbs` is getting a lock open
+  (unlock, open). When an object needs a narrower or different set of words than an existing grouping,
+  add a grouping for that usage - never a "just this one word" set, and never the nearest wider grouping
+  because it is there. One grouping per usage: the basket and the rug both answer `Verbs.RaiseVerbs`.
 - **Build on another family with a spread**: `new([..Verbs.KillVerbs, "kick"])`. The first word is the
   family's canonical `Name`.
 - **Why**: `Repository.GetVerbs(gameName)` harvests every static `VerbFamily` field in the engine and the

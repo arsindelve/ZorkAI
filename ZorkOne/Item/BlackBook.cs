@@ -48,7 +48,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(Verbs.Exactly.Burn, NounsForMatching))
+        if (action.Match(Verbs.BurnVerbs, NounsForMatching))
             return new PositiveInteractionResult("You'll need to specify what you want to burn it with. ");
 
         if (action.Match(ReadVerb, NounsForMatching))
@@ -95,7 +95,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
             .ToArray();
 
         if (!action.Match(
-                Verbs.BurnBookVerbs,
+                Verbs.BurnVerbs,
                 NounsForMatching,
                 burnyThings,
                 ["with"]

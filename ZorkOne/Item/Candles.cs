@@ -140,7 +140,7 @@ public class Candles
         )
     {
         if (!action.Match(
-                Verbs.LightCandlesVerbs,
+                Verbs.BurnVerbs,
                 NounsForMatching,
                 Repository.GetItem<Matchbook>().NounsForMatching.Union(Repository.GetItem<Torch>().NounsForMatching)
                     .ToArray(),
