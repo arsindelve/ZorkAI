@@ -1,21 +1,21 @@
 using GameEngine;
 using GameEngine.Location;
+using JetBrains.Annotations;
 using Model.AIGeneration;
 using Model.Intent;
 using Model.Interface;
 using Model.Movement;
+using Newtonsoft.Json;
 
 namespace ZorkOne.Location;
 
 public class CaveSouth : DarkLocationWithNoStartingItems, IThiefMayVisit, ITurnBasedActor
 {
-    private IRandomChooser _randomChooser = new RandomChooser();
-
-    public IRandomChooser RandomChooser
-    {
-        get => _randomChooser;
-        set => _randomChooser = value;
-    }
+    // [JsonIgnore]: the chooser is behaviour, not state. Left in, it was written into every save made
+    // after the cave was first loaded, and a save holding a chooser the serialiser cannot rebuild could
+    // not be restored at all.
+    [UsedImplicitly] [JsonIgnore]
+    public IRandomChooser RandomChooser { get; set; } = new RandomChooser();
 
     public override string Name => "Cave";
 

@@ -54,6 +54,39 @@ public class SaveGameSerializationTests : EngineTestsBase
         restoredEngine.PreviousLocationName.Should().Be("West Of House");
     }
 
+    [TestCase("ZorkOne")]
+    [TestCase("Planetfall")]
+    [TestCase("Stationfall")]
+    [TestCase("EscapeRoom")]
+    public void TheDiceAGameObjectRolls_AreNotWrittenIntoTheSavedGame(string game)
+    {
+        // A chooser is how an object behaves, not what state it is in. Written into a save it is dead
+        // weight at best - and a save holding a stand-in chooser (a test's, or any type the serialiser
+        // cannot rebuild) cannot be restored at all, which is how Cave South's was found.
+        var written = System.Reflection.Assembly.Load(game).GetTypes()
+            .SelectMany(type => type.GetProperties(System.Reflection.BindingFlags.Public |
+                                                   System.Reflection.BindingFlags.Instance |
+                                                   System.Reflection.BindingFlags.DeclaredOnly))
+            .Where(property => property.PropertyType == typeof(Model.Interface.IRandomChooser) &&
+                               !property.IsDefined(typeof(Newtonsoft.Json.JsonIgnoreAttribute), false))
+            .Select(property => $"{property.DeclaringType!.Name}.{property.Name}");
+
+        written.Should().BeEmpty("every IRandomChooser property carries [JsonIgnore]");
+    }
+
+    [Test]
+    public void AGameSavedInCaveSouth_WithItsDicePinned_CanBeRestored()
+    {
+        var engine = GetTarget();
+        var pinned = new Mock<Model.Interface.IRandomChooser>();
+        Repository.GetLocation<CaveSouth>().RandomChooser = pinned.Object;
+
+        var saved = engine.SaveGame();
+
+        var restoring = () => GetTarget().RestoreGame(saved);
+        restoring.Should().NotThrow();
+    }
+
     [Test]
     public void SaveGame_Contains_TypeAndReferenceMetadata()
     {
