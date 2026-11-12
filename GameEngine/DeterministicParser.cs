@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Reflection;
 using Model;
 using Model.Intent;
 using Model.Movement;
@@ -95,8 +96,24 @@ public class DeterministicParser
         //
         // GetSceneryNouns is unioned in for the game-wide scenery (IInfocomGame.GlobalScenery) that lives on
         // the game itself, not on any item or location, so GetNouns cannot see it.
-        var nouns = new HashSet<string>(Repository.GetNouns(gameName), StringComparer.OrdinalIgnoreCase);
-        nouns.UnionWith(Repository.GetSceneryNouns(gameName));
+        //
+        // Each noun is keyed by its normalised form - what Normalize makes of the player's input, so lower
+        // case with the articles gone - and maps back to the noun as the game declares it. The key is what
+        // the input is looked up by; the declared form is what goes into the intent, because that is what
+        // a handler's MatchNoun compares against. For almost every noun the two are the same string. They
+        // differ for one like Planetfall's "metal bar, curved into a u-shape", which could not be matched
+        // at all while the lookup compared article-stripped input with the article-bearing declaration.
+        var nounOwners = Repository.GetNounOwners(gameName);
+        var nouns = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var noun in nounOwners.SelectMany(owner => owner.Nouns).Concat(Repository.GetSceneryNouns(gameName)))
+        {
+            var key = Normalize(noun);
+            var declared = noun.ToLowerInvariant();
+
+            // Should two declarations normalise alike ("the troll", "troll"), keep the plain one.
+            if (key.Length > 0 && (!nouns.ContainsKey(key) || declared == key))
+                nouns[key] = declared;
+        }
 
         // Room names are a separate vocabulary: "kitchen" is a destination, not a noun. Stored padded and
         // article-free so IsKnownDestination can do DestinationNavigation's whole-word phrase match.
@@ -106,15 +123,49 @@ public class DeterministicParser
             .ToArray();
 
         // The verbs are harvested exactly as the nouns are: every word of every VerbFamily the engine or
-        // this game declares (Repository.GetVerbs). There is no verb list in this class to fall behind -
-        // a handler cannot answer a verb that is not in a family. Single words only: a multi-word phrase
-        // reaches the grammar through MultiWordVerbCanon or not at all.
-        var verbs = Repository.GetVerbs(gameName)
-            .SelectMany(family => family)
-            .Where(word => !word.Contains(' '))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        // this game declares (Repository.GetVerbDeclarations). There is no verb list in this class to fall
+        // behind - a handler cannot answer a verb that is not in a family. Single words only: a multi-word
+        // phrase reaches the grammar through MultiWordVerbCanon or not at all.
+        //
+        // But a verb being KNOWN is not the same as its being ANSWERED, and who declares a family says
+        // which it is. The thesaurus and the engine's own processors answer for any object, so their verbs
+        // are trusted everywhere. A family on one item or room is answered by that item or room alone: the
+        // admin corridor lists "yank" and "fetch" for fishing out the key, and neither does anything to a
+        // lever or a canteen, where the AI would have made them "pull" and "take". So an object's own verbs
+        // are trusted only alongside that object's own nouns. Anything else is declined, exactly as it was
+        // before the verb was harvested at all.
+        Assembly[] engine = [typeof(Verbs).Assembly, typeof(DeterministicParser).Assembly];
+        var sharedVerbs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var ownVerbs = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        return new Vocabulary(nouns, destinations, verbs);
+        foreach (var (family, declaredOn) in Repository.GetVerbDeclarations(gameName))
+        {
+            var words = family.Where(word => !word.Contains(' ')).ToArray();
+
+            if (engine.Contains(declaredOn.Assembly))
+            {
+                sharedVerbs.UnionWith(words);
+                continue;
+            }
+
+            // The declaring type and everything derived from it: a family on an abstract base (every
+            // access-card slot, every shuttle control cabin) is answered by each concrete subclass.
+            var itsNouns = nounOwners
+                .Where(owner => declaredOn.IsAssignableFrom(owner.Owner))
+                .SelectMany(owner => owner.Nouns)
+                .Select(noun => noun.ToLowerInvariant())
+                .ToArray();
+
+            foreach (var word in words)
+            {
+                if (!ownVerbs.TryGetValue(word, out var answeredFor))
+                    ownVerbs[word] = answeredFor = new HashSet<string>(StringComparer.Ordinal);
+
+                answeredFor.UnionWith(itsNouns);
+            }
+        }
+
+        return new Vocabulary(nouns, destinations, sharedVerbs, ownVerbs);
     }
 
     /// <summary>
@@ -176,7 +227,7 @@ public class DeterministicParser
         {
             verb = words[0];
             rest = words[1..];
-            if (!_vocab.Verbs.Contains(verb))
+            if (!_vocab.SharedVerbs.Contains(verb) && !_vocab.OwnVerbs.ContainsKey(verb))
                 return null; // not an imperative we recognise -> let the AI try
         }
 
@@ -186,42 +237,63 @@ public class DeterministicParser
         // 3. Exploratory "look/peer under|through <object>" -> SimpleIntent with the preposition as adverb.
         if (rest.Length >= 2 && (rest[0] == "under" || rest[0] == "through") && ExploratoryVerbs.Matches(verb))
         {
-            var noun = string.Join(' ', rest[1..]);
-            return _vocab.Nouns.Contains(noun)
+            return TryNoun(rest[1..], out var noun) && IsAnswered(verb, noun)
                 ? new SimpleIntent { Verb = verb, Noun = noun, Adverb = rest[0], OriginalInput = original, Message = original }
                 : null;
         }
 
-        // 4. Multi-noun: "verb <noun1> <preposition> <noun2>". Both must be known nouns, or we defer to the AI
-        //    (so a mis-split can never turn into a wrong single-noun command).
-        var prepIndex = Array.FindIndex(rest, w => ConnectingPrepositions.Contains(w));
-        if (prepIndex >= 1 && prepIndex < rest.Length - 1)
+        // 4. Single noun: the whole post-verb phrase must be an exact known noun (so a hidden second noun,
+        //    or trailing words we don't understand, defers to the AI rather than being guessed). Tried BEFORE
+        //    looking for a preposition to split on, because a noun may contain one: "metal bar, curved into
+        //    a u-shape" is one object, not a bar and a u-shape.
+        if (TryNoun(rest, out var single))
         {
-            var nounOne = string.Join(' ', rest[..prepIndex]);
-            var nounTwo = string.Join(' ', rest[(prepIndex + 1)..]);
-            return _vocab.Nouns.Contains(nounOne) && _vocab.Nouns.Contains(nounTwo)
-                ? new MultiNounIntent
-                {
-                    Verb = verb, NounOne = nounOne, NounTwo = nounTwo, Preposition = rest[prepIndex],
-                    OriginalInput = original, Message = original
-                }
-                : null;
+            if (!IsAnswered(verb, single))
+                return null;
+
+            return BoardVerbs.Matches(verb)
+                ? new EnterSubLocationIntent { Noun = single, Message = original }
+                : new SimpleIntent { Verb = verb, Noun = single, OriginalInput = original, Message = original };
         }
 
-        // 5. Single noun: the whole post-verb phrase must be an exact known noun (so a hidden second noun,
-        //    or trailing words we don't understand, defers to the AI rather than being guessed).
-        var single = string.Join(' ', rest);
-        if (!_vocab.Nouns.Contains(single))
-            return null;
+        // Getting into something takes one object. "enter the house through the window" is a way of MOVING,
+        // which the AI resolves; as a two-noun "enter" it would be a command nothing answers.
         if (BoardVerbs.Matches(verb))
-            return new EnterSubLocationIntent { Noun = single, Message = original };
-        return new SimpleIntent { Verb = verb, Noun = single, OriginalInput = original, Message = original };
+            return null;
+
+        // 5. Multi-noun: "verb <noun1> <preposition> <noun2>". Both sides must be known nouns, or we defer to
+        //    the AI (so a mis-split can never turn into a wrong command). Every preposition is tried as the
+        //    split point, not just the first, for the same reason as above: the first one may belong to a noun.
+        for (var index = 1; index < rest.Length - 1; index++)
+            if (ConnectingPrepositions.Contains(rest[index]) &&
+                TryNoun(rest[..index], out var nounOne) && TryNoun(rest[(index + 1)..], out var nounTwo) &&
+                IsAnswered(verb, nounOne, nounTwo))
+                return new MultiNounIntent
+                {
+                    Verb = verb, NounOne = nounOne, NounTwo = nounTwo, Preposition = rest[index],
+                    OriginalInput = original, Message = original
+                };
+
+        return null;
     }
 
-    /// <summary>Lowercases, trims trailing sentence punctuation, and strips articles.</summary>
+    /// <summary>
+    ///     Looks the phrase up as a noun the game declares, handing back the declared form.
+    /// </summary>
+    private bool TryNoun(string[] words, out string declared)
+    {
+        return _vocab.Nouns.TryGetValue(string.Join(' ', words), out declared!);
+    }
+
+    /// <summary>Lowercases, trims trailing sentence punctuation, collapses whitespace, and strips articles.</summary>
     private static string Normalize(string input)
     {
         var lowered = input.ToLowerInvariant().Trim().TrimEnd('?', '!', '.', ',', ';');
+
+        // Runs of whitespace become one space BEFORE anything is matched. Splitting into words copes with a
+        // doubled space on its own, but the travel prefixes ("go to ") and the article stripping below are
+        // matched as text, so "go  to  the  kitchen" used to slip past both and be declined.
+        lowered = string.Join(' ', lowered.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
         lowered = lowered
             .Replace(" the ", " ")
             .Replace(" a ", " ")
@@ -232,5 +304,16 @@ public class DeterministicParser
         return lowered.Trim();
     }
 
-    private readonly record struct Vocabulary(HashSet<string> Nouns, string[] DestinationTerms, HashSet<string> Verbs);
+    /// <summary>
+    ///     True when something answers <paramref name="verb" /> for these nouns: a verb the engine shares
+    ///     across objects always, an object's own verb only when one of the nouns is that object's.
+    /// </summary>
+    private bool IsAnswered(string verb, params string[] declaredNouns)
+    {
+        return _vocab.SharedVerbs.Contains(verb) ||
+               (_vocab.OwnVerbs.TryGetValue(verb, out var answeredFor) && declaredNouns.Any(answeredFor.Contains));
+    }
+
+    private readonly record struct Vocabulary(Dictionary<string, string> Nouns, string[] DestinationTerms,
+        HashSet<string> SharedVerbs, Dictionary<string, HashSet<string>> OwnVerbs);
 }

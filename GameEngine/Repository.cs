@@ -433,48 +433,54 @@ public static class Repository
     {
         lock (_allNouns)
         {
-            var assembly = Assembly.Load(gameName);
-            var types = assembly.GetTypes();
-
-            var nouns = new List<string>();
-
-            foreach (var type in types)
-            {
-                if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false })
-                    continue;
-
-                if (type.IsSubclassOf(typeof(ItemBase)))
-                {
-                    var instance = (ItemBase)Activator.CreateInstance(type)!;
-                    nouns.AddRange(instance.NounsForMatching);
-                }
-                else if (type.IsSubclassOf(typeof(LocationBase)))
-                {
-                    // A location owns its scenery nouns (LocationBase.SceneryNouns, backed by its Scenery
-                    // declarations) and any destination aliases (NounsForMatching). Harvesting them here —
-                    // instead of hardcoding a per-game noun list in the parser — keeps the engine ignorant of
-                    // any specific game's content: each game declares, the engine reflects. Guarded so a
-                    // location that can't be constructed bare doesn't sink the whole vocabulary.
-                    try
-                    {
-                        var location = (LocationBase)Activator.CreateInstance(type)!;
-                        nouns.AddRange(location.NounsForMatching);
-                        nouns.AddRange(location.SceneryNouns);
-                    }
-                    catch
-                    {
-                        // A location that throws when constructed without Init() simply contributes no
-                        // vocabulary; the AI parser still covers its nouns as a fallback.
-                    }
-                }
-            }
-
-            _allNouns = nouns.ToArray();
+            _allNouns = GetNounOwners(gameName).SelectMany(owner => owner.Nouns).ToArray();
             return _allNouns;
         }
     }
 
-    private static readonly ConcurrentDictionary<string, VerbFamily[]> VerbsByGame = new();
+    /// <summary>
+    ///     The same nouns as <see cref="GetNouns" />, each group with the item or location type that declares
+    ///     it. This is what lets a parser tell whose noun a noun is - and so whether a verb that only one
+    ///     object answers is being aimed at that object.
+    /// </summary>
+    public static IReadOnlyList<(Type Owner, string[] Nouns)> GetNounOwners(string gameName)
+    {
+        var owners = new List<(Type, string[])>();
+
+        foreach (var type in Assembly.Load(gameName).GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false })
+                continue;
+
+            if (type.IsSubclassOf(typeof(ItemBase)))
+            {
+                var instance = (ItemBase)Activator.CreateInstance(type)!;
+                owners.Add((type, instance.NounsForMatching));
+            }
+            else if (type.IsSubclassOf(typeof(LocationBase)))
+            {
+                // A location owns its scenery nouns (LocationBase.SceneryNouns, backed by its Scenery
+                // declarations) and any destination aliases (NounsForMatching). Harvesting them here —
+                // instead of hardcoding a per-game noun list in the parser — keeps the engine ignorant of
+                // any specific game's content: each game declares, the engine reflects. Guarded so a
+                // location that can't be constructed bare doesn't sink the whole vocabulary.
+                try
+                {
+                    var location = (LocationBase)Activator.CreateInstance(type)!;
+                    owners.Add((type, [..location.NounsForMatching, ..location.SceneryNouns]));
+                }
+                catch
+                {
+                    // A location that throws when constructed without Init() simply contributes no
+                    // vocabulary; the AI parser still covers its nouns as a fallback.
+                }
+            }
+        }
+
+        return owners;
+    }
+
+    private static readonly ConcurrentDictionary<string, (VerbFamily Family, Type DeclaredOn)[]> VerbsByGame = new();
 
     /// <summary>
     ///     Every verb family the game answers: the engine-wide thesaurus (<see cref="Verbs" />), the
@@ -490,12 +496,27 @@ public static class Repository
     /// </remarks>
     public static VerbFamily[] GetVerbs(string gameName)
     {
+        // The same closed generic base is reached once per subclass, each with its own copy of the field,
+        // so collapse families that hold exactly the same words.
+        return GetVerbDeclarations(gameName)
+            .Select(declaration => declaration.Family)
+            .DistinctBy(family => string.Join('\n', family), StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    /// <summary>
+    ///     Every verb family with the type that declares it. Who declares a family is who answers it:
+    ///     <see cref="Verbs" /> and the engine's processors answer for any object, an item or a room only
+    ///     for itself. A parser needs that distinction - see <see cref="DeterministicParser" />.
+    /// </summary>
+    public static IReadOnlyList<(VerbFamily Family, Type DeclaredOn)> GetVerbDeclarations(string gameName)
+    {
         return VerbsByGame.GetOrAdd(gameName, HarvestVerbs);
     }
 
-    private static VerbFamily[] HarvestVerbs(string gameName)
+    private static (VerbFamily Family, Type DeclaredOn)[] HarvestVerbs(string gameName)
     {
-        var families = new List<VerbFamily>();
+        var families = new List<(VerbFamily Family, Type DeclaredOn)>();
 
         foreach (var assembly in VocabularyAssemblies(gameName))
         foreach (var type in LoadableTypes(assembly))
@@ -516,7 +537,7 @@ public static class Repository
                     try
                     {
                         if (field.GetValue(null) is VerbFamily family)
-                            families.Add(family);
+                            families.Add((family, current));
                     }
                     catch
                     {
@@ -526,11 +547,8 @@ public static class Repository
                 }
             }
 
-        // The same closed generic base is reached once per subclass, each with its own copy of the field,
-        // so collapse families that hold exactly the same words.
-        return families
-            .DistinctBy(family => string.Join('\n', family), StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        // A base type's fields are reached once per subclass; keep each (field value, declaring type) once.
+        return families.Distinct().ToArray();
     }
 
     /// <summary>

@@ -17,7 +17,7 @@ namespace Planetfall.Tests.Walkthrough;
 ///     door stays padlocked, so the ladder is never taken, so the rift is never crossed.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughThrowTheMagnetIntoTheRift : WalkthroughTestBase
+public class WalkthroughThrowTheMagnetIntoTheRift : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]
@@ -95,7 +95,7 @@ public sealed class WalkthroughThrowTheMagnetIntoTheRift : WalkthroughTestBase
 ///     tells you exactly what that costs: "lost forever".
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughBridgeTheRiftWithACollapsedLadder : WalkthroughTestBase
+public class WalkthroughBridgeTheRiftWithACollapsedLadder : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]
@@ -181,7 +181,7 @@ public sealed class WalkthroughBridgeTheRiftWithACollapsedLadder : WalkthroughTe
 ///     dead end, holding cards for doors you can no longer reach.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughCollapseTheLadderFromTheFarSideOfTheRift : WalkthroughTestBase
+public class WalkthroughCollapseTheLadderFromTheFarSideOfTheRift : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]
@@ -271,7 +271,7 @@ public sealed class WalkthroughCollapseTheLadderFromTheFarSideOfTheRift : Walkth
 ///     find out at the first slot you try, by which point every card you were holding is dead.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughCarryTheMagnetWithTheAccessCards : WalkthroughTestBase
+public class WalkthroughCarryTheMagnetWithTheAccessCards : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]

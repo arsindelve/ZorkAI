@@ -23,7 +23,7 @@ namespace Planetfall.Tests.Walkthrough;
 ///     suit in the game. The room gives you six turns and no way to undo them.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughStayInTheRadiationLab : WalkthroughTestBase
+public class WalkthroughStayInTheRadiationLab : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void AtTheRadiationLock()
@@ -60,7 +60,7 @@ public sealed class WalkthroughStayInTheRadiationLab : WalkthroughTestBase
 ///     a live circuit.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughTypeTheWrongSectorNumber : WalkthroughTestBase
+public class WalkthroughTypeTheWrongSectorNumber : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void InTheMiniaturizationBooth()
@@ -88,7 +88,7 @@ public sealed class WalkthroughTypeTheWrongSectorNumber : WalkthroughTestBase
 ///     on the third it stops closing.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughStandStillWhileTheMicrobeCloses : WalkthroughTestBase
+public class WalkthroughStandStillWhileTheMicrobeCloses : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void OnTheStripWithTheComputerFixed()
@@ -113,7 +113,7 @@ public sealed class WalkthroughStandStillWhileTheMicrobeCloses : WalkthroughTest
 ///     while you are still attached to it.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughHoldTheOverheatedLaserWhenTheMicrobeLunges : WalkthroughTestBase
+public class WalkthroughHoldTheOverheatedLaserWhenTheMicrobeLunges : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void OnTheStripWithAHotLaser()
@@ -149,7 +149,7 @@ public sealed class WalkthroughHoldTheOverheatedLaserWhenTheMicrobeLunges : Walk
 ///     on is a circuit, and it is about to have current in it.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughStayOnTheStripUntilTheSectorPowersUp : WalkthroughTestBase
+public class WalkthroughStayOnTheStripUntilTheSectorPowersUp : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void OnTheStripWithALaser()

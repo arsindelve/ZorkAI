@@ -36,6 +36,7 @@
         <ProjectReference Include="..\GameEngine\GameEngine.csproj"/>
         <ProjectReference Include="..\Planetfall\Planetfall.csproj"/>
         <ProjectReference Include="..\ZorkOne\ZorkOne.csproj"/>
+        <ProjectReference Include="..\UnitTests\UnitTests.csproj" />
     </ItemGroup>
 
 </Project>

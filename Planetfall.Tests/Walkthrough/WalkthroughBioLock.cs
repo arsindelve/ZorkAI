@@ -8,7 +8,7 @@ using Planetfall.Location.Lawanda.Lab;
 namespace Planetfall.Tests.Walkthrough;
 
 [TestFixture]
-public sealed class WalkthroughBioLock : WalkthroughTestBase
+public class WalkthroughBioLock : WalkthroughTestBase
 {
     /// <summary>
     /// God mode method to set up BioLock scenarios:

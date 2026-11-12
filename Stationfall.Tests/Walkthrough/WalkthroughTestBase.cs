@@ -1,3 +1,4 @@
+using Model.Interface;
 using FluentAssertions;
 using GameEngine;
 using JetBrains.Annotations;
@@ -16,10 +17,17 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 {
     private GameEngine<StationfallGame, StationfallContext> _target = null!;
 
+    /// <summary>
+    ///     Which intent parser the walkthrough runs through. Defaults to the standard
+    ///     <see cref="UnitTests.TestParser" />; a subclass overrides this to drive the SAME steps through
+    ///     the production DeterministicParser (see <see cref="UnitTests.DeterministicFirstTestParser" />).
+    /// </summary>
+    protected virtual IIntentParser? BuildParser() => null;
+
     [OneTimeSetUp]
     public void Init()
     {
-        _target = GetTarget();
+        _target = GetTarget(BuildParser());
     }
 
     /// <summary>

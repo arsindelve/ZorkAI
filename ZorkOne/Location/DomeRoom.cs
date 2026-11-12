@@ -16,7 +16,7 @@ public class DomeRoom : LocationBase, IThiefMayVisit
 
     // "rail" is matched as an alternate for the railing when tying the rope (below); "railing" is already
     // covered (TorchRoom.Scenery). Declare "rail" so "tie rope to rail" resolves deterministically.
-    public override IEnumerable<string> SceneryNouns => ["rail"];
+    public override IEnumerable<string> SceneryNouns => ["rail", "railing"];
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

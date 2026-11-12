@@ -401,9 +401,44 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - **Don't borrow a family with a different word set to save a line.** It silently widens or narrows what
   the object answers. Declare a new one; merging near-duplicates is a deliberate change of its own.
 - Each game's vocabulary is its own: a verb only the ZorkOne rug declares is unknown to Planetfall's parser.
+- **Known is not answered - declare a family on the class that owns the noun.** The deterministic parser
+  trusts a verb from `Verbs.cs` or an engine processor on any noun, but a family declared on an item or
+  room only alongside that item's or room's own nouns (`NounsForMatching`, `SceneryNouns`). "yank" is the
+  admin corridor's verb for the key; aimed at a lever it reaches nothing, so the parser hands it to the AI,
+  which makes it "pull". A family on a helper class that is neither an item nor a room is harvested but
+  tied to no noun, so the grammar never resolves it. If a room's handler matches a noun, that noun belongs
+  in the room's `SceneryNouns`.
 - Multi-word phrases ("pour out") are fine in a family, but the deterministic parser acts only on single
   words plus its small `MultiWordVerbCanon` rewrite table ("turn on" → "activate"). Other phrases still
   reach handlers through the AI parser.
+
+### Parser Tests - one corpus, three layers, mock or live AI
+The parser is tested from one list of cases, `UnitTests/Parser/ParserCorpus.*.cs`: a line of player
+input, the room it is typed in, and what it must mean (`Act("open", "mailbox")`, `Take("lamp")`,
+`Move("north")`, `Board("boat")` ... - see `Meaning`). Nothing in a case names an AI provider.
+- **Add a case for every new phrasing you care about.** Mark it `.AiOnly()` if the grammar should decline
+  it. The tests pin which layer answers: if the grammar later learns the phrasing, a test tells you to take
+  `.AiOnly()` off; if a case is really a global command or a bare direction, a test tells you it never
+  reaches a parser and belongs with the `Heading` / `GlobalCommand` / `SystemCommand` cases.
+- **Every case is checked at each layer that can see it** (`ParserCorpusTests`, `ParserContractTests`):
+  the grammar alone resolves or declines it; the AI asked directly produces the expected intent; and the
+  production `IntentParser` answers from the right one, with zero AI calls for grammar cases.
+- **The AI is either scripted or real, same tests.** `ScriptedAiParserContractTests` (UnitTests, normal
+  run) stubs the model with each case's `ModelAnswer` and runs the real adapter, `ParsingHelper` rules and
+  repairs. `LiveAiParserContractTests` (IntegrationTests, `[Explicit]`, needs `OPEN_AI_KEY`) runs the
+  identical tests against the live model:
+  `dotnet test IntegrationTests --filter "FullyQualifiedName~LiveAiParserContractTests"`.
+  Run it whenever the parser prompt, the model or the provider changes.
+- **A known way the model gets a sentence wrong** is a case too: `.WhenTheModelSays(new ModelAnswer(...))`
+  scripts the degraded answer while the expected intent stays what the engine needs (issues #538, #551,
+  #580). That is what holds the pipeline's repairs in place.
+- **Changing AI provider**: implement `IAIParser`, return it from `LiveAiParserContractTests.CreateAi`, and
+  render `ModelAnswer` as the new provider's response in `ScriptedAiParserContractTests`. The cases and the
+  contract do not change.
+- `DeterministicParserVocabularyTests` is exhaustive over each game's harvested vocabulary (every noun,
+  verb and room name), and every walkthrough fixture has a `...DeterministicFirst` twin that replays it
+  through the production grammar. `DeterministicParserCoverageTests` pins the walkthrough commands the
+  grammar declines and where it reads a command differently from the test parser.
 
 ### AI Integration Guidelines  
 - **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls

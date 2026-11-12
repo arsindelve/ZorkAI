@@ -47,4 +47,19 @@ public class DirectionParserTests
         // Assert
         result.Should().Be(expectedDirection);
     }
+
+    [TestCase("climb", Direction.Up)]
+    [TestCase("climb up", Direction.Up)]
+    [TestCase("climb the stairs", Direction.Up)]
+    [TestCase("climb down", Direction.Down)]
+    [TestCase("climb down the stairs", Direction.Down)]
+    [TestCase("Climb Down", Direction.Down)]
+    public void IsDirection_ClimbGoesUp_UnlessTheNextWordSaysOtherwise(string input, Direction expected)
+    {
+        // "climb" on its own means up. IsDirection used to stop reading there, so "climb down" went UP -
+        // or rather, tried to: from the attic it answered "You can't go that way."
+        DirectionParser.IsDirection(input, out var direction).Should().BeTrue();
+
+        direction.Should().Be(expected);
+    }
 }

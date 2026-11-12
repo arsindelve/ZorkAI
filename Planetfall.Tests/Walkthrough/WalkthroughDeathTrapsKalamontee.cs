@@ -23,7 +23,7 @@ namespace Planetfall.Tests.Walkthrough;
 ///     bulkhead opens directly into it. Two turns in the water is one turn too many.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughLingerInTheUndertow : WalkthroughTestBase
+public class WalkthroughLingerInTheUndertow : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void OnTheCrag()
@@ -49,7 +49,7 @@ public sealed class WalkthroughLingerInTheUndertow : WalkthroughTestBase
 ///     left in the pod kills you the moment you arrive.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughSwimBackDownIntoTheUndertow : WalkthroughTestBase
+public class WalkthroughSwimBackDownIntoTheUndertow : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]
@@ -93,7 +93,7 @@ public sealed class WalkthroughSwimBackDownIntoTheUndertow : WalkthroughTestBase
 ///     description says so. The game still lets you jump.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughJumpIntoTheRift : WalkthroughTestBase
+public class WalkthroughJumpIntoTheRift : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void AtTheRift()
@@ -118,7 +118,7 @@ public sealed class WalkthroughJumpIntoTheRift : WalkthroughTestBase
 ///     pouring it into a hole in the tower. It is chemical stock, not a drink.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughDrinkTheChemicals : WalkthroughTestBase
+public class WalkthroughDrinkTheChemicals : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void InTheToolRoom()
@@ -146,7 +146,7 @@ public sealed class WalkthroughDrinkTheChemicals : WalkthroughTestBase
 ///     back. This walkthrough leaves it pushed forward the whole way.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughCrashTheShuttleIntoTheStation : WalkthroughTestBase
+public class WalkthroughCrashTheShuttleIntoTheStation : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void InAlfiesControlCabin()
@@ -198,7 +198,7 @@ public sealed class WalkthroughCrashTheShuttleIntoTheStation : WalkthroughTestBa
 ///     and reaching back in for the part is fatal.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughTouchTheLiveBedistor : WalkthroughTestBase
+public class WalkthroughTouchTheLiveBedistor : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void AtCourseControlWithTheParts()

@@ -351,7 +351,6 @@ public class DeterministicParserPlanetfallTests
     [TestCase("pull the lever", "pull", "lever")]            // ShuttleControl.DecelerateVerbs
     [TestCase("collapse the ladder", "collapse", "ladder")]  // Ladder.RetractVerbs
     [TestCase("deactivate floyd", "deactivate", "floyd")]    // TurnOnOrOffProcessor.TurnOffVerbs
-    [TestCase("kiss floyd", "kiss", "floyd")]                // FloydSocialResponses.KissVerb
     public void AVerbAHandlerDeclares_IsKnown_WithoutBeingListedInTheParser(string input, string verb, string noun)
     {
         // None of these verbs is in Verbs.cs, and the parser holds no verb list of its own. They are known
@@ -362,6 +361,32 @@ public class DeterministicParserPlanetfallTests
         var simple = (SimpleIntent)result!;
         simple.Verb.Should().Be(verb);
         simple.Noun.Should().Be(noun);
+    }
+
+    [TestCase("examine metal bar, curved into a u-shape")]
+    [TestCase("examine the metal bar, curved into a u-shape")]
+    public void ANounThatContainsAPrepositionAndAnArticle_IsStillOneNoun(string input)
+    {
+        // The magnet is declared (as a puzzle) as "metal bar, curved into a u-shape". "into" is a word the
+        // grammar splits two nouns on and "a" is an article it strips, so the phrase used to be cut in half
+        // and declined. The whole phrase is tried as a noun first, and the noun the handler will match on
+        // comes back exactly as the item declares it.
+        var result = _parser.Parse(input);
+
+        result.Should().BeOfType<SimpleIntent>();
+        ((SimpleIntent)result!).Noun.Should().Be("metal bar, curved into a u-shape");
+    }
+
+    [Test]
+    public void ANounThatContainsAPreposition_CanStillBeOneOfTwoNouns()
+    {
+        var result = _parser.Parse("give the metal bar, curved into a u-shape to floyd");
+
+        result.Should().BeOfType<MultiNounIntent>();
+        var multi = (MultiNounIntent)result!;
+        multi.NounOne.Should().Be("metal bar, curved into a u-shape");
+        multi.Preposition.Should().Be("to");
+        multi.NounTwo.Should().Be("floyd");
     }
 
     [TestCase("exit the blue door")]
@@ -375,12 +400,34 @@ public class DeterministicParserPlanetfallTests
         _parser.Parse(input).Should().BeNull();
     }
 
+    [TestCase("yank the lever")]      // "yank" is the admin corridor's verb for the key; the lever answers "pull"
+    [TestCase("fetch the canteen")]   // likewise "fetch": to the canteen it is a take, which only the AI can say
+    [TestCase("nab the pliers")]
+    [TestCase("collapse the canteen")] // the ladder's verb, on something that is not the ladder
+    public void AVerbOnlyOneObjectDeclares_IsNotTrustedOnAnotherObject(string input)
+    {
+        // Harvesting makes every declared verb KNOWN, but known is not the same as answered. A rare synonym
+        // one object lists ("yank", "fetch", "nab") reaches nothing when aimed at any other object - where
+        // the AI would have reduced it to the common verb that object does answer. So the grammar resolves
+        // an object's own verbs only on that object's own nouns, and leaves the rest to the AI.
+        _parser.Parse(input).Should().BeNull();
+    }
+
+    [TestCase("examine the lever", "examine")]   // Verbs.ExamineVerbs
+    [TestCase("push the canteen", "push")]       // Verbs.PushVerbs
+    [TestCase("smell the pliers", "smell")]      // SmellInteractionProcessor
+    public void AVerbTheEngineSharesAcrossObjects_IsTrustedOnAnyNoun(string input, string verb)
+    {
+        _parser.Parse(input).Should().BeOfType<SimpleIntent>().Which.Verb.Should().Be(verb);
+    }
+
     [Test]
     public void AVerbOnlyAnotherGameDeclares_FallsBackToAi()
     {
         // "rearrange" is the ZorkOne rug's verb. Each game's vocabulary is its own.
         _parser.Parse("rearrange the ladder").Should().BeNull();
         new DeterministicParser("ZorkOne").Parse("rearrange the rug").Should().BeOfType<SimpleIntent>();
+        new DeterministicParser("ZorkOne").Parse("rearrange the lamp").Should().BeNull("only the rug answers it");
     }
 
     [Test]

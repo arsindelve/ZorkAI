@@ -13,7 +13,7 @@ using Planetfall.Location.Lawanda.LabOffice;
 
 namespace Planetfall.Tests.Walkthrough;
 
-public sealed class WalkthroughMutantChase : WalkthroughTestBase
+public class WalkthroughMutantChase : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void SetupBioLock()

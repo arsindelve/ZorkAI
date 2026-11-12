@@ -43,4 +43,25 @@ public class DeterministicParserCoverageTests
             "a command missing from this list has stopped parsing deterministically (a regression), and one " +
             "listed here that now parses should be removed from it");
     }
+
+    // A different record, the same outcome: "galley" is a declared alias of the kitchen, and the golden
+    // parser models the AI renaming it. The by-room-name walkthrough replays it through the grammar.
+    private static readonly string[] KnownDisagreements =
+    [
+        "go to the galley: grammar [goto galley] vs golden [goto kitchen]"
+    ];
+
+    [Test]
+    public async Task WhereTheGrammarAndTheGoldenTestParserBothAnswer_TheyAgree()
+    {
+        Repository.Reset();
+        var commands = DeterministicParserCoverage.WalkthroughCommands(typeof(WalkthroughTestBase));
+
+        var disagreements = await DeterministicParserCoverage.Disagreements("Planetfall", commands,
+            new TestParser(new Planetfall.GlobalCommand.PlanetfallGlobalCommandFactory(), "Planetfall"));
+
+        disagreements.Should().BeEquivalentTo(KnownDisagreements,
+            "the walkthroughs prove the golden parser's reading of each command; the production grammar " +
+            "must read it the same way or decline it");
+    }
 }

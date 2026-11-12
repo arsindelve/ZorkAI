@@ -17,7 +17,7 @@ namespace Planetfall.Tests.Walkthrough;
 ///     explosion, then tears itself apart around you.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughNeverEnterTheEscapePod : WalkthroughTestBase
+public class WalkthroughNeverEnterTheEscapePod : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]
@@ -49,7 +49,7 @@ public sealed class WalkthroughNeverEnterTheEscapePod : WalkthroughTestBase
 ///     pod is not merely closed, it is unreachable - two turns later the ship kills you where you stand.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughStrandedAwayFromTheEscapePod : WalkthroughTestBase
+public class WalkthroughStrandedAwayFromTheEscapePod : WalkthroughTestBase
 {
     [Test]
     [TestCase("up", null, "Gangway")]
@@ -78,7 +78,7 @@ public sealed class WalkthroughStrandedAwayFromTheEscapePod : WalkthroughTestBas
 ///     keeps you off the control panel when the pod hits the planet, and the landing is fatal without it.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughNeverSitInTheSafetyWebbing : WalkthroughTestBase
+public class WalkthroughNeverSitInTheSafetyWebbing : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]
@@ -125,7 +125,7 @@ public sealed class WalkthroughNeverSitInTheSafetyWebbing : WalkthroughTestBase
 ///     Feinstein's death throes finish you ten turns before the landing would have.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughThrownAgainstTheBulkheadHeadFirst : WalkthroughTestBase
+public class WalkthroughThrownAgainstTheBulkheadHeadFirst : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void TheRollGoesBadly()
@@ -162,7 +162,7 @@ public sealed class WalkthroughThrownAgainstTheBulkheadHeadFirst : WalkthroughTe
 ///     which to get out; this walkthrough spends them all waiting.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughStandUpInTheLandedPodAndDrown : WalkthroughTestBase
+public class WalkthroughStandUpInTheLandedPodAndDrown : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]
@@ -207,7 +207,7 @@ public sealed class WalkthroughStandUpInTheLandedPodAndDrown : WalkthroughTestBa
 ///     ours. This is the shortest losing walkthrough in the game: four moves.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughEatTheAmbassadorsCelery : WalkthroughTestBase
+public class WalkthroughEatTheAmbassadorsCelery : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void TheAmbassadorWandersIn()
@@ -237,7 +237,7 @@ public sealed class WalkthroughEatTheAmbassadorsCelery : WalkthroughTestBase
 ///     is an authored instant death.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughPickAFightWithBlather : WalkthroughTestBase
+public class WalkthroughPickAFightWithBlather : WalkthroughTestBase
 {
     [Test]
     [TestCase("up", null, "Gangway")]
@@ -257,7 +257,7 @@ public sealed class WalkthroughPickAFightWithBlather : WalkthroughTestBase
 ///     from there matters: the Feinstein explodes on schedule with you inside it.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughGetThrownInTheBrigAndBlowUpWithTheShip : WalkthroughTestBase
+public class WalkthroughGetThrownInTheBrigAndBlowUpWithTheShip : WalkthroughTestBase
 {
     [Test]
     [TestCase("up", null, "Gangway")]

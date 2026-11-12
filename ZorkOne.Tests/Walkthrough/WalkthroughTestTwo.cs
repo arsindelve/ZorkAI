@@ -1,7 +1,7 @@
 ﻿namespace ZorkOne.Tests.Walkthrough;
 
 [TestFixture]
-public sealed class WalkthroughTestTwo : WalkthroughTestBase
+public class WalkthroughTestTwo : WalkthroughTestBase
 {
     // https://www.allthingsjacq.com/intfic_clubfloyd_20160401.html
     [Test]
