@@ -12,7 +12,9 @@ using SecretsManager;
 namespace UnitTests.Parser.Census;
 
 /// <summary>One freshly started game: how to send it a line of input, and its state.</summary>
-public sealed record CensusSession(Func<string?, Task<string?>> Respond, IContext Context, Func<bool> NarratorWasAsked);
+/// <param name="Snapshot">The whole game state as the save-game serialiser writes it.</param>
+public sealed record CensusSession(Func<string?, Task<string?>> Respond, IContext Context, Func<bool> NarratorWasAsked,
+    Func<string> Snapshot);
 
 /// <summary>
 ///     How to start a hermetic, fresh copy of one game for a single probe: no AI, no AWS, no clock. Each
@@ -73,7 +75,8 @@ public sealed class CensusGame
             engine.Context.LastInput = null;
             engine.Context.LastResponse = null;
 
-            return new CensusSession(engine.GetResponse, engine.Context, () => narrator.CompletenessLeaks.Count > 0);
+            return new CensusSession(engine.GetResponse, engine.Context, () => narrator.CompletenessLeaks.Count > 0,
+                engine.SaveGame);
         }, light);
     }
 }

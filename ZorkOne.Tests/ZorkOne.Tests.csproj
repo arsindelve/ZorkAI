@@ -34,4 +34,9 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- The game's generated interaction set (see InteractionSetTests). -->
+        <EmbeddedResource Include="Parser\*.json" />
+    </ItemGroup>
+
 </Project>

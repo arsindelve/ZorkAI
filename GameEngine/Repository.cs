@@ -39,6 +39,15 @@ public static class Repository
         };
     }
 
+    /// <summary>
+    ///     Every item and location loaded so far. For test tooling that has to reach all of them at once
+    ///     (the interaction census pins every object's dice before a probe).
+    /// </summary>
+    internal static IEnumerable<object> Loaded()
+    {
+        return _allItems.Values.Cast<object>().Concat(_allLocations.Values).ToList();
+    }
+
     internal static bool ItemExistsInTheStory(string? item)
     {
         if (string.IsNullOrEmpty(item))
