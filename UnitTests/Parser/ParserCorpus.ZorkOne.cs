@@ -259,7 +259,12 @@ public static partial class ParserCorpus
             At("TrollRoom", "I'd like to attack the troll using my sword",
                 Act("attack", "troll", "using", "sword").AnyVerb().OrPreposition("with").AiOnly()),
             At("TrollRoom", "yeet the sword at the troll", Act("throw", "sword", "at", "troll").AnyVerb().AiOnly()),
-            At("Dam", "Use the wrench to turn the bolt.", Act("turn", "bolt", "with", "wrench").AiOnly()),
+            // "use X to <verb> Y": a model gets the verb right and then lists the nouns as they come, the
+            // tool first, joined by a "to" that is not a preposition at all - "turn wrench to bolt". The
+            // sentence itself says which is the tool, and the pipeline puts it back where a handler looks.
+            At("Dam", "Use the wrench to turn the bolt.",
+                Act("turn", "bolt", "with", "wrench").AiOnly()
+                    .WhenTheModelSays(new ModelAnswer("act", "turn", ["wrench", "bolt"], "to"))),
             At("Dam", "With the wrench, turn the bolt", Act("turn", "bolt", "with", "wrench").EitherNounOrder().AiOnly()),
             At("Dam", "let's turn the bolt with the wrench", Act("turn", "bolt", "with", "wrench").AiOnly()),
             At("Dam", "go ahead and loosen the bolt using the wrench",

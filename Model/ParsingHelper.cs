@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Model.Intent;
@@ -226,6 +227,22 @@ public static class ParsingHelper
                 prepositionTag = RecoverPrepositionFromInput(originalInput, nouns[1]) ?? "with";
             }
 
+            // "use the wrench to turn the bolt": the model gets the verb right ("turn") and then lists
+            // the nouns as they come - the tool, then the thing - joined by a "to" that is not a
+            // preposition at all. "turn wrench to bolt" is a command no handler answers. The player's
+            // sentence says which noun is the tool: the one that follows "use". Handed over as "turn
+            // bolt with wrench", it is the same intent the plain phrasing produces.
+            if (IsToolUsedTo(originalInput, verbTag, nouns[0]))
+                return new MultiNounIntent
+                {
+                    NounOne = nouns[1],
+                    NounTwo = nouns[0],
+                    Verb = verbTag,
+                    Preposition = "with",
+                    OriginalInput = originalInput,
+                    Message = response
+                };
+
             return new MultiNounIntent
             {
                 NounOne = nouns[0],
@@ -375,6 +392,21 @@ public static class ParsingHelper
             return null;
 
         return intentTag != tag ? null : new T();
+    }
+
+    /// <summary>
+    ///     True when the player's sentence is "use &lt;tool&gt; to &lt;verb&gt; ..." for this verb and this
+    ///     first noun: the construction in which the noun after "use" is the instrument and the "to"
+    ///     introduces the action, rather than joining two nouns.
+    /// </summary>
+    private static bool IsToolUsedTo(string? originalInput, string verb, string firstNoun)
+    {
+        if (string.IsNullOrWhiteSpace(originalInput))
+            return false;
+
+        return Regex.IsMatch(originalInput,
+            $@"^\s*us(e|ing)\s+(the\s+|a\s+|an\s+|my\s+)?{Regex.Escape(firstNoun)}\s+to\s+{Regex.Escape(verb)}\b",
+            RegexOptions.IgnoreCase);
     }
 
     // Issue #538. The prepositions a player can realistically use to join two nouns in a command.
