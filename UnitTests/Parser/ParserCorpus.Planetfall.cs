@@ -132,6 +132,15 @@ public static partial class ParserCorpus
             At("MessHall", "go to the kitchen", GoTo("kitchen")),
             At("RecCorridor", "walk to the rec area", GoTo("rec area")),
             At("MechCorridor", "go to mech corridor north", GoTo("mech corridor north")),
+            // A room named for a direction comes back from a model in two pieces: the place "admin
+            // corridor" and the adjective "north". Two rooms answer to "admin corridor", so the trip was
+            // refused or went the wrong way. The destination is put back together from the player's words.
+            At("SmallOffice", "go to admin corridor north",
+                GoTo("admin corridor north")
+                    .WhenTheModelSays(new ModelAnswer("goto", "go", ["admin corridor"], Adjective: "north"))),
+            At("Fork", "go to systems corridor west",
+                GoTo("systems corridor west")
+                    .WhenTheModelSays(new ModelAnswer("goto", "go", ["systems corridor"], Adjective: "west"))),
             At("ProjectCorridor", "go to the office", GoTo("office")),
             // A model files "go to the <ship direction>" as a trip to a place called "aft". The engine
             // walks aft either way: a destination no room is named for, that is itself a direction, is a

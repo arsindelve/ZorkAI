@@ -2249,6 +2249,20 @@
         "Nouns": [
           "laser"
         ]
+      },
+      {
+        "Kind": "act",
+        "Verbs": [
+          "set",
+          "turn"
+        ],
+        "Nouns": [
+          "laser"
+        ],
+        "Preposition": "to",
+        "SecondNouns": [
+          "2"
+        ]
       }
     ],
     "Reply": "The dial is now set to 2. The microbe slithers closer. The cilia around its gullet glisten with mucus, giving the impression that the microbe is salivating.",

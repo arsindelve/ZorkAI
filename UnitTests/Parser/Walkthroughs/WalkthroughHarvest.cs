@@ -412,6 +412,12 @@ public sealed class WalkthroughHarvest
                 readings.Add(new Reading("drop", ["drop"], first.Nouns));
         }
 
+        // A sentence the walkthrough reads as one noun, with the rest left in what was typed ("set laser
+        // to 2": the laser reads the number out of the raw input), a model reads as two nouns joined by
+        // the preposition. Where the game answers that reading the same way, it is as good.
+        if (intent is SimpleIntent one && AsTwoNouns(one, input) is { } two)
+            others.Add(two);
+
         if (intent is EnterSubLocationIntent board)
             others.Add(new MoveIntent { Direction = Direction.In, Noun = board.Noun, Message = input });
 
@@ -420,7 +426,7 @@ public sealed class WalkthroughHarvest
 
         foreach (var other in others)
             if (await Same(game, before, input, other, state) && Describe(other) is { } reading)
-                readings.Add(reading);
+                readings.Add(await WithSynonyms(game, before, input, other, reading, state));
 
         // The grammar's own reading, where it is not simply the walkthrough's in other words.
         if (_grammar.Parse(input) is { } grammar && Describe(grammar) is { } read && !Covers(first, read) &&
@@ -437,6 +443,32 @@ public sealed class WalkthroughHarvest
         }
 
         return readings;
+    }
+
+    private static readonly Regex TwoNouns = new(
+        @"\s(to|with|using|in|into|inside|on|onto|at|from|through|under|off|across|against|over|behind)\s+(?:the\s+|a\s+|an\s+)?(.+?)[.!?]*$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    /// <summary>"set laser to 2" as a model reads it: the noun the walkthrough has, the preposition, and what follows.</summary>
+    private static MultiNounIntent? AsTwoNouns(SimpleIntent one, string input)
+    {
+        if (string.IsNullOrWhiteSpace(one.Noun))
+            return null;
+
+        var named = Regex.Match(input, $@"\b{Regex.Escape(one.Noun)}\b", RegexOptions.IgnoreCase);
+        if (!named.Success)
+            return null;
+
+        var rest = TwoNouns.Match(input[(named.Index + named.Length)..]);
+        if (!rest.Success || rest.Index != 0)
+            return null;
+
+        return new MultiNounIntent
+        {
+            Verb = one.Verb, NounOne = one.Noun, Preposition = rest.Groups[1].Value.ToLowerInvariant(),
+            NounTwo = rest.Groups[2].Value.Trim().ToLowerInvariant(), OriginalInput = one.OriginalInput ?? input,
+            Message = input
+        };
     }
 
     private static bool Covers(Reading reading, Reading other)

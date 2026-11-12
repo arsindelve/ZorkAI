@@ -240,7 +240,7 @@ public static class ParsingHelper
         return null;
     }
 
-    private static GoToDestinationIntent? DetermineGoToIntent(string? response)
+    private static GoToDestinationIntent? DetermineGoToIntent(string? response, string originalInput)
     {
         // Issue #268: the player named a place/room to travel to ("go to the kitchen"). The AI tags
         // this "goto" with the destination in <noun> tags. The engine resolves it against the current
@@ -253,7 +253,37 @@ public static class ParsingHelper
         if (!nouns.Any())
             return null;
 
-        return new GoToDestinationIntent { Destination = nouns.First(), Message = response };
+        return new GoToDestinationIntent
+        {
+            Destination = RejoinDestinationFromInput(originalInput, nouns.First(),
+                ExtractElementsByTag(response, "adjective").FirstOrDefault()),
+            Message = response
+        };
+    }
+
+    /// <summary>
+    ///     A room whose name ends or begins with a word the model takes for a describing word - "admin
+    ///     corridor north", "systems corridor west", "small office" - comes back split in two: the noun
+    ///     "admin corridor" and the adjective "north". Navigation matches a room by its name, and two
+    ///     rooms answer to "admin corridor", so the trip was refused or asked which one was meant. Where
+    ///     the player's own sentence has the two side by side, the place is what they typed.
+    /// </summary>
+    private static string RejoinDestinationFromInput(string? originalInput, string noun, string? adjective)
+    {
+        if (string.IsNullOrWhiteSpace(adjective) || string.IsNullOrWhiteSpace(originalInput))
+            return noun;
+
+        // The sentence as typed, lowercased, single-spaced and without its closing punctuation, padded so
+        // that only whole words match.
+        var words = originalInput.ToLowerInvariant().TrimEnd('.', '!', '?', ' ')
+            .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var typed = $" {string.Join(' ', words)} ";
+
+        foreach (var whole in new[] { $"{noun} {adjective}", $"{adjective} {noun}" })
+            if (typed.Contains($" {whole.ToLowerInvariant()} ", StringComparison.Ordinal))
+                return whole.ToLowerInvariant();
+
+        return noun;
     }
 
     private static IntentBase? DetermineMoveIntent(string? response, string originalInput)
@@ -551,7 +581,7 @@ public static class ParsingHelper
         if (disembarkIntent != null)
             return disembarkIntent;
 
-        var goToIntent = DetermineGoToIntent(response?.ToLowerInvariant());
+        var goToIntent = DetermineGoToIntent(response?.ToLowerInvariant(), input);
         if (goToIntent != null)
             return goToIntent;
 
