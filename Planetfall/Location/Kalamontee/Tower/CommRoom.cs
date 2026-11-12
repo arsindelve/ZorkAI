@@ -7,9 +7,6 @@ namespace Planetfall.Location.Kalamontee.Tower;
 
 internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
 {
-    private static readonly VerbFamily PourVerbs = new("empty", "pour", "dump");
-    private static readonly VerbFamily ReadVerbs = new("read", "examine");
-
     /// <summary>
     ///     The funnel hole is part of the console itself, so it is described in every state of the send
     ///     station -- broken, shut down, or transmitting. Issue #547: the critical description was the one
@@ -60,7 +57,7 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
         string[] holeNouns = ["hole", "funnel", "console", "machine", "equipment", "system"];
         string[] prepositions = ["into", "down", "in"];
 
-        if (!action.Match(PourVerbs, liquidNouns, holeNouns, prepositions))
+        if (!action.Match(Verbs.EmptyVerbs, liquidNouns, holeNouns, prepositions))
             return base.RespondToMultiNounInteraction(action, context);
 
         var flask = GetItem<Flask>();
@@ -177,7 +174,7 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
                 "on any of the standard frequen...\" The sentence is cut short by the sound of an explosion and a loud " +
                 "burst of static, followed by silence.");
 
-        if (action.Match(ReadVerbs, ["screen", "console", "message"]))
+        if (action.Match(Verbs.ReadVerbs, ["screen", "console", "message"]))
             return new PositiveInteractionResult(
                 "\"Tuu enee ship uv xe Sekund Galaktik Yuunyun: Planitwiid plaag haz struk entiir popyuulaashun. " +
                 "Tiim iz kritikul. Eemurjensee asistins reekwestid. <reepeet\nmesij>\"");

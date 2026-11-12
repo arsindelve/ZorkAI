@@ -8,8 +8,6 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 public class MachineRoom : DarkLocation
 {
-    private static readonly VerbFamily TurnWithToolVerbs = new("turn", "use", "apply");
-
     public override string Name => "Machine Room";
 
     // The machine's "switch" and "lid" are matched from literal lists in this room's / the machine's
@@ -54,7 +52,7 @@ public class MachineRoom : DarkLocation
             !action.NounTwo.ToLowerInvariant().Trim().Contains("screwdriver"))
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (!TurnWithToolVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+        if (!Verbs.TurnWithToolVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))

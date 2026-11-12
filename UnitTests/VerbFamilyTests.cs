@@ -185,6 +185,55 @@ public class VerbFamilyDeclarationTests
         }
     }
 
+    /// <summary>
+    ///     The same words declared in two places are one family written twice, and the two copies drift the
+    ///     first time someone adds a synonym to one of them. Once a second object answers a set of words it
+    ///     moves to <see cref="Verbs" /> and both use it from there.
+    /// </summary>
+    [Test]
+    public void NoTwoFamiliesHoldTheSameWords()
+    {
+        var repeated = DeclaredFamilies()
+            .GroupBy(family => family.Words, StringComparer.OrdinalIgnoreCase)
+            .Where(sameWords => sameWords.Count() > 1)
+            .Select(sameWords => $"{sameWords.Key}: {string.Join(", ", sameWords.Select(family => family.Field).Order())}")
+            .Order();
+
+        repeated.Should().BeEquivalentTo(Array.Empty<string>(),
+            "words that more than one class answers are declared once, in Model/Verbs.cs, and used from there");
+    }
+
+    /// <summary>
+    ///     Every static <see cref="VerbFamily" /> field, once each, with its words in a fixed order so that
+    ///     the same set written in a different order still compares equal.
+    /// </summary>
+    private static IEnumerable<(string Field, string Words)> DeclaredFamilies()
+    {
+        var seen = new HashSet<string>();
+
+        foreach (var type in AllTypes())
+            // As the harvest does: a generic base class only has statics in its closed forms, and those are
+            // only reachable as some concrete subclass's base type.
+            for (var current = type; current is not null; current = current.BaseType)
+            {
+                if (current.ContainsGenericParameters)
+                    continue;
+
+                var declaredOn = current.IsGenericType ? current.GetGenericTypeDefinition() : current;
+
+                foreach (var field in current.GetFields(Everything))
+                {
+                    if (!field.IsStatic || field.FieldType != typeof(VerbFamily))
+                        continue;
+
+                    var name = $"{declaredOn.FullName}.{field.Name}";
+                    if (seen.Add(name))
+                        yield return (name, string.Join('/',
+                            ((VerbFamily)field.GetValue(null)!).Select(word => word.ToLowerInvariant()).Order()));
+                }
+            }
+    }
+
     [Test]
     public void AGenericClassThatDeclaresAFamily_HasASubclassTheHarvestCanReachItThrough()
     {

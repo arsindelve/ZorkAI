@@ -4,8 +4,6 @@ namespace Planetfall.Item.Kalamontee;
 
 public class MessDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
-    private static readonly VerbFamily UnlockVerbs = new("unlock", "open");
-
     public override string[] NounsForMatching => ["door"];
 
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
@@ -17,7 +15,7 @@ public class MessDoor : ItemBase, IOpenAndClose, ICanBeExamined
         var padlock = Repository.GetItem<Padlock>();
         if (padlock.AttachedToDoor && context.IsCarrying<Key>())
         {
-            if (action.Match<Key>(UnlockVerbs, NounsForMatching, ["with", "using"]))
+            if (action.Match<Key>(Verbs.UnlockVerbs, NounsForMatching, ["with", "using"]))
             {
                 // Delegate to the padlock
                 return await padlock.RespondToMultiNounInteraction(action, context);

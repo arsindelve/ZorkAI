@@ -9,8 +9,6 @@ namespace ZorkOne.Location;
 
 public class EndOfRainbow : LocationWithNoStartingItems
 {
-    private static readonly VerbFamily WaveVerbs = new("wave", "swing", "twirl");
-
     public bool RainbowIsSolid { get; set; }
 
     public override string Name => "End of Rainbow";
@@ -55,7 +53,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
         if (rainbowResult is not null)
             return rainbowResult;
 
-        if (action.Match(WaveVerbs, GetItem<Sceptre>().NounsForMatching))
+        if (action.Match(Verbs.WaveVerbs, GetItem<Sceptre>().NounsForMatching))
         {
             if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
                 return new PositiveInteractionResult("You don't have the sceptre. ");

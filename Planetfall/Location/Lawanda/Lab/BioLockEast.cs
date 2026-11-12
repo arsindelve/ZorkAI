@@ -8,9 +8,6 @@ namespace Planetfall.Location.Lawanda.Lab;
 
 internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 {
-    // "look through <it>" in any of its phrasings: the glance family and the examine family together.
-    private static readonly VerbFamily LookThroughVerbs = new([..Verbs.LookVerbs, ..Verbs.ExamineVerbs]);
-
     public override string Name => "Bio Lock East";
 
     // The lab-view window is matched in this room's handler (issue #423), not on any item.
@@ -39,7 +36,7 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
         // fired only intermittently and silently degraded to the room description. The parser-level #423
         // change alone can't cure that variance, so gate the view on the raw input (a look/examine verb +
         // "through" + "window"). The second branch keeps examine / look at / look into window working.
-        if (action.MatchInInput(LookThroughVerbs, "through", ["window"]) ||
+        if (action.MatchInInput(Verbs.LookThroughVerbs, "through", ["window"]) ||
             action.Match(Verbs.ExamineVerbs, ["window"]))
         {
             var view =

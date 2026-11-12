@@ -20,6 +20,11 @@ namespace Model;
 ///         Never build one inline inside a method - it would work, and it would be invisible to the
 ///         harvest. <c>VerbFamilyDeclarationTests</c> fails the build when one is.
 ///     </para>
+///     <para>
+///         And never declare the same words twice. A second class that answers a family another class
+///         already declares is the signal that the family belongs in <see cref="Verbs" />; the same test
+///         class fails on a repeat.
+///     </para>
 /// </summary>
 public sealed class VerbFamily : IReadOnlyList<string>
 {

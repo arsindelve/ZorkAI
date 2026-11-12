@@ -9,7 +9,6 @@ namespace Planetfall.Item.Kalamontee;
 
 public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
-    private static readonly VerbFamily SetDialVerbs = new("turn", "set");
     private static readonly VerbFamily ReadDialVerbs = new("examine", "look", "look at", "inspect", "read");
 
     public override string[] NounsForMatching => ["conference room door", "door"];
@@ -51,7 +50,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(SetDialVerbs, ["dial"]))
+        if (action.Match(Verbs.SetVerbs, ["dial"]))
         {
             // Try to extract text after "to" from the original input (handles "set dial to twelve" case)
             var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
@@ -74,7 +73,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         if (context.CurrentLocation is not RecArea)
             return base.RespondToMultiNounInteraction(action, context);
 
-        if (!action.MatchVerb(SetDialVerbs))
+        if (!action.MatchVerb(Verbs.SetVerbs))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!action.MatchPreposition(["to"]))

@@ -12,8 +12,6 @@ namespace Stationfall.Item.Duffy;
 public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
 {
     private static readonly VerbFamily OpenUnsealVerbs = new("open", "unseal");
-    private static readonly VerbFamily CloseShutVerbs = new("close", "shut");
-    private static readonly VerbFamily SearchVerbs = new("search", "look in", "look inside");
     private static readonly VerbFamily LaunchVerbs = new("launch", "start", "drive", "fly", "turn on");
     private static readonly VerbFamily EnterVerbs = new("enter", "board", "get in", "climb in");
 
@@ -64,10 +62,10 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
             if (action.MatchVerb(OpenUnsealVerbs))
                 return new PositiveInteractionResult(OperateHatch(true, context));
 
-            if (action.MatchVerb(CloseShutVerbs))
+            if (action.MatchVerb(Verbs.Exactly.CloseOrShut))
                 return new PositiveInteractionResult(OperateHatch(false, context));
 
-            if (action.MatchVerb(SearchVerbs))
+            if (action.MatchVerb(Verbs.SearchVerbs))
                 return new PositiveInteractionResult(
                     Repository.GetItem<SpacetruckHatch>().IsOpen
                         ? "Through the open hatch you can see two seats and an empty cargo section. "

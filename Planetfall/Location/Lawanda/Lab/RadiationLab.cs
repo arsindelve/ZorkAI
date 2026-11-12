@@ -8,9 +8,6 @@ namespace Planetfall.Location.Lawanda.Lab;
 
 internal class RadiationLab : LocationBase, ITurnBasedActor
 {
-    // "look through <it>" in any of its phrasings: the glance family and the examine family together.
-    private static readonly VerbFamily LookThroughVerbs = new([..Verbs.LookVerbs, ..Verbs.ExamineVerbs]);
-
     public override string Name => "Radiation Lab";
 
     // The crack you peer through is matched in this room's handler (issue #447), not on any item.
@@ -42,7 +39,7 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
         // reaches the view, so gate it on the raw input (a look/examine verb + "through" + "crack")
         // rather than on a clean structured match. Order matters: the view must win over the "too small"
         // response when "through" is present.
-        if (action.MatchInInput(LookThroughVerbs, "through", ["crack"]))
+        if (action.MatchInInput(Verbs.LookThroughVerbs, "through", ["crack"]))
             return new PositiveInteractionResult(
                 "You see a dimly lit Bio Lab. Sinister shapes lurk about within. ");
 

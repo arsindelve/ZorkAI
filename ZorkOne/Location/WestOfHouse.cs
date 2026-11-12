@@ -9,8 +9,6 @@ namespace ZorkOne.Location;
 
 public class WestOfHouse : LocationBase
 {
-    private static readonly VerbFamily OpenVerb = new("open");
-
     public override string Name => "West Of House";
 
     // "front door" is matched from a local list in this room's handler (below), not on any item, so
@@ -69,7 +67,7 @@ public class WestOfHouse : LocationBase
         if (action.Match(Verbs.ExamineVerbs, nouns))
             return new PositiveInteractionResult("The door is closed. ");
 
-        if (action.Match(OpenVerb, nouns))
+        if (action.Match(Verbs.Exactly.Open, nouns))
             return new PositiveInteractionResult("The door cannot be opened. ");
 
         if (action.Match(Verbs.ExamineVerbs, ["house", "white house"]))

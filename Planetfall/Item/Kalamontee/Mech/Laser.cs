@@ -10,7 +10,6 @@ namespace Planetfall.Item.Kalamontee.Mech;
 public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurnBasedActor
 {
     private static readonly VerbFamily ThrowOrDropVerbs = new([..Verbs.ThrowVerbs, ..Verbs.DropVerbs]);
-    private static readonly VerbFamily SetDialVerbs = new("turn", "set");
     private static readonly VerbFamily FireLaserVerbs = new("shoot", "fire", "activate", "discharge");
     private static readonly VerbFamily ShootAtVerbs = new("shoot", "fire");
 
@@ -127,7 +126,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(SetDialVerbs, ["dial", "laser", "setting"]))
+        if (action.Match(Verbs.SetVerbs, ["dial", "laser", "setting"]))
         {
             // Try to extract text after "to" from the original input (handles "set laser to one" or "set laser to blue" case)
             var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
@@ -335,7 +334,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             return Task.FromResult<InteractionResult?>(ShootLaserAt(action.NounTwo, context));
         }
 
-        if (!action.MatchVerb(SetDialVerbs))
+        if (!action.MatchVerb(Verbs.SetVerbs))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!action.MatchPreposition(["to"]))

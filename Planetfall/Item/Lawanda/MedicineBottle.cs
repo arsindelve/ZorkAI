@@ -4,8 +4,6 @@ namespace Planetfall.Item.Lawanda;
 
 internal class MedicineBottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeRead
 {
-    private static readonly VerbFamily ReadVerbs = new("read", "examine");
-
     public override string[] NounsForMatching => ["medicine bottle", "bottle", "vial"];
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(Medicine)];
@@ -53,7 +51,7 @@ internal class MedicineBottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped
         IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(ReadVerbs, ["label"]))
+        if (action.Match(Verbs.ReadVerbs, ["label"]))
             return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ReadDescription));
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

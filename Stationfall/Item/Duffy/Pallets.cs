@@ -11,7 +11,6 @@ public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
 {
     private static readonly VerbFamily OpenBoxVerbs =
         new("open", "look in", "look inside", "search", "empty", "unseal");
-    private static readonly VerbFamily CountVerb = new("count");
     private static readonly VerbFamily DestroyVerbs =
         new("destroy", "tear", "rip", "shred", "burn", "break", "crumple");
     private static readonly VerbFamily CloseShutVerbs = new("close", "shut", "seal");
@@ -50,7 +49,7 @@ public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
                 "You work a box open. Inside are forms" + string.Concat(Enumerable.Repeat(" and forms", 50)) +
                 ". Horrified, you reseal the box. ");
 
-        if (action.MatchVerb(CountVerb))
+        if (action.MatchVerb(Verbs.Exactly.Count))
             return new PositiveInteractionResult(
                 "You get as far as the fourth row before losing your place, and the thought of " +
                 "starting again is more than you can bear. ");

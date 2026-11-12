@@ -572,15 +572,15 @@ public class Chest : OpenAndCloseContainerBase, ICanBeExamined
         StartWithItemInside<Treasure>();
     }
 
-    // Verbs are always a declared VerbFamily (a static readonly field), never an inline list -
-    // that is how the game's vocabulary knows every verb its objects answer.
-    private static readonly VerbFamily SearchVerbs = new("search", "look in", "look inside");
+    // Verbs are always a declared VerbFamily, never an inline list - that is how the game's vocabulary
+    // knows every verb its objects answer. Families several objects answer live in Model/Verbs.cs;
+    // "search" is one of them. Only a set of words nothing else declares goes on the class itself.
 
     // Support "search chest" and "look in chest"
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(SearchVerbs, NounsForMatching))
+        if (action.Match(Verbs.SearchVerbs, NounsForMatching))
             return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ExaminationDescription));
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
@@ -680,14 +680,12 @@ public class ExitDoor : OpenAndCloseBase, ICanBeExamined, ICannotBeTaken
                context.CurrentScore;
     }
 
-    private static readonly VerbFamily UnlockVerb = new("unlock");
-
     // Handle "unlock door with key"
     public override Task<InteractionResult?> RespondToMultiNounInteraction(
         MultiNounIntent action, IContext context, IGenerationClient client)
     {
         // Check for "unlock door with key"
-        if (action.Match(UnlockVerb, NounsForMatching, ["with", "using"]))
+        if (action.Match(Verbs.Exactly.Unlock, NounsForMatching, ["with", "using"]))
         {
             var key = Repository.GetItem<Key>();
 
@@ -1544,14 +1542,15 @@ public override Task<InteractionResult?> RespondToMultiNounInteraction(
     MultiNounIntent action, IContext context, IGenerationClient client)
 
 // Verbs are matched against a declared VerbFamily, never an inline list of strings.
-// Declare each family as a static readonly field on the class that answers it:
-private static readonly VerbFamily UnlockVerbs = new("unlock", "open");
-private static readonly VerbFamily PushVerbs = new("push", "press");
+// Look in Model/Verbs.cs first - a family several objects answer is declared there, once:
+//     Verbs.UnlockVerbs ("unlock", "open"), Verbs.Exactly.Unlock (just "unlock"), Verbs.PushVerbs ...
+// Only words no other class declares go on the class that answers them, as a static readonly field:
+private static readonly VerbFamily RingVerbs = new("ring", "chime", "toll");
 
 // Matching helpers
-action.Match(UnlockVerbs, NounsForMatching)                    // verb + this item
-action.Match(UnlockVerbs, NounsForMatching, keyNouns, ["with", "using"])  // verb + item + item + preposition
-action.MatchVerb(PushVerbs)                                    // just verb matching
+action.Match(Verbs.UnlockVerbs, NounsForMatching)              // verb + this item
+action.Match(Verbs.UnlockVerbs, NounsForMatching, keyNouns, ["with", "using"])  // verb + item + item + preposition
+action.MatchVerb(RingVerbs)                                    // just verb matching
 ```
 
 ---

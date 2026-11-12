@@ -393,9 +393,14 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   ...
   if (action.Match(ShiftVerbs, NounsForMatching)) ...
   ```
-  - several objects answer it → `Model/Verbs.cs`
+  - several objects answer it → `Model/Verbs.cs` (`action.Match(Verbs.SearchVerbs, NounsForMatching)`)
   - an engine capability answers it → its processor (e.g. `TurnOnOrOffProcessor.TurnOnVerbs`)
   - one item or room answers it → that class
+- **The same words are never declared twice.** Before declaring a family, look in `Verbs.cs`; if another
+  class already declares those exact words, move the family to `Verbs.cs` and use it from both.
+  `VerbFamilyDeclarationTests.NoTwoFamiliesHoldTheSameWords` fails on a repeat and names both fields.
+- **`Verbs.Exactly.*` is one word on purpose** (`Verbs.Exactly.Open`, `.Turn`, `.Use`, `.Lock` ...): the
+  handler answers that word and none of its synonyms. It is not a shorter way to write `Verbs.OpenVerbs`.
 - **Build on another family with a spread**: `new([..Verbs.KillVerbs, "kick"])`. The first word is the
   family's canonical `Name`.
 - **Why**: `Repository.GetVerbs(gameName)` harvests every static `VerbFamily` field in the engine and the
@@ -409,6 +414,7 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   `action.MatchVerb(RingVerb)`, or `RingVerb.Contains(verb)` on an already-normalised verb.
 - **Don't borrow a family with a different word set to save a line.** It silently widens or narrows what
   the object answers. Declare a new one; merging near-duplicates is a deliberate change of its own.
+  Moving a family into `Verbs.cs` is such a change too: the grammar then trusts its words on every noun.
 - Each game's vocabulary is its own: a verb only the ZorkOne rug declares is unknown to Planetfall's parser.
 - **Known is not answered - declare a family on the class that owns the noun.** The deterministic parser
   trusts a verb from `Verbs.cs` or an engine processor on any noun, but a family declared on an item or

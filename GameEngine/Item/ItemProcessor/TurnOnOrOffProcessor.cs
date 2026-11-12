@@ -17,9 +17,6 @@ public class TurnOnOrOffProcessor : IVerbProcessor
     private static readonly VerbFamily TurnOffVerbs =
         new("deactivate", "turn off", "extinguish", "blow out", "disable");
 
-    // A bare "turn", when the parser could not tell on from off; the adverb decides.
-    private static readonly VerbFamily TurnVerb = new("turn");
-
     /// <summary>
     ///     Processes the action of turning on or off an object.
     /// </summary>
@@ -44,7 +41,7 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
             // the parser gave us the preposition (it's really an adverb, but save it for the semantics dome, E.B. White)  
-            case var verb when TurnVerb.Contains(verb):
+            case var verb when Verbs.Exactly.Turn.Contains(verb):
                 return Task.FromResult(ProcessTurn(action, context, item, client));
         }
 

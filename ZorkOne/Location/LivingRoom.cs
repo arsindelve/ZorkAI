@@ -10,8 +10,6 @@ namespace ZorkOne.Location;
 
 public class LivingRoom : LocationBase
 {
-    private static readonly VerbFamily ReadVerbs = new("read", "examine");
-
     private bool CyclopsHasCrashedThrough => !GetLocation<CyclopsRoom>().HasItem<Cyclops>();
 
     public override string Name => "Living Room";
@@ -80,7 +78,7 @@ public class LivingRoom : LocationBase
         string[] nouns =
             ["lettering", "gothic lettering", "strange gothic lettering", "engraving", "engravings", "door"];
 
-        if (action.Match(ReadVerbs, nouns))
+        if (action.Match(Verbs.ReadVerbs, nouns))
             return new PositiveInteractionResult(
                 "The engravings translate to \"This space intentionally left blank.\"");
 

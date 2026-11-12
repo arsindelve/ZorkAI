@@ -9,7 +9,6 @@ namespace ZorkOne.Item;
 
 public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
-    private static readonly VerbFamily BurnVerb = new("burn");
     private static readonly VerbFamily ReadVerb = new("read");
     private static readonly VerbFamily LightVerbs = new("light", "burn", "torch");
 
@@ -50,7 +49,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(BurnVerb, NounsForMatching))
+        if (action.Match(Verbs.Exactly.Burn, NounsForMatching))
             return new PositiveInteractionResult("You'll need to specify what you want to burn it with. ");
 
         if (action.Match(ReadVerb, NounsForMatching))

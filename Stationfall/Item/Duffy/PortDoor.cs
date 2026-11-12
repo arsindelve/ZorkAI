@@ -11,7 +11,6 @@ public class PortDoor : ItemBase, ICanBeExamined
 {
     private static readonly VerbFamily OpenUnlockVerbs =
         new("open", "unlock", "unseal", "force", "pull", "push", "pry");
-    private static readonly VerbFamily CloseShutVerbs = new("close", "shut");
     private static readonly VerbFamily KnockVerbs = new("knock", "knock on");
 
     public override string[] NounsForMatching => ["door", "port door", "closed door", "sealed door"];
@@ -39,7 +38,7 @@ public class PortDoor : ItemBase, ICanBeExamined
             return new PositiveInteractionResult(
                 "You must insert a validated Assignment Completion Form in the slot. ");
 
-        if (action.MatchVerb(CloseShutVerbs))
+        if (action.MatchVerb(Verbs.Exactly.CloseOrShut))
             return new PositiveInteractionResult("It's already closed. ");
 
         if (action.MatchVerb(KnockVerbs))
