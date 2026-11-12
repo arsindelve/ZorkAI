@@ -106,12 +106,6 @@ public static class Verbs
     /// <summary>Going through what a container or a vehicle holds, as distinct from looking at it.</summary>
     public static readonly VerbFamily SearchVerbs = new("search", "look in", "look inside");
 
-    /// <summary>
-    ///     Reading what is written on something that is not itself a readable item - a label, a screen,
-    ///     the carving on a door. "examine" is in here because for writing it means the same thing.
-    /// </summary>
-    public static readonly VerbFamily ReadVerbs = new("read", "examine");
-
     /// <summary>"look through the window", in every phrasing: the glance family and the examine family.</summary>
     public static readonly VerbFamily LookThroughVerbs = new([..LookVerbs, ..ExamineVerbs]);
 
@@ -144,6 +138,77 @@ public static class Verbs
     /// <summary>Entering something on a keyboard or keypad, where a player also says "press" and "push".</summary>
     public static readonly VerbFamily KeyInVerbs = new([..TypeVerbs, "push"]);
 
+    // ------------------------------------------------------------------------------------------------
+    // What the engine's own processors answer, for every object in every game. The processor reads the
+    // family from here; it does not keep a list of its own (VerbFamilyDeclarationTests checks).
+    // ------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    ///     "put X in/on Y" (<c>PutProcessor</c>). Not <see cref="PlaceVerbs" /> or <see cref="ApplyVerbs" />:
+    ///     this is the set that moves an object into or onto a container.
+    /// </summary>
+    public static readonly VerbFamily PutVerbs = new("put", "place", "jam", "shove", "push");
+
+    /// <summary>What anything readable answers (<c>ReadInteractionProcessor</c>).</summary>
+    public static readonly VerbFamily ReadVerbs = new("read", "examine", "look", "look at");
+
+    /// <summary>
+    ///     What gives an item's examination text (<c>ExamineInteractionProcessor</c>). Not the same words
+    ///     as <see cref="ExamineVerbs" />, which is what rooms and items match on: the two were written
+    ///     separately and have never agreed. Kept word for word; bringing them together changes what
+    ///     "inspect" and "study" do to every item, so it is a change to make deliberately.
+    /// </summary>
+    public static readonly VerbFamily ExamineItemVerbs =
+        new("examine", "x", "check", "look", "look at", "peek at", "look in");
+
+    public static readonly VerbFamily SmellVerbs = new("smell", "sniff");
+
+    /// <summary>
+    ///     What eating or drinking a consumable answers (<c>EatAndDrinkInteractionProcessor</c>). Overlaps
+    ///     <see cref="DrinkVerbs" /> without containing it - "gulp" and "slurp" are only there.
+    /// </summary>
+    public static readonly VerbFamily EatOrDrinkVerbs =
+        new("eat", "drink", "swallow", "sip", "consume", "gobble", "snack on", "devour", "chew");
+
+    /// <summary>
+    ///     Switching something on (<c>TurnOnOrOffProcessor</c>). The canonical verb comes first:
+    ///     "activate" / "deactivate" are what the parsers reduce "turn on" / "turn off" to.
+    /// </summary>
+    public static readonly VerbFamily TurnOnVerbs = new("activate", "turn on", "light", "strike", "enable");
+
+    public static readonly VerbFamily TurnOffVerbs = new("deactivate", "turn off", "extinguish", "blow out", "disable");
+
+    /// <summary>
+    ///     Putting clothing on and taking it off (<c>ClothingOnAndOffProcessor</c>). "don" / "doff" are
+    ///     what the parsers reduce "put on" / "take off" to.
+    /// </summary>
+    public static readonly VerbFamily DonVerbs = new("don", "wear", "put on", "dress in", "slip on");
+
+    public static readonly VerbFamily DoffVerbs = new("doff", "take off", "remove", "discard", "slip off");
+
+    // ------------------------------------------------------------------------------------------------
+    // What the deterministic parser treats specially (GameEngine/DeterministicParser.cs).
+    // ------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    ///     Verbs that lead an exploratory "verb under/through &lt;object&gt;" command ("look under rug",
+    ///     "peer through crack"). Looking only, never movement: "go through the door" is a request to
+    ///     move, which the AI resolves.
+    /// </summary>
+    public static readonly VerbFamily ExploratoryVerbs =
+        new("look", "peer", "peek", "glance", "examine", "search", "inspect");
+
+    /// <summary>"enter the boat" is a request to get into it, which is its own intent.</summary>
+    public static readonly VerbFamily BoardVerbs = new("enter", "board");
+
+    /// <summary>
+    ///     Getting out of a thing. Only the AI path builds that intent (with the door and sub-location
+    ///     handling that goes with it), so the grammar declines these. The trap: "exit" and "leave" are
+    ///     known the moment any object answers them (Planetfall's safety webbing does), and "exit the
+    ///     blue door" would otherwise come out as a verb and a noun that nothing answers.
+    /// </summary>
+    public static readonly VerbFamily DisembarkVerbs = new("exit", "leave", "disembark");
+
     /// <summary>
     ///     One word, or two, and deliberately nothing else. A handler that matches one of these answers
     ///     that word and none of its synonyms: the tin can answers "open" and not "pry", the basket
@@ -157,6 +222,12 @@ public static class Verbs
     {
         public static readonly VerbFamily Open = new("open");
         public static readonly VerbFamily CloseOrShut = new("close", "shut");
+
+        /// <summary>
+        ///     Reading what is written on something that is not itself a readable item - a label, a
+        ///     screen, a carving. Narrower than <see cref="ReadVerbs" />: no "look".
+        /// </summary>
+        public static readonly VerbFamily ReadOrExamine = new("read", "examine");
         public static readonly VerbFamily Raise = new("raise");
         public static readonly VerbFamily Lower = new("lower");
         public static readonly VerbFamily Lock = new("lock");

@@ -6,15 +6,12 @@ namespace GameEngine.Item.ItemProcessor;
 
 public class ReadInteractionProcessor : IVerbProcessor
 {
-    // The verbs anything readable answers. Declared here because this processor is what answers them.
-    private static readonly VerbFamily ReadVerbs = new("read", "examine", "look", "look at");
-
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         switch (action.Verb.ToLowerInvariant())
         {
-            case var verb when ReadVerbs.Contains(verb):
+            case var verb when Verbs.ReadVerbs.Contains(verb):
 
                 if (context.ItIsDarkHere)
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see!"));

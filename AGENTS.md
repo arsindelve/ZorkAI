@@ -385,8 +385,10 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   if (action.Match(ShiftVerbs, NounsForMatching)) ...
   ```
   - several objects answer it → `Model/Verbs.cs` (`action.Match(Verbs.SearchVerbs, NounsForMatching)`)
-  - an engine capability answers it → its processor (e.g. `TurnOnOrOffProcessor.TurnOnVerbs`)
-  - one item or room answers it → that class
+  - an engine processor or the parser answers it → `Model/Verbs.cs` as well (`Verbs.TurnOnVerbs`,
+    `Verbs.PutVerbs`). The engine declares no families of its own;
+    `VerbFamilyDeclarationTests.TheEngineDeclaresNoFamiliesOfItsOwn` fails if it does.
+  - one item or room answers it, and no other class declares those words → that class
 - **The same words are never declared twice.** Before declaring a family, look in `Verbs.cs`; if another
   class already declares those exact words, move the family to `Verbs.cs` and use it from both.
   `VerbFamilyDeclarationTests.NoTwoFamiliesHoldTheSameWords` fails on a repeat and names both fields.
@@ -408,7 +410,7 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   Moving a family into `Verbs.cs` is such a change too: the grammar then trusts its words on every noun.
 - Each game's vocabulary is its own: a verb only the ZorkOne rug declares is unknown to Planetfall's parser.
 - **Known is not answered - declare a family on the class that owns the noun.** The deterministic parser
-  trusts a verb from `Verbs.cs` or an engine processor on any noun, but a family declared on an item or
+  trusts a verb from `Verbs.cs` on any noun, but a family declared on an item or
   room only alongside that item's or room's own nouns (`NounsForMatching`, `SceneryNouns`). "yank" is the
   admin corridor's verb for the key; aimed at a lever it reaches nothing, so the parser hands it to the AI,
   which makes it "pull". A family on a helper class that is neither an item nor a room is harvested but
@@ -569,13 +571,13 @@ For complex interactions, create an item processor:
 // GameEngine/Item/ItemProcessor/WearRingProcessor.cs
 public class WearRingProcessor : IInteractionProcessor
 {
-    // Verbs are always a declared VerbFamily - see "Verb Pattern (VerbFamily)".
-    private static readonly VerbFamily WearVerbs = new("wear", "put on");
+    // Verbs are always a declared VerbFamily - see "Verb Pattern (VerbFamily)". A processor is engine
+    // code, so its family lives in Model/Verbs.cs: public static readonly VerbFamily WearVerbs = ...
 
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (!action.MatchVerb(WearVerbs))
+        if (!action.MatchVerb(Verbs.WearVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         var ring = Repository.GetItem<MagicRing>();
@@ -622,8 +624,9 @@ public static class Verbs
 }
 ```
 
-If only one item, room or processor answers it, declare it on that class instead - the vocabulary
-harvest (`Repository.GetVerbs`) finds it either way.
+If only one item or room answers it, declare it on that class instead - the vocabulary harvest
+(`Repository.GetVerbs`) finds it either way. A family an engine processor answers always goes in
+`Verbs.cs`.
 
 **2. Create a Command Processor**
 
@@ -656,12 +659,12 @@ For **item-specific commands**:
 // GameEngine/Item/ItemProcessor/ClimbProcessor.cs
 public class ClimbProcessor : IInteractionProcessor
 {
-    private static readonly VerbFamily ClimbVerbs = new("climb", "scale", "ascend");
+    // Declared in Model/Verbs.cs: public static readonly VerbFamily ClimbVerbs = new("climb", "scale", "ascend");
 
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (!action.MatchVerb(ClimbVerbs))
+        if (!action.MatchVerb(Verbs.ClimbVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         // Check if item can be climbed
@@ -995,13 +998,13 @@ For specialized item behaviors, create interaction processors:
 // GameEngine/Item/ItemProcessor/PolishProcessor.cs
 public class PolishProcessor : IInteractionProcessor
 {
-    private static readonly VerbFamily PolishVerbs = new("polish", "shine", "clean", "rub");
+    // Declared in Model/Verbs.cs: public static readonly VerbFamily PolishVerbs = new("polish", "shine", "clean", "rub");
 
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
         // Only handle "polish" verb
-        if (!action.MatchVerb(PolishVerbs))
+        if (!action.MatchVerb(Verbs.PolishVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         var item = Repository.GetItem(action.Noun);

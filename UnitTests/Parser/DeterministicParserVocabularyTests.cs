@@ -78,7 +78,7 @@ public class DeterministicParserVocabularyTests(string game)
                 failures.Add($"{verb} {noun}");
 
         failures.Should().BeEquivalentTo(Array.Empty<string>(),
-            "a verb the thesaurus or an engine processor declares is answered for any object");
+            "a verb the thesaurus declares is answered for any object");
     }
 
     [Test]

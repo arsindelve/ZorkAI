@@ -13,9 +13,9 @@ namespace Model;
 ///         (<c>Repository.GetVerbs</c>) can find by reflection.
 ///     </para>
 ///     <para>
-///         Who owns a family is whoever answers it: the engine-wide thesaurus (<see cref="Verbs" />), the
-///         processor behind a capability such as opening or wearing, or the one item or room that answers
-///         a verb nothing else does. Declare it there, as a <c>static readonly</c> field:
+///         A family lives in one of two places. <see cref="Verbs" /> holds every family the engine
+///         answers and every family more than one class answers. The one item or room that answers a
+///         verb nothing else does declares it on itself, as a <c>static readonly</c> field:
 ///         <code>private static readonly VerbFamily ShiftVerbs = new("move", "slide", "pull");</code>
 ///         Never build one inline inside a method - it would work, and it would be invisible to the
 ///         harvest. <c>VerbFamilyDeclarationTests</c> fails the build when one is.

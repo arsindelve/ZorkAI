@@ -77,13 +77,14 @@ public class GetVerbsTests
     [TestCase("Planetfall")]
     [TestCase("Stationfall")]
     [TestCase("EscapeRoom")]
-    public void EveryGame_GetsTheSharedThesaurus_AndTheEngineProcessorsOwnFamilies(string game)
+    public void EveryGame_GetsTheSharedThesaurus_IncludingWhatTheEngineProcessorsAnswer(string game)
     {
         var families = Repository.GetVerbs(game);
 
         families.Should().Contain(Verbs.TakeVerbs).And.Contain(Verbs.ExamineVerbs);
-        // Declared by SmellInteractionProcessor and ClothingOnAndOffProcessor, not by Verbs.cs.
-        Words(game).Should().Contain(["sniff", "doff", "slip off"]);
+        families.Should().Contain(Verbs.SmellVerbs).And.Contain(Verbs.DoffVerbs).And.Contain(Verbs.PutVerbs);
+        // The narrow sets are in a nested class; the harvest has to look there too.
+        families.Should().Contain(Verbs.Exactly.Open);
     }
 
     [Test]
@@ -201,6 +202,23 @@ public class VerbFamilyDeclarationTests
 
         repeated.Should().BeEquivalentTo(Array.Empty<string>(),
             "words that more than one class answers are declared once, in Model/Verbs.cs, and used from there");
+    }
+
+    /// <summary>
+    ///     A verb the engine answers is answered in every game, which makes it part of the shared thesaurus.
+    ///     It is declared in <see cref="Verbs" /> and nowhere else: a processor or the parser that kept its
+    ///     own list would be a second place to look, and a second place for the lists to drift apart.
+    /// </summary>
+    [Test]
+    public void TheEngineDeclaresNoFamiliesOfItsOwn()
+    {
+        var declaredInTheEngine = DeclaredFamilies()
+            .Select(family => family.Field)
+            .Where(field => field.StartsWith("GameEngine.", StringComparison.Ordinal))
+            .Order();
+
+        declaredInTheEngine.Should().BeEquivalentTo(Array.Empty<string>(),
+            "engine-level verb families are declared in Model/Verbs.cs and used from there");
     }
 
     /// <summary>

@@ -63,20 +63,11 @@ public class DeterministicParser
         "under", "through", "over", "behind", "beside"
     };
 
-    // Verbs that lead an EXPLORATORY "verb under/through <object>" command ("look under rug", "peer through
-    // crack"). Look/examine family only, NOT movement verbs — "go through <opening>" is a request to MOVE
-    // through it, which the AI resolves to a MoveIntent, so those fall through to the AI.
-    private static readonly VerbFamily ExploratoryVerbs =
-        new("look", "peer", "peek", "glance", "examine", "search", "inspect");
-
-    // "enter <thing>" / "board <thing>" is a request to get into it, which is its own intent.
-    private static readonly VerbFamily BoardVerbs = new("enter", "board");
-
-    // Getting OUT of a thing is the disembark intent, and only the AI path builds that (with the door and
-    // sub-location handling that goes with it). These are declined, not parsed. The trap: because verbs are
-    // harvested, "exit" and "leave" become known the moment any object answers them (Planetfall's safety
-    // webbing does), and "exit the blue door" would then come out as a verb+noun that nothing answers.
-    private static readonly VerbFamily DisembarkVerbs = new("exit", "leave", "disembark");
+    // The three verb families the grammar treats specially are declared in Verbs.cs with every other verb:
+    //   Verbs.ExploratoryVerbs - lead a "verb under/through <object>" command ("look under rug").
+    //   Verbs.BoardVerbs       - "enter <thing>" is a request to get into it, which is its own intent.
+    //   Verbs.DisembarkVerbs   - getting OUT of a thing; only the AI path builds that intent, so these
+    //                            are declined, not parsed.
 
     private static readonly string[] TravelPrefixes =
         ["go to ", "walk to ", "head to ", "travel to ", "go into ", "walk into ", "run to ", "proceed to "];
@@ -128,7 +119,7 @@ public class DeterministicParser
         // phrase reaches the grammar through MultiWordVerbCanon or not at all.
         //
         // But a verb being KNOWN is not the same as its being ANSWERED, and who declares a family says
-        // which it is. The thesaurus and the engine's own processors answer for any object, so their verbs
+        // which it is. The thesaurus (Verbs.cs) answers for any object in any game, so its verbs
         // are trusted everywhere. A family on one item or room is answered by that item or room alone: the
         // admin corridor lists "yank" and "fetch" for fishing out the key, and neither does anything to a
         // lever or a canteen, where the AI would have made them "pull" and "take". So an object's own verbs
@@ -231,11 +222,11 @@ public class DeterministicParser
                 return null; // not an imperative we recognise -> let the AI try
         }
 
-        if (rest.Length == 0 || DisembarkVerbs.Matches(verb))
+        if (rest.Length == 0 || Verbs.DisembarkVerbs.Matches(verb))
             return null;
 
         // 3. Exploratory "look/peer under|through <object>" -> SimpleIntent with the preposition as adverb.
-        if (rest.Length >= 2 && (rest[0] == "under" || rest[0] == "through") && ExploratoryVerbs.Matches(verb))
+        if (rest.Length >= 2 && (rest[0] == "under" || rest[0] == "through") && Verbs.ExploratoryVerbs.Matches(verb))
         {
             return TryNoun(rest[1..], out var noun) && IsAnswered(verb, noun)
                 ? new SimpleIntent { Verb = verb, Noun = noun, Adverb = rest[0], OriginalInput = original, Message = original }
@@ -251,14 +242,14 @@ public class DeterministicParser
             if (!IsAnswered(verb, single))
                 return null;
 
-            return BoardVerbs.Matches(verb)
+            return Verbs.BoardVerbs.Matches(verb)
                 ? new EnterSubLocationIntent { Noun = single, Message = original }
                 : new SimpleIntent { Verb = verb, Noun = single, OriginalInput = original, Message = original };
         }
 
         // Getting into something takes one object. "enter the house through the window" is a way of MOVING,
         // which the AI resolves; as a two-noun "enter" it would be a command nothing answers.
-        if (BoardVerbs.Matches(verb))
+        if (Verbs.BoardVerbs.Matches(verb))
             return null;
 
         // 5. Multi-noun: "verb <noun1> <preposition> <noun2>". Both sides must be known nouns, or we defer to

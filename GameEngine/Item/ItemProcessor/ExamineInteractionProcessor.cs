@@ -10,17 +10,12 @@ namespace GameEngine.Item.ItemProcessor;
 /// </summary>
 public class ExamineInteractionProcessor : IVerbProcessor
 {
-    // What this processor itself answers. Not the same set as Verbs.ExamineVerbs, which is the wider
-    // family rooms and items match on - kept word for word as it was, so nothing changes behaviour.
-    private static readonly VerbFamily AnsweredVerbs =
-        new("examine", "x", "check", "look", "look at", "peek at", "look in");
-
     Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case var verb when AnsweredVerbs.Contains(verb):
+            case var verb when Verbs.ExamineItemVerbs.Contains(verb):
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see! "));

@@ -6,8 +6,6 @@ namespace GameEngine.Item.MultiItemProcessor;
 
 public class PutProcessor : IMultiNounVerbProcessor
 {
-    private static readonly VerbFamily PutVerbs = new("put", "place", "jam", "shove", "push");
-
     public InteractionResult? Process(MultiNounIntent action, IContext context, IInteractionTarget itemOne,
         IInteractionTarget itemTwo)
     {
@@ -21,7 +19,7 @@ public class PutProcessor : IMultiNounVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case var verb when PutVerbs.Contains(verb):
+            case var verb when Verbs.PutVerbs.Contains(verb):
 
                 switch (action.Preposition.ToLowerInvariant().Trim())
                 {

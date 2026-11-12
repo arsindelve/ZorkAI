@@ -483,9 +483,9 @@ public static class Repository
     private static readonly ConcurrentDictionary<string, (VerbFamily Family, Type DeclaredOn)[]> VerbsByGame = new();
 
     /// <summary>
-    ///     Every verb family the game answers: the engine-wide thesaurus (<see cref="Verbs" />), the
-    ///     families the engine's own processors declare, and every family declared by one of the game's
-    ///     items or locations. This is the verb counterpart of <see cref="GetNouns" />, and it is complete
+    ///     Every verb family the game answers: the engine-wide thesaurus (<see cref="Verbs" />), which
+    ///     includes what the engine's own processors answer, and every family declared by one of the
+    ///     game's items or locations. This is the verb counterpart of <see cref="GetNouns" />, and it is complete
     ///     for the same reason: a handler can only match a verb through a <see cref="VerbFamily" />, and a
     ///     family can only be created in a static field, so there is nothing a handler answers that this
     ///     cannot see. (See <see cref="VerbFamily" />; <c>VerbFamilyDeclarationTests</c> enforces the rule.)

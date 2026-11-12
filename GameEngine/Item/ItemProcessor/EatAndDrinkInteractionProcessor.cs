@@ -10,9 +10,6 @@ namespace GameEngine.Item.ItemProcessor;
 /// </summary>
 public class EatAndDrinkInteractionProcessor : IVerbProcessor
 {
-    private static readonly VerbFamily EatOrDrinkVerbs =
-        new("eat", "drink", "swallow", "sip", "consume", "gobble", "snack on", "devour", "chew");
-
     Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
@@ -26,7 +23,7 @@ public class EatAndDrinkInteractionProcessor : IVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case var verb when EatOrDrinkVerbs.Contains(verb):
+            case var verb when Verbs.EatOrDrinkVerbs.Contains(verb):
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see!"));
