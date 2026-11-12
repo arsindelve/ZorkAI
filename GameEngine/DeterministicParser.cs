@@ -37,9 +37,10 @@ public class DeterministicParser
     // This is a table of REWRITES, not vocabulary, which is why it is not harvested like the verbs are. A
     // phrase can sit in several families whose owners want different things from it, and the only reading
     // that is safe everywhere is the one the AI parser's prompt already makes ("turn on" -> "activate").
-    // Phrases that are not listed here are deliberately left to the AI: recognising one verbatim just because
-    // some object declares it would, for example, turn "put down the lamp" into a verb only Stationfall's
-    // goo answers, instead of the drop the AI makes of it.
+    // Phrases that are not listed here are left to the AI, with one exception: a phrase a game class
+    // answers is recognised on THAT CLASS'S nouns (see OwnPhrases in Load). Recognising it on any noun
+    // would, for example, turn "put down the lamp" into a verb only Stationfall's goo answers, instead of
+    // the drop the AI makes of it.
     private static readonly Dictionary<string, string> MultiWordVerbCanon = new(StringComparer.OrdinalIgnoreCase)
     {
         ["turn on"] = "activate",
@@ -115,8 +116,9 @@ public class DeterministicParser
 
         // The verbs are harvested exactly as the nouns are: every word of every VerbFamily the engine or
         // this game answers (Repository.GetVerbOwners). There is no verb list in this class to fall
-        // behind - a handler cannot answer a verb that is not in a family. Single words only: a multi-word
-        // phrase reaches the grammar through MultiWordVerbCanon or not at all.
+        // behind - a handler cannot answer a verb that is not in a family. Single words only, for what the
+        // engine answers everywhere: a multi-word phrase of the engine's reaches the grammar through
+        // MultiWordVerbCanon or not at all.
         //
         // But a verb being KNOWN is not the same as its being ANSWERED, and who matches on a family says
         // which it is. A family an engine processor matches on is answered for any object, so its verbs
@@ -127,8 +129,15 @@ public class DeterministicParser
         //
         // Where a family is DECLARED says nothing here. Every grouping is declared in Verbs.cs, for all
         // games at once; what ties "raise" to the basket is that the basket's handler reads RaiseVerbs.
+        //
+        // A game class's own two-word phrase is kept too, where it means something the canonical verb
+        // does not. "look into" canonicalises to "examine" - right for a mailbox, wrong for the pile of
+        // leaves, whose handler answers "look into" as going through the pile and finding the grating. So
+        // that phrase, on that class's nouns, is handed over as typed. Where the canonical verb is in the
+        // same family ("turn on" and "activate"), canonicalising loses nothing and stays as it was.
         var sharedVerbs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var ownVerbs = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        var ownPhrases = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var (family, owner) in Repository.GetVerbOwners(gameName))
         {
@@ -139,6 +148,11 @@ public class DeterministicParser
                 sharedVerbs.UnionWith(words);
                 continue;
             }
+
+            var phrases = family
+                .Where(phrase => phrase.Count(letter => letter == ' ') == 1 &&
+                                 !(MultiWordVerbCanon.TryGetValue(phrase, out var canonical) && family.Matches(canonical)))
+                .ToArray();
 
             // The owning class and everything derived from it: a handler on an abstract base (every
             // access-card slot, every shuttle control cabin) answers for each concrete subclass.
@@ -155,9 +169,17 @@ public class DeterministicParser
 
                 answeredFor.UnionWith(itsNouns);
             }
+
+            foreach (var phrase in phrases)
+            {
+                if (!ownPhrases.TryGetValue(phrase, out var answeredFor))
+                    ownPhrases[phrase] = answeredFor = new HashSet<string>(StringComparer.Ordinal);
+
+                answeredFor.UnionWith(itsNouns);
+            }
         }
 
-        return new Vocabulary(nouns, destinations, sharedVerbs, ownVerbs);
+        return new Vocabulary(nouns, destinations, sharedVerbs, ownVerbs, ownPhrases);
     }
 
     /// <summary>
@@ -206,11 +228,21 @@ public class DeterministicParser
         if (words.Length < 2)
             return null;
 
-        // 2. Resolve the verb: a leading multi-word phrase canonicalises ("turn on" -> "activate");
-        //    otherwise the first word must be a verb the engine actually knows.
+        // 2. Resolve the verb. An object's own two-word phrase first: "look into the leaves" is the pile's
+        //    "look into", not the "examine" the phrase means elsewhere (see Load). It takes exactly one
+        //    object, and only one whose class answers the phrase.
+        var leading = $"{words[0]} {words[1]}";
+        if (words.Length > 2 && _vocab.OwnPhrases.TryGetValue(leading, out var itsObjects) &&
+            TryNoun(words[2..], out var itsObject) && itsObjects.Contains(itsObject))
+            return Verbs.BoardVerbs.Matches(leading)
+                ? new EnterSubLocationIntent { Noun = itsObject, Message = original }
+                : new SimpleIntent { Verb = leading, Noun = itsObject, OriginalInput = original, Message = original };
+
+        //    Otherwise a leading multi-word phrase canonicalises ("turn on" -> "activate"), or the first
+        //    word must be a verb the engine actually knows.
         string verb;
         string[] rest;
-        if (MultiWordVerbCanon.TryGetValue($"{words[0]} {words[1]}", out var canonical))
+        if (MultiWordVerbCanon.TryGetValue(leading, out var canonical))
         {
             verb = canonical;
             rest = words[2..];
@@ -307,5 +339,6 @@ public class DeterministicParser
     }
 
     private readonly record struct Vocabulary(Dictionary<string, string> Nouns, string[] DestinationTerms,
-        HashSet<string> SharedVerbs, Dictionary<string, HashSet<string>> OwnVerbs);
+        HashSet<string> SharedVerbs, Dictionary<string, HashSet<string>> OwnVerbs,
+        Dictionary<string, HashSet<string>> OwnPhrases);
 }

@@ -234,7 +234,17 @@ public static partial class ParserCorpus
             At("Spacetruck", "drop the thermos", Drop("thermos")),
             At("Spacetruck", "turn on the radio", Act("activate", "radio")),
             At("Spacetruck", "turn off the radio", Act("deactivate", "radio")),
-            At("Spacetruck", "look in the thermos", Act("examine", "thermos").OrVerb("look", "search", "open")),
+
+            // ---------------------------------------------------------------- the grammar: an object's own phrase
+            // A two-word verb a game class answers is read as typed on that class's nouns: the thermos,
+            // the radio, the door and the soup each declare the phrase their handler matches. On any other
+            // noun the same phrase is canonicalised or left to the AI, as before.
+            At("Spacetruck", "look in the thermos",
+                Act("search", "thermos").TypedAs("look in").OrVerb("look", "examine", "open")),
+            At("CargoBay", "get in the truck", Board("truck").OrNoun("spacetruck")),
+            At("Spacetruck", "listen to the radio", Act("listen", "radio").TypedAs("listen to").OrVerb("hear")),
+            At("DockingBayTwo", "knock on the door", Act("knock", "door").TypedAs("knock on").OrNoun("port door")),
+            At("Spacetruck", "pour out the soup", Act("pour", "soup").TypedAs("pour out").OrVerb("empty", "dump")),
 
             // ---------------------------------------------------------------- the grammar: two nouns, and getting in
             At("Spacetruck", "put the soup in the thermos", Act("put", "soup", "in", "thermos")),
@@ -242,12 +252,8 @@ public static partial class ParserCorpus
             At("CargoBayEntrance", "go to the cargo bay", GoTo("cargo bay")),
 
             // ---------------------------------------------------------------- the AI: phrases the grammar leaves alone
-            At("CargoBay", "get in the truck", Board("truck").OrNoun("spacetruck").AiOnly()),
-            At("Spacetruck", "listen to the radio", Act("listen", "radio").OrVerb("listen to", "hear").AiOnly()),
-            At("DockingBayTwo", "knock on the door", Act("knock", "door").OrVerb("knock on").OrNoun("port door").AiOnly()),
-            At("Spacetruck", "pour out the soup", Act("pour", "soup").OrVerb("pour out", "empty", "dump").AiOnly()),
             // The goo declares "put down", but to everything else it is a drop - which is why the grammar
-            // must not take a multi-word phrase verbatim just because some object answers it.
+            // takes a multi-word phrase as typed only on the nouns of the class that answers it.
             At("Spacetruck", "put down the thermos", Drop("thermos").AiOnly()),
             At("Spacetruck", "switch the radio on", Act("activate", "radio").AiOnly())
         ];

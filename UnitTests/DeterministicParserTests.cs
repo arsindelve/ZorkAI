@@ -204,6 +204,36 @@ public class DeterministicParserTests
             simple.Noun.Should().Be("lantern");
         }
 
+        [TestCase("look into the leaves")]
+        [TestCase("look into the pile of leaves")]
+        [TestCase("look into the pile")]
+        public void AnObjectsOwnPhrase_IsHandedOverAsTyped_NotCanonicalised(string input)
+        {
+            // "look into <thing>" means "examine" nearly everywhere, and that is what the phrase is
+            // canonicalised to. But the pile of leaves answers "look into" itself, as going through the
+            // pile - which uncovers the grating. Canonicalised, the sentence reached only the examine
+            // processor ("There is nothing special about the pile of leaves") and the handler's own word
+            // could never be reached in play.
+            //
+            // ("look in" and "look inside" are a different matter: the engine rewrites those to "examine"
+            // before any parser sees them - GameEngine.NormalizeLookAt, issue #396.)
+            var result = _parser.Parse(input);
+
+            result.Should().BeOfType<SimpleIntent>();
+            var simple = (SimpleIntent)result!;
+            simple.Verb.Should().Be("look into");
+            simple.Noun.Should().BeOneOf("leaves", "pile", "pile of leaves");
+        }
+
+        [Test]
+        public void TheSamePhrase_OnAnObjectThatDoesNotAnswerIt_IsStillCanonicalised()
+        {
+            var result = _parser.Parse("look into the mailbox");
+
+            result.Should().BeOfType<SimpleIntent>();
+            ((SimpleIntent)result!).Verb.Should().Be("examine");
+        }
+
         [TestCase("take sword?")]
         [TestCase("open the mailbox.")]
         public void TrailingPunctuation_IsStripped(string input)
