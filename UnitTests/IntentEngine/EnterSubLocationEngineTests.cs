@@ -91,6 +91,25 @@ public class EnterSubLocationEngineTests
             result.ResultMessage.Should().Be("You cannot go that way. ");
         }
 
+        // An object you cannot get into may have its own reason why. "enter <it>" is an enter intent, not
+        // a verb-and-noun, so this engine is the only thing that hears it - and it used to answer
+        // "You can't enter that." without ever asking the object. The reply the object's handler writes
+        // for Verbs.BoardVerbs was reachable only through a parser that production does not use.
+        [Test]
+        public async Task Should_LetTheObjectAnswer_When_ItHasItsOwnReplyToBeingEntered()
+        {
+            var location = Repository.GetLocation<LivingRoom>();
+            location.ItemPlacedHere(Repository.GetItem<RobotsOnlyBin>());
+
+            _mockContext.Setup(c => c.CurrentLocation).Returns(location);
+            _mockContext.Setup(c => c.Items).Returns(new List<IItem>());
+
+            var result = await _engine.Process(new EnterSubLocationIntent { Noun = "bin" }, _mockContext.Object,
+                _mockGenerationClient.Object);
+
+            result.ResultMessage.Should().Be("The bin is only for robots. ");
+        }
+
         [Test]
         public async Task Should_ReturnCantEnterThat_When_ItemIsNotSubLocationAndNotADoor()
         {
@@ -264,6 +283,22 @@ public class EnterSubLocationEngineTests
             // Assert
             result.resultObject.Should().BeNull();
             result.ResultMessage.Should().Contain("pile of plastic");
+        }
+    }
+
+    /// <summary>A fixture nobody can get into, which says why in its own words.</summary>
+    private class RobotsOnlyBin : GameEngine.Item.ItemBase
+    {
+        public override string[] NounsForMatching => ["bin"];
+
+        public override Task<Model.Interaction.InteractionResult?> RespondToSimpleInteraction(SimpleIntent action,
+            IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
+        {
+            if (action.Match(Verbs.BoardVerbs, NounsForMatching))
+                return Task.FromResult<Model.Interaction.InteractionResult?>(
+                    new Model.Interaction.PositiveInteractionResult("The bin is only for robots. "));
+
+            return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
         }
     }
 }

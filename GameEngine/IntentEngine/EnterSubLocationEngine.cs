@@ -45,7 +45,21 @@ internal class EnterSubLocationEngine : IIntentEngine
             if (reroute is not null)
                 return reroute.Value;
 
-            // Not a door - you simply can't enter it. Say so plainly rather than mocking a valid noun.
+            // Not a door either. Before refusing, ask the object: it may have its own reply to being
+            // entered ("The bin is only for robots."). "enter <it>" arrives as an enter intent, not as a
+            // verb and a noun, so this engine is the only thing that hears it - and a handler that
+            // matches Verbs.BoardVerbs was otherwise reachable only through a parse production never
+            // makes. Only the object's own handler is consulted: the engine's generic processors
+            // (take, open, read ...) have nothing to say about getting into a thing.
+            var itsOwnReply = await subLocation.RespondToSimpleInteraction(
+                new SimpleIntent { Verb = Verbs.BoardVerbs.Name, Noun = enter.Noun, OriginalInput = enter.Message },
+                context, generationClient, NoProcessors.Instance);
+
+            if (itsOwnReply is { InteractionHappened: true })
+                return (itsOwnReply, itsOwnReply.InteractionMessage);
+
+            // It has nothing to say - you simply can't enter it. Say so plainly rather than mocking a
+            // valid noun.
             return (null, "You can't enter that. ");
         }
 
@@ -53,6 +67,14 @@ internal class EnterSubLocationEngine : IIntentEngine
             return (null, $"You're already in the {enter.Noun}. ");
 
         return (null, subLocationInstance.GetIn(context));
+    }
+
+    /// <summary>A processor factory with no processors: the object answers for itself or not at all.</summary>
+    private sealed class NoProcessors : IItemProcessorFactory
+    {
+        public static readonly NoProcessors Instance = new();
+
+        public List<IVerbProcessor> GetProcessors(object item) => [];
     }
 
     private static async Task<string> GetGeneratedCantGoThatWayResponse(IGenerationClient generationClient,
