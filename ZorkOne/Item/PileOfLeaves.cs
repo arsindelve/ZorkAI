@@ -9,8 +9,6 @@ namespace ZorkOne.Item;
 
 public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
 {
-    private static readonly VerbFamily MoveSearchVerbs = new("move", "search");
-
     public override string[] NounsForMatching => ["leaves", "pile", "pile of leaves"];
 
     public override bool IsSoft => true;
@@ -55,7 +53,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
         if (action.Match(Verbs.Exactly.Count, NounsForMatching))
             return new PositiveInteractionResult("There are 69,105 leaves here. ");
 
-        if (action.Match(MoveSearchVerbs, NounsForMatching))
+        if (action.Match(Verbs.RummageVerbs, NounsForMatching))
         {
             var clearing = Repository.GetLocation<Clearing>();
             var grating = Repository.GetItem<Grating>();

@@ -14,9 +14,6 @@ public class Egg
         IGivePointsWhenPlacedInTrophyCase,
         IOpenAndClose
 {
-    private static readonly VerbFamily ForceOpenVerbs =
-        new("open", "pry", "break", "jimmie", "crack", "force", "bust", "pop", "split");
-
     public override string[] NounsForMatching =>
         ["egg", "jewel-encrusted egg", "jewel encrusted egg"];
 
@@ -115,7 +112,7 @@ public class Egg
 
         if (
             !action.MatchVerb(
-                ForceOpenVerbs)
+                Verbs.ForceOpenVerbs)
         )
             return await base.RespondToMultiNounInteraction(action, context);
 

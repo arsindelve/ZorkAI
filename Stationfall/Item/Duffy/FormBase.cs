@@ -13,9 +13,6 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class FormBase : ItemBase, ICanBeTakenAndDropped, ICanBeExamined, ICanBeRead
 {
-    private static readonly VerbFamily CrumpleVerbs =
-        new("crumple", "destroy", "tear", "rip", "shred", "burn", "eat", "break");
-
     /// <summary>
     ///     The form's serial designation, e.g. "QX-17-T".
     /// </summary>
@@ -27,7 +24,7 @@ public abstract class FormBase : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.MatchNounAndAdjective(NounsForMatching) &&
-            action.MatchVerb(CrumpleVerbs))
+            action.MatchVerb(Verbs.DestroyFormVerbs))
             return new PositiveInteractionResult(
                 "Destroying a Patrol form is a violation of the Uniform Code of Paperwork, and you " +
                 "have no intention of explaining yourself at a hearing. ");

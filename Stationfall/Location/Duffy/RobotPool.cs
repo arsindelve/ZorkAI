@@ -12,9 +12,6 @@ namespace Stationfall.Location.Duffy;
 /// </summary>
 public class RobotPool : LocationBase
 {
-    private static readonly VerbFamily LookInBinVerbs =
-        new("look in", "look into", "examine", "look", "search", "inspect", "check");
-
     /// <summary>
     ///     Set once the authorization form has been accepted. The keypad is inert until then.
     /// </summary>
@@ -67,7 +64,7 @@ public class RobotPool : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.MatchVerb(LookInBinVerbs))
+        if (action.MatchVerb(Verbs.LookInPoolBinVerbs))
         {
             if (action.MatchNoun(["first bin", "bin one", "bin 1"]))
                 return DescribeBin(Repository.GetItem<Rex>());

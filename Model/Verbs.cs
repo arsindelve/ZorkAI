@@ -3,15 +3,16 @@
 /// <summary>
 ///     This is your verb thesaurus. Enjoy responsibly.
 ///     <para>
-///         These are the families more than one object answers. A verb only one item or room answers
-///         belongs on that item or room, as its own <see cref="VerbFamily" /> field - not here. Either
-///         way the vocabulary harvest finds it; see <see cref="VerbFamily" /> for the rules.
+///         Every collection of verbs any handler matches on is declared here, once, as a grouping named
+///         for the action it stands for. The one thing a game class declares for itself is a single verb
+///         that nothing else uses (<c>VerbFamilyDeclarationTests</c> holds both rules). See
+///         <see cref="VerbFamily" />.
 ///     </para>
 ///     <para>
-///         The moment a second class answers the same words, the family moves here and both use it from
-///         here: the same words are never declared twice (<c>VerbFamilyDeclarationTests</c> fails if they
-///         are). Being here says nothing about who answers a grouping: that is whoever matches on it,
-///         which is how each game ends up with its own vocabulary out of this one file.
+///         Being declared here says nothing about who answers a grouping. That is whoever matches on it:
+///         an engine processor answers for every object, a game class for its own nouns. It is also how
+///         each game gets its own vocabulary out of this one file - a grouping only Stationfall's objects
+///         match on is unknown to Zork's parser.
 ///     </para>
 /// </summary>
 public static class Verbs
@@ -22,7 +23,8 @@ public static class Verbs
     ///     "carry" is a canonical original synonym (Planetfall syntax.zil:334
     ///     &lt;SYNONYM TAKE GET HOLD CARRY&gt;).
     /// </summary>
-    public static readonly VerbFamily TakeVerbs = new("take", "get", "grab", "pick up", "hold", "acquire", "snatch", "carry");
+    public static readonly VerbFamily TakeVerbs =
+        new("take", "get", "grab", "pick up", "hold", "acquire", "snatch", "carry");
 
     /// <summary>
     ///     The "put it down" family. A short list today (the engine only acts on "drop"), but centralized
@@ -30,16 +32,20 @@ public static class Verbs
     /// </summary>
     public static readonly VerbFamily DropVerbs = new("drop");
 
-    public static readonly VerbFamily DrinkVerbs = new("swallow", "sip", "drink", "consume", "gulp", "guzzle", "slurp");
+    public static readonly VerbFamily DrinkVerbs =
+        new("swallow", "sip", "drink", "consume", "gulp", "guzzle", "slurp");
 
     /// <summary>
     ///     The "go for a swim" family (ZIL: <c>SYNONYM SWIM BATHE WADE</c>). Used by the river-bank
     ///     locations (Shore, Sandy Beach) that expose the local-global river/water objects.
     /// </summary>
     public static readonly VerbFamily SwimVerbs = new("swim", "bathe", "wade");
-    public static readonly VerbFamily FixVerbs = new("fix", "repair", "seal", "patch", "stop", "block", "mend", "plug");
-    public static readonly VerbFamily ApplyVerbs = new("use", "apply", "stick", "put", "place", "spread", "smear", "press");
-    public static readonly VerbFamily PushVerbs = new("push", "press", "activate", "toggle", "click", "flip", "switch", "depress");
+    public static readonly VerbFamily FixVerbs =
+        new("fix", "repair", "seal", "patch", "stop", "block", "mend", "plug");
+    public static readonly VerbFamily ApplyVerbs =
+        new("use", "apply", "stick", "put", "place", "spread", "smear", "press");
+    public static readonly VerbFamily PushVerbs =
+        new("push", "press", "activate", "toggle", "click", "flip", "switch", "depress");
 
     public static readonly VerbFamily MoveVerbs =
         new("move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape", "march", "wander", "venture",
@@ -54,7 +60,8 @@ public static class Verbs
         "crush", "pulverize", "splinter", "ruin", "deface", "mangle", "trash", "obliterate", "annihilate"
     );
     public static readonly VerbFamily CloseVerbs = new("close", "shut", "bar", "lower", "cover", "latch", "fasten");
-    public static readonly VerbFamily OpenVerbs = new("open", "lift", "pry", "unbar", "raise", "uncover", "unlatch", "unseal");
+    public static readonly VerbFamily OpenVerbs =
+        new("open", "lift", "pry", "unbar", "raise", "uncover", "unlatch", "unseal");
     public static readonly VerbFamily GiveVerbs =
         new("give", "offer", "transfer", "present", "provide", "hand", "donate", "deliver", "pass", "feed");
 
@@ -90,10 +97,8 @@ public static class Verbs
         new("examine", "look at", "look", "look into", "inspect", "x", "view", "study", "peek", "peer");
 
     public static readonly VerbFamily SayVerbs =
-    new(
-        "say", "yell", "shout", "utter", "scream", "mumble", "whisper", "speak", "declare", "state", "announce", "tell",
-        "holler", "exclaim", "proclaim", "chant", "recite"
-    );
+        new("say", "yell", "shout", "utter", "scream", "mumble", "whisper", "speak", "declare", "state", "announce",
+            "tell", "holler", "exclaim", "proclaim", "chant", "recite");
 
     /// <summary>
     ///     The "jump / leap" family — a player flinging themselves into the air. Used both for fatal
@@ -138,6 +143,211 @@ public static class Verbs
     public static readonly VerbFamily KeyInVerbs = new("type", "punch", "key", "press", "push");
 
     // ------------------------------------------------------------------------------------------------
+    // What particular objects answer. One list for every game: a grouping is in a game's vocabulary
+    // when that game's code matches on it, and the parser vouches for it only on those objects' nouns.
+    // ------------------------------------------------------------------------------------------------
+
+    public static readonly VerbFamily AimVerbs = new("aim", "point", "touch", "connect", "attach");
+
+    // ATTACK/KICK are fatal (BLATHER-F, globals.zil:751-753). Built once, not per call (mirroring
+    // ZorkOne/Location/MirrorRoom.cs): the location forwards every simple command to every present
+    // item, so composing this inline would re-allocate on each dispatch before the noun check runs.
+    public static readonly VerbFamily AttackVerbs = new([..KillVerbs, "kick"]);
+
+    public static readonly VerbFamily BoardSpacetruckVerbs = new("enter", "board", "get in", "climb in");
+
+    public static readonly VerbFamily BurnBookVerbs = new("light", "burn", "torch");
+
+    public static readonly VerbFamily ChooseVerbs = new("pick", "choose", "select", "requisition", "hire");
+
+    public static readonly VerbFamily CleanOffVerbs = new("clean", "scrub", "remove");
+
+    public static readonly VerbFamily CleanVerbs = new("clean", "scrub", "wash");
+
+    public static readonly VerbFamily CrossVerbs = new("cross", "through", "traverse");
+
+    public static readonly VerbFamily CutVerbs = new("cut", "chop", "slash", "destroy");
+
+    public static readonly VerbFamily DestroyBoxVerbs =
+        new("destroy", "tear", "rip", "shred", "burn", "break", "crumple");
+
+    public static readonly VerbFamily DestroyBoxedFormsVerbs =
+        new("crumple", "tear", "rip", "destroy", "break", "smash", "burn", "eat");
+
+    public static readonly VerbFamily DestroyFormVerbs =
+        new("crumple", "destroy", "tear", "rip", "shred", "burn", "eat", "break");
+
+    // The classic skeleton curse fires for any of these verbs applied to the bones
+    // (zork1/1actions.zil:931 — SKELETON: <VERB? TAKE RUB MOVE PUSH RAISE LOWER ATTACK KICK KISS>).
+    // We map each ZIL verb to the engine's thesaurus where one exists (so synonyms like "get"/"kill"/
+    // "touch" all trigger the ghost), but deliberately NOT to Verbs.PushVerbs — that family folds in
+    // machine-operation synonyms (toggle/flip/switch/activate/click) that read as nonsense on bones.
+    // PUSH/RAISE/LOWER/MOVE/KICK/KISS are spelled out with only their sensible "manhandle" synonyms.
+    public static readonly VerbFamily DisturbVerbs = new(
+        [
+            ..TakeVerbs,                    // TAKE
+            ..TouchVerbs,                   // RUB
+            ..KillVerbs,                    // ATTACK
+            "push", "depress", "shove", "move", "raise", "lift", "lower", "kick", "kiss"
+        ]);
+
+    public static readonly VerbFamily EatGooVerbs = new("eat", "drink", "swallow");
+
+    public static readonly VerbFamily EmptyKitVerbs = new("empty", "dump", "pour out", "tip out");
+
+    public static readonly VerbFamily ExamineOrLookInVerbs = new("examine", "look in");
+
+    public static readonly VerbFamily ExtendVerbs =
+        new("extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen");
+
+    public static readonly VerbFamily FastenUniformVerbs = new("open", "close", "shut", "unfasten", "fasten");
+
+    public static readonly VerbFamily FireVerbs = new("shoot", "fire", "activate", "discharge");
+
+    public static readonly VerbFamily ForceDoorVerbs =
+        new("open", "unlock", "unseal", "force", "pull", "push", "pry");
+
+    public static readonly VerbFamily ForceOpenVerbs =
+        new("open", "pry", "break", "jimmie", "crack", "force", "bust", "pop", "split");
+
+    public static readonly VerbFamily GetInBinVerbs = new("enter", "get in", "climb in", "sit in", "put", "put in");
+
+    public static readonly VerbFamily GiveOrThrowVerbs = new([..GiveVerbs, ..ThrowVerbs]);
+
+    public static readonly VerbFamily GrabOrAttackVerbs = new([..KillVerbs, ..TakeVerbs]);
+
+    public static readonly VerbFamily HandleFormsVerbs =
+        new("touch", "feel", "examine", "look at", "inspect", "read");
+
+    public static readonly VerbFamily InflateVerbs = new("inflate", "blow up", "blow");
+
+    public static readonly VerbFamily InflateWithPumpVerbs = new("inflate", "blow", "blow up", "use");
+
+    // Putting a card IN the slot is refused; sliding it THROUGH is how the slot works.
+    public static readonly VerbFamily InsertCardVerbs = new("insert", "put", "place");
+
+    public static readonly VerbFamily InsertFormVerbs =
+        new("put", "insert", "place", "slide", "feed", "push", "stick", "drop");
+
+    public static readonly VerbFamily KnockVerbs = new("knock", "knock on");
+
+    public static readonly VerbFamily LaunchVerbs = new("launch", "start", "drive", "fly", "turn on");
+
+    public static readonly VerbFamily LeaveSeatVerbs = new("leave", "exit");
+
+    public static readonly VerbFamily LiftRugVerbs = new("lift", "hoist", "raise");
+
+    public static readonly VerbFamily LightCandlesVerbs = new("light", "burn");
+
+    public static readonly VerbFamily ListenVerbs = new("listen", "listen to", "hear");
+
+    public static readonly VerbFamily LookInBinVerbs =
+        new("look in", "look inside", "search", "examine", "inspect", "look at");
+
+    public static readonly VerbFamily LookInPoolBinVerbs =
+        new("look in", "look into", "examine", "look", "search", "inspect", "check");
+
+    public static readonly VerbFamily LookInThermosVerbs = new("look in", "look inside", "reach in", "reach into");
+
+    public static readonly VerbFamily LowerIntoVerbs =
+        new("put", "place", "hold", "lower", "dangle", "dip", "stick", "insert", "set", "lay", "rest", "slide", "slip",
+            "feed", "thread", "hang", "push", "poke", "move", "wave", "swing");
+
+    public static readonly VerbFamily ManhandleVerbs =
+        new("take", "get", "grab", "touch", "push", "pull", "move", "kick", "shake", "hit", "kiss", "attack", "kill",
+            "turn on", "turn off", "open", "close", "hug", "tickle");
+
+    // Floyd's V-OIL flavor interaction: both his single-noun handler and the multi-noun "oil floyd
+    // with oil can" branch match on this.
+    public static readonly VerbFamily OilVerbs = new("oil", "lubricate");
+
+    public static readonly VerbFamily OpenBoxVerbs =
+        new("open", "look in", "look inside", "search", "empty", "unseal");
+
+    public static readonly VerbFamily OpenHatchVerbs = new("open", "unseal");
+
+    public static readonly VerbFamily OpenOrSearchVerbs = new("open", "search");
+
+    public static readonly VerbFamily PickUpGooVerbs = new("take", "get", "pick up", "remove", "grab");
+
+    public static readonly VerbFamily PlaceUnderSpoutVerbs = new("put", "place", "move", "shove", "jam", "push");
+
+    public static readonly VerbFamily PourOutSoupVerbs = new("pour", "empty", "pour out", "dump", "spill");
+
+    public static readonly VerbFamily PourOutThermosVerbs = new("pour", "empty", "pour out", "dump");
+
+    public static readonly VerbFamily PressButtonVerbs = new("push", "press", "hit", "punch", "activate", "turn on");
+
+    public static readonly VerbFamily PressDiaryButtonVerbs = new("press", "push", "use");
+
+    public static readonly VerbFamily PutDownGooVerbs = new("drop", "put down", "throw");
+
+    public static readonly VerbFamily PutInThermosVerbs = new("put", "place", "insert", "drop");
+
+    public static readonly VerbFamily ReadDialVerbs = new("examine", "look", "look at", "inspect", "read");
+
+    public static readonly VerbFamily ReadMonitorVerbs = new("examine", "look at", "read");
+
+    public static readonly VerbFamily RetractVerbs = new("retract", "collapse", "shorten", "close", "contract");
+
+    // Retrieving the key WITH the magnet. The take family comes from Verbs.TakeVerbs rather than a partial
+    // hand-rolled copy - the old inline list omitted "snatch"/"acquire"/"hold" (issue #406's drift
+    // class), so those phrasings fell to the narrator's contradictory "non-magnetic" improvisation.
+    public static readonly VerbFamily RetrieveVerbs = new(
+        [
+            ..TakeVerbs,
+            "retrieve", "lift", "fish", "pull", "attract",
+            "remove", "snag", "hook", "fetch", "extract", "scoop", "catch", "collect", "recover",
+            "yank", "drag", "reel", "pluck", "nab", "haul", "obtain", "draw"
+        ]);
+
+    public static readonly VerbFamily RingBellVerbs = new("ring", "activate", "shake");
+
+    public static readonly VerbFamily RummageVerbs = new("move", "search");
+
+    public static readonly VerbFamily SealBoxVerbs = new("close", "shut", "seal");
+
+    public static readonly VerbFamily ShakeVerbs = new("shake", "agitate", "rattle");
+
+    public static readonly VerbFamily ShootAtVerbs = new("shoot", "fire");
+
+    public static readonly VerbFamily SitDownVerbs = new("sit", "rest", "get");
+
+    public static readonly VerbFamily SlideAsideVerbs = new("move", "slide", "pull", "rearrange");
+
+    // Breaking the mirror permanently disables the touch-to-teleport. Reuse the shared attack and break
+    // synonym sets so the verb coverage stays consistent with the rest of the engine, plus "kick". Throw is
+    // intentionally excluded: "throw the mirror" makes no sense for a wall-sized fixture. Built once, not per call.
+    public static readonly VerbFamily SmashVerbs = new([..KillVerbs, ..BreakVerbs, "kick"]);
+
+    public static readonly VerbFamily SwipeCardVerbs =
+        new("slide", "swipe", "scan", "pass", "glide", "draw", "push", "use");
+
+    public static readonly VerbFamily SwitchOffFloydVerbs = new("turn off", "deactivate", "stop");
+
+    public static readonly VerbFamily SwitchOffRadioVerbs =
+        new("turn off", "switch off", "deactivate", "stop", "silence");
+
+    public static readonly VerbFamily SwitchOnFloydVerbs = new("turn on", "activate", "start");
+
+    public static readonly VerbFamily SwitchOnRadioVerbs = new("turn on", "switch on", "activate", "start");
+
+    public static readonly VerbFamily TasteVerbs = new("taste", "eat");
+
+    public static readonly VerbFamily ThrowOrDropVerbs = new([..ThrowVerbs, ..DropVerbs]);
+
+    public static readonly VerbFamily TieVerbs = new("tie", "attach");
+
+    public static readonly VerbFamily TouchOrTasteVerbs = new("touch", "taste", "feel", "reach in", "reach into");
+
+    public static readonly VerbFamily TouchSlimeVerbs = new("touch", "feel");
+
+    public static readonly VerbFamily UseOnVerbs = new("use", "apply");
+
+    public static readonly VerbFamily WalkOnVerbs = new("go", "walk", "move");
+
+    public static readonly VerbFamily WindUpVerbs = new("wind", "wind up", "crank", "twist", "turn");
+    // ------------------------------------------------------------------------------------------------
     // What the engine's own processors answer, for every object in every game. The processor reads the
     // family from here; it does not keep a list of its own (VerbFamilyDeclarationTests checks).
     // ------------------------------------------------------------------------------------------------
@@ -175,7 +385,8 @@ public static class Verbs
     /// </summary>
     public static readonly VerbFamily TurnOnVerbs = new("activate", "turn on", "light", "strike", "enable");
 
-    public static readonly VerbFamily TurnOffVerbs = new("deactivate", "turn off", "extinguish", "blow out", "disable");
+    public static readonly VerbFamily TurnOffVerbs =
+        new("deactivate", "turn off", "extinguish", "blow out", "disable");
 
     /// <summary>
     ///     Putting clothing on and taking it off (<c>ClothingOnAndOffProcessor</c>). "don" / "doff" are

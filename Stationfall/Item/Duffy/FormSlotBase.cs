@@ -9,9 +9,6 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class FormSlotBase : ContainerBase, ICanBeExamined
 {
-    private static readonly VerbFamily InsertVerbs =
-        new("put", "insert", "place", "slide", "feed", "push", "stick", "drop");
-
     private static readonly string[] Prepositions = ["in", "into", "in to", "inside", "through"];
 
     public override string[] NounsForMatching => ["slot", "form slot"];
@@ -79,7 +76,7 @@ public abstract class FormSlotBase : ContainerBase, ICanBeExamined
 
     private bool IsInsertIntoThisSlot(MultiNounIntent action)
     {
-        return action.MatchVerb(InsertVerbs)
+        return action.MatchVerb(Verbs.InsertFormVerbs)
                && action.MatchNounTwo(NounsForMatching)
                && (action.MatchPreposition(Prepositions) || string.IsNullOrWhiteSpace(action.Preposition));
     }

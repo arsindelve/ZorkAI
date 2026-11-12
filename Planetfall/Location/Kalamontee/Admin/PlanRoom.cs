@@ -5,8 +5,6 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal class PlanRoom : LocationWithNoStartingItems
 {
-    private static readonly VerbFamily ExamineLookInVerbs = new("examine", "look in");
-
     public override string Name => "Plan Room";
 
     public override string[] NounsForMatching => ["map room", "blueprint room"];
@@ -43,7 +41,7 @@ internal class PlanRoom : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(ExamineLookInVerbs, ["cubbyholes", "holes", "cubbies", "cubby"]))
+        if (action.Match(Verbs.ExamineOrLookInVerbs, ["cubbyholes", "holes", "cubbies", "cubby"]))
             return new PositiveInteractionResult(
                 "The cubbyholes look like the kind that are used to hold maps or blueprints. They are all empty now. ");
 

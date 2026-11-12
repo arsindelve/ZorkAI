@@ -10,10 +10,6 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class Radio : ItemBase, ICanBeExamined, ITurnBasedActor
 {
-    private static readonly VerbFamily ListenVerbs = new("listen", "listen to", "hear");
-    private static readonly VerbFamily TurnOnVerbs = new("turn on", "switch on", "activate", "start");
-    private static readonly VerbFamily TurnOffVerbs = new("turn off", "switch off", "deactivate", "stop", "silence");
-
     /// <summary>
     ///     Percentage chance per turn of a snatch of traffic, checked first (I-RADIO).
     /// </summary>
@@ -63,11 +59,11 @@ public class Radio : ItemBase, ICanBeExamined, ITurnBasedActor
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(ListenVerbs))
+        if (action.MatchVerb(Verbs.ListenVerbs))
             return new PositiveInteractionResult(
                 IsOn ? "\"Hiss. Crackle.\" " : "The radio isn't on! ");
 
-        if (action.MatchVerb(TurnOnVerbs))
+        if (action.MatchVerb(Verbs.SwitchOnRadioVerbs))
         {
             if (IsOn)
                 return new PositiveInteractionResult("It's already on. ");
@@ -77,7 +73,7 @@ public class Radio : ItemBase, ICanBeExamined, ITurnBasedActor
             return new PositiveInteractionResult("The radio comes on with a wash of static. ");
         }
 
-        if (action.MatchVerb(TurnOffVerbs))
+        if (action.MatchVerb(Verbs.SwitchOffRadioVerbs))
         {
             if (!IsOn)
                 return new PositiveInteractionResult("It's already off. ");

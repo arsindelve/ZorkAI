@@ -11,10 +11,6 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
 {
-    private static readonly VerbFamily OpenUnsealVerbs = new("open", "unseal");
-    private static readonly VerbFamily LaunchVerbs = new("launch", "start", "drive", "fly", "turn on");
-    private static readonly VerbFamily EnterVerbs = new("enter", "board", "get in", "climb in");
-
     public override string[] NounsForMatching => ["spacetruck", "truck", "spacecraft", "rig"];
 
     public override string CannotBeTakenDescription => "It's a twelve-meter spacecraft. ";
@@ -59,7 +55,7 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
             // Acting on the hatch directly rather than forwarding the intent: the intent names the
             // truck, which the hatch does not answer to, so forwarding it just fell through to the
             // narrator - the very gap the sweep caught.
-            if (action.MatchVerb(OpenUnsealVerbs))
+            if (action.MatchVerb(Verbs.OpenHatchVerbs))
                 return new PositiveInteractionResult(OperateHatch(true, context));
 
             if (action.MatchVerb(Verbs.Exactly.CloseOrShut))
@@ -72,10 +68,10 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
                         : "The hatch is closed, and the viewport shows you nothing but your own " +
                           "reflection. ");
 
-            if (action.MatchVerb(LaunchVerbs))
+            if (action.MatchVerb(Verbs.LaunchVerbs))
                 return new PositiveInteractionResult("You're not even in it! ");
 
-            if (action.MatchVerb(EnterVerbs))
+            if (action.MatchVerb(Verbs.BoardSpacetruckVerbs))
                 return new PositiveInteractionResult(
                     Repository.GetItem<SpacetruckHatch>().IsOpen
                         ? "You'll have to go in. "

@@ -6,8 +6,6 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 public class SystemsMonitors : LocationWithNoStartingItems
 {
-    private static readonly VerbFamily ReadMonitorVerbs = new("examine", "look at", "read");
-
     public override string Name => "Systems Monitors";
 
     public override string[] NounsForMatching => ["control room"];
@@ -53,7 +51,7 @@ public class SystemsMonitors : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.MatchVerb(ReadMonitorVerbs))
+        if (!action.MatchVerb(Verbs.ReadMonitorVerbs))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (action.MatchNoun(["screens", "monitors"]))

@@ -9,8 +9,6 @@ namespace Planetfall.Item.Kalamontee;
 
 public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
-    private static readonly VerbFamily ReadDialVerbs = new("examine", "look", "look at", "inspect", "read");
-
     public override string[] NounsForMatching => ["conference room door", "door"];
 
     [UsedImplicitly] [JsonIgnore]
@@ -61,7 +59,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
         }
 
-        if (action.Match(ReadDialVerbs, ["dial"]) && context.CurrentLocation is RecArea)
+        if (action.Match(Verbs.ReadDialVerbs, ["dial"]) && context.CurrentLocation is RecArea)
             return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult($"The dial is set to {Code}. "));
 

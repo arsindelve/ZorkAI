@@ -12,10 +12,6 @@ namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGivenThings, ICanBeTalkedTo, IDoNotAppearInItemLists
 {
-    private static readonly VerbFamily TurnOnVerbs = new("turn on", "activate", "start");
-    private static readonly VerbFamily TurnOffVerbs = new("turn off", "deactivate", "stop");
-    private static readonly VerbFamily OpenSearchVerbs = new("open", "search");
-
     private readonly GiveSomethingToSomeoneDecisionEngine<Floyd> _giveHimSomethingEngine = new();
     private readonly FloydLocationBehaviors _locationBehaviors;
     private readonly FloydPowerManager _powerManager;
@@ -293,8 +289,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(TurnOnVerbs, NounsForMatching)) return _powerManager.Activate(context);
-        if (action.Match(TurnOffVerbs, NounsForMatching)) return _powerManager.Deactivate(context);
+        if (action.Match(Verbs.SwitchOnFloydVerbs, NounsForMatching)) return _powerManager.Activate(context);
+        if (action.Match(Verbs.SwitchOffFloydVerbs, NounsForMatching)) return _powerManager.Deactivate(context);
         
         if (HasDied)
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
@@ -316,7 +312,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
         // Floyd can be "opened" but in no other way behaves like a typical open/close container. For him,
         // "open" is a synonym for "search"
-        if (action.Match(OpenSearchVerbs, NounsForMatching)) return _inventoryManager.SearchFloyd(context);
+        if (action.Match(Verbs.OpenOrSearchVerbs, NounsForMatching)) return _inventoryManager.SearchFloyd(context);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
@@ -407,7 +403,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         // in the uniform pocket satisfies the original's grammar too (issue #503).
         // MatchPreposition(["with"]) keeps us faithful to the WITH grammar — the parser passes through
         // whatever connector it extracts, so this rejects e.g. "oil floyd using/near oil can".
-        if (action.MatchVerb(FloydSocialResponses.OilVerbs) && action.MatchNounOne(NounsForMatching) &&
+        if (action.MatchVerb(Verbs.OilVerbs) && action.MatchNounOne(NounsForMatching) &&
             action.MatchPreposition(["with"]) &&
             Repository.GetItemInScope(action.NounTwo, context) is OilCan && context.IsCarrying<OilCan>())
             return new PositiveInteractionResult(FloydConstants.Oil);

@@ -7,12 +7,6 @@ public class FloydSocialResponses(Floyd floyd)
     private static readonly VerbFamily KickVerb = new("kick");
     private static readonly VerbFamily RubVerb = new("rub");
 
-    // The oiling verbs. Kept here (not in Model/Verbs.cs) because they are specific to Floyd's
-    // V-OIL flavor interaction, mirroring how the other Floyd-only flavor verbs (play/kiss/kick/rub)
-    // are matched locally rather than added to the shared verb thesaurus. Referenced by both the
-    // single-noun handler below and Floyd's multi-noun "oil floyd with oil can" branch.
-    internal static readonly VerbFamily OilVerbs = new("oil", "lubricate");
-
     public InteractionResult? HandleSocialInteraction(SimpleIntent action, IContext context)
     {
         if (!floyd.IsAlive)
@@ -24,7 +18,7 @@ public class FloydSocialResponses(Floyd floyd)
         // base when HasDied), matching the RLANDBIT "alive" check. Possession is container-aware: the
         // original's (HAVE) reaches into open carried containers, so a can in the uniform pocket
         // counts — the flat HasItem<T>() would wrongly ask "with what?" (issue #503).
-        if (action.Match(OilVerbs, floyd.NounsForMatching))
+        if (action.Match(Verbs.OilVerbs, floyd.NounsForMatching))
             return new PositiveInteractionResult(
                 context.IsCarrying<OilCan>() ? FloydConstants.Oil : FloydConstants.OilWithWhat);
 

@@ -15,8 +15,6 @@ public class Candles
         ITurnBasedActor,
         IPluralNoun
 {
-    private static readonly VerbFamily LightVerbs = new("light", "burn");
-
     [UsedImplicitly]
     public int TurnsWhileOn { get; set; }
 
@@ -142,7 +140,7 @@ public class Candles
         )
     {
         if (!action.Match(
-                LightVerbs,
+                Verbs.LightCandlesVerbs,
                 NounsForMatching,
                 Repository.GetItem<Matchbook>().NounsForMatching.Union(Repository.GetItem<Torch>().NounsForMatching)
                     .ToArray(),

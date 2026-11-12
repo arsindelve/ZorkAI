@@ -10,7 +10,6 @@ namespace ZorkOne.Item;
 public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
     private static readonly VerbFamily ReadVerb = new("read");
-    private static readonly VerbFamily LightVerbs = new("light", "burn", "torch");
 
     public override string[] NounsForMatching => ["book", "black book", "large black book"];
 
@@ -96,7 +95,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
             .ToArray();
 
         if (!action.Match(
-                LightVerbs,
+                Verbs.BurnBookVerbs,
                 NounsForMatching,
                 burnyThings,
                 ["with"]

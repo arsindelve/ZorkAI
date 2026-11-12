@@ -9,23 +9,6 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 public class AdminCorridorSouth : LocationBase, ITurnBasedActor
 {
-    // Retrieving the key WITH the magnet. The take family comes from Verbs.TakeVerbs rather than a partial
-    // hand-rolled copy - the old inline list omitted "snatch"/"acquire"/"hold" (issue #406's drift
-    // class), so those phrasings fell to the narrator's contradictory "non-magnetic" improvisation.
-    private static readonly VerbFamily RetrieveVerbs = new(
-    [
-        ..Verbs.TakeVerbs,
-        "retrieve", "lift", "fish", "pull", "attract",
-        "remove", "snag", "hook", "fetch", "extract", "scoop", "catch", "collect", "recover",
-        "yank", "drag", "reel", "pluck", "nab", "haul", "obtain", "draw"
-    ]);
-
-    private static readonly VerbFamily PutVerbs =
-        new("put", "place", "hold", "lower", "dangle", "dip", "stick", "insert", "set", "lay", "rest", "slide",
-            "slip", "feed", "thread", "hang", "push", "poke", "move", "wave", "swing");
-    private static readonly VerbFamily UseVerbs = new("use", "apply");
-    private static readonly VerbFamily AimVerbs = new("aim", "point", "touch", "connect", "attach");
-
     [UsedImplicitly] public bool HasSeenTheLight { get; set; }
 
     [UsedImplicitly] public bool HasTakenTheKey { get; set; }
@@ -104,7 +87,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         // crack" phrasings fell through to the AI narrator. Accept the full range of natural
         // "place/lower the bar at the crack" verbs and prepositions (issue #298).
         var match = action.Match(
-            PutVerbs,
+            Verbs.LowerIntoVerbs,
             magnetNouns, crackNouns,
             ["on", "over", "beside", "next to", "in", "into", "down", "down into",
                 "to", "near", "by", "against", "inside", "toward", "towards"]);
@@ -115,11 +98,11 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         match |= action.Match(Verbs.DropVerbs, magnetNouns, crackNouns, ["in", "into", "down", "down into"]);
 
         // "use" / "apply" the magnet on/in/against the crack or key.
-        match |= action.Match(UseVerbs, magnetNouns, crackNouns,
+        match |= action.Match(Verbs.UseOnVerbs, magnetNouns, crackNouns,
             ["on", "in", "into", "to", "against", "near"]);
 
         // Magnetic-attraction framing — aim/point/touch the magnet AT or TO the key in the crack.
-        match |= action.Match(AimVerbs, magnetNouns, crackNouns,
+        match |= action.Match(Verbs.AimVerbs, magnetNouns, crackNouns,
             ["at", "to", "toward", "towards", "against", "near"]);
 
         // Framing A — the magnet is the tool and the key is the object retrieved "with" it. This is
@@ -129,7 +112,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         // contradicting the success text. Match only the key's own nouns here, not the crack/floor
         // synonyms: you retrieve the key "with" the magnet, you don't "lift the floor with" it.
         var keyNouns = Repository.GetItem<Key>().NounsForMatching;
-        match |= action.Match(RetrieveVerbs, keyNouns, magnetNouns,
+        match |= action.Match(Verbs.RetrieveVerbs, keyNouns, magnetNouns,
             ["with", "using", "to", "toward", "towards"]);
 
         // Only a magnet/key-fishing attempt reaches here. Anything else falls through to base so an

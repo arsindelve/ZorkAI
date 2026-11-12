@@ -8,8 +8,6 @@ namespace ZorkOne.Item;
 
 public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation, ICanBeExamined
 {
-    private static readonly VerbFamily InflateWithPumpVerbs = new("inflate", "blow", "blow up", "use");
-    private static readonly VerbFamily InflateVerbs = new("inflate", "blow up", "blow");
     private static readonly VerbFamily DeflateVerb = new("deflate");
 
     [UsedImplicitly] public bool IsPunctured { get; set; }
@@ -101,7 +99,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(InflateVerbs, NounsForMatching))
+        if (action.Match(Verbs.InflateVerbs, NounsForMatching))
         {
             if (context.HasItem<PileOfPlastic>())
                 return new PositiveInteractionResult("The boat must be on the ground to be inflated. ");
@@ -156,7 +154,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         if (!action.MatchNounTwo<AirPump>())
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (!InflateWithPumpVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+        if (!Verbs.InflateWithPumpVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))

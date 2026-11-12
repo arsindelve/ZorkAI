@@ -8,9 +8,7 @@ namespace ZorkOne.Item;
 
 public class Rug : ItemBase
 {
-    private static readonly VerbFamily MoveSlideVerbs = new("move", "slide", "pull", "rearrange");
     private static readonly VerbFamily SitVerb = new("sit");
-    private static readonly VerbFamily LiftVerbs = new("lift", "hoist", "raise");
 
     public bool HasBeenMovedAside { get; set; }
 
@@ -26,7 +24,7 @@ public class Rug : ItemBase
         if (!action.MatchNoun(NounsForMatching))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
-        if (action.MatchVerb(MoveSlideVerbs))
+        if (action.MatchVerb(Verbs.SlideAsideVerbs))
             return MoveRug();
 
         if (action.MatchVerb(SitVerb) && action.OriginalInput != null &&
@@ -37,7 +35,7 @@ public class Rug : ItemBase
             action.OriginalInput.ToLowerInvariant().Contains("under"))
             return LookUnderRug();
         
-        if (action.MatchVerb(LiftVerbs) && action.OriginalInput != null)
+        if (action.MatchVerb(Verbs.LiftRugVerbs) && action.OriginalInput != null)
             return LookUnderRug();
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

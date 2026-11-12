@@ -17,8 +17,6 @@ namespace Planetfall.Item.Computer;
 /// </summary>
 public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
 {
-    private static readonly VerbFamily GiveOrThrowVerbs = new([..Verbs.GiveVerbs, ..Verbs.ThrowVerbs]);
-
     [UsedImplicitly] [JsonIgnore]
     public IRandomChooser Chooser { get; set; } = new RandomChooser();
 
@@ -166,7 +164,7 @@ public class Microbe : ItemBase, ITurnBasedActor, ICanBeExamined
         // (e.g. "laazur") rather than the literal "laser", since the AI parser may pass a synonym.
         var laserNouns = Repository.GetItem<Laser>().NounsForMatching;
         var givingToMicrobe =
-            action.MatchVerb(GiveOrThrowVerbs) &&
+            action.MatchVerb(Verbs.GiveOrThrowVerbs) &&
             action.MatchPreposition(["to", "at"]) &&
             ((action.MatchNounOne(laserNouns) && action.MatchNounTwo(NounsForMatching)) ||
              (action.MatchNounOne(NounsForMatching) && action.MatchNounTwo(laserNouns)));

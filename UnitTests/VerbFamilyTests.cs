@@ -261,6 +261,24 @@ public class VerbFamilyDeclarationTests
     }
 
     /// <summary>
+    ///     A collection of verbs - two words or more - is a piece of the thesaurus and is declared in
+    ///     <see cref="Verbs" />, whoever answers it. The only family a game class declares for itself is a
+    ///     single verb that nothing else uses.
+    /// </summary>
+    [Test]
+    public void ACollectionOfVerbsIsDeclaredInVerbsCs()
+    {
+        var collectionsDeclaredElsewhere = DeclaredFamilies()
+            .Where(family => !family.Field.StartsWith("Model.Verbs", StringComparison.Ordinal))
+            .Where(family => family.Words.Contains('/'))
+            .Select(family => $"{family.Field}: {family.Words}")
+            .Order();
+
+        collectionsDeclaredElsewhere.Should().BeEquivalentTo(Array.Empty<string>(),
+            "a family of more than one verb is declared in Model/Verbs.cs and used from there");
+    }
+
+    /// <summary>
     ///     Every static <see cref="VerbFamily" /> field, once each, with its words in a fixed order so that
     ///     the same set written in a different order still compares equal.
     /// </summary>

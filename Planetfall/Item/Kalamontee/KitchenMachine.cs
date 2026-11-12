@@ -4,8 +4,6 @@ namespace Planetfall.Item.Kalamontee;
 
 internal class KitchenMachine : ContainerBase, ICanBeExamined
 {
-    private static readonly VerbFamily PlaceUnderSpoutVerbs = new("put", "place", "move", "shove", "jam", "push");
-
     public override string[] NounsForMatching => ["dispenser unit", "kitchen machine", "machine", "niche", "dispenser"];
 
     public override Type[] CanOnlyHoldTheseTypes => [typeof(Canteen)];
@@ -79,7 +77,7 @@ internal class KitchenMachine : ContainerBase, ICanBeExamined
         // as "put canteen in niche", applying the same guards (in that order) PutProcessor applies there.
         string[] receiverNouns = [.. NounsForMatching, "spout"];
 
-        if (action.MatchVerb(PlaceUnderSpoutVerbs) && action.MatchNounTwo(receiverNouns) &&
+        if (action.MatchVerb(Verbs.PlaceUnderSpoutVerbs) && action.MatchNounTwo(receiverNouns) &&
             action.MatchPreposition(["under", "underneath"]))
         {
             // The parser hands us this phrasing even when nothing by that name is in scope. Fall through

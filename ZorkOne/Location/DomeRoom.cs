@@ -10,8 +10,6 @@ namespace ZorkOne.Location;
 
 public class DomeRoom : LocationBase, IThiefMayVisit
 {
-    private static readonly VerbFamily TieVerbs = new("tie", "attach");
-
     public override string Name => "Dome Room";
 
     // "rail" is matched as an alternate for the railing when tying the rope (below); "railing" is already
@@ -65,7 +63,7 @@ public class DomeRoom : LocationBase, IThiefMayVisit
     {
         string[] prepositions = ["to", "onto", "on"];
 
-        if (!action.Match(TieVerbs, Repository.GetItem<Rope>().NounsForMatching, ["rail", "railing"], prepositions))
+        if (!action.Match(Verbs.TieVerbs, Repository.GetItem<Rope>().NounsForMatching, ["rail", "railing"], prepositions))
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (!context.HasItem<Rope>() && HasItem<Rope>())

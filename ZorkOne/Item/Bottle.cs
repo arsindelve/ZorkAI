@@ -9,8 +9,6 @@ namespace ZorkOne.Item;
 
 public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 {
-    private static readonly VerbFamily ShakeVerbs = new("shake", "agitate", "rattle");
-
     protected override int SpaceForItems => 0;
 
     public override bool IsTransparent => true;
@@ -73,7 +71,7 @@ public class Bottle : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeEx
 
         // SHAKE bottle → only spills when the bottle is open and holds water; otherwise no effect
         // (fall through to the default handling / narrator, matching the original's <RFALSE>).
-        if (action.MatchVerb(ShakeVerbs) && IsOpen && HasItem<Water>())
+        if (action.MatchVerb(Verbs.ShakeVerbs) && IsOpen && HasItem<Water>())
             return new PositiveInteractionResult(SpillWater());
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
