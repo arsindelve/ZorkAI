@@ -63,8 +63,9 @@ public static class StructuredIntentParsing
           """;
 
     /// <summary>
-    /// System prompt for the structured parse. Mirrors the intent/verb/noun rules of the original
-    /// tag-based <see cref="ParsingHelper.SystemPrompt" />, but asks for the schema fields instead of tags.
+    /// System prompt for the structured parse - the only parser prompt. It carries the intent/verb/noun
+    /// rules of the tag-based prompt it replaced (see the rule legend in <see cref="ParsingHelper" />), but
+    /// asks for the schema fields instead of tags.
     /// The {0} / {1} placeholders (location description, player sentence) are substituted by
     /// <see cref="BuildSystemPrompt" /> — NOT by string.Format, which would choke on the literal { } in the
     /// JSON examples below.

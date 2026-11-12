@@ -14,7 +14,7 @@ namespace Planetfall.Tests.Walkthrough;
 /// "mech corridor" is a sub-phrase of its siblings.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughByLocationName : WalkthroughTestBase
+public class WalkthroughByLocationName : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]

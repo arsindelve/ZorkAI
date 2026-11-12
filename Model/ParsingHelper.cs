@@ -38,66 +38,16 @@ public static class ParsingHelper
                                                    Reply with a JSON object containing an "items" array with the item name(s) they wish to drop. Keep compound nouns together as single items (e.g., "id card", "brass lantern", "scrub brush"). Only return multiple array elements if the player wants multiple different items. Example: {{"items": ["id card"]}} or {{"items": ["sword", "shield"]}}
                                                    """;
     
-    public static readonly string SystemPrompt =
-        """
-        You are a parser for an interactive fiction game. The player is in this location: "{0}"
-
-        I need to know the player's intent. Given the sentence "{1}":
-
-        1. Tell me in <intent> tags if:
-            a) If the player is expressing a desire to move, go, or travel in a cardinal or relative DIRECTION (e.g. north, south, up, down, in, out), put "move"
-            b) If the player wants to travel to a SPECIFIC NAMED place or room rather than a direction (e.g. "go to the kitchen", "walk into the shuttle", "head to the reactor", "enter the mess"), put "goto". In the <noun> tags, put the destination, NORMALIZING a colloquial or slang place-name to the common room noun it refers to (e.g. "the galley" -> "kitchen"; "the train" -> "shuttle"; "the cafeteria" -> "mess hall"; "the loo" -> "bathroom"). Keep a plain room name as-is.
-            c) If the player wants to enter a vehicle or sub-location, put "board"
-            d) If the player wants to exit a vehicle or sub-location, put "disembark"
-            e) If the player wants to take or pick up one or more items, put "take" (EXCEPTION: if "take" is used WITH a tool or another object using prepositions like "with" or "using", put "act" instead)
-            f) If the player wants to drop one or more items, put "drop"
-            g) If the players want to "look" or "look around" or asks "where am I?", put "look"
-            h) If the player wants to know what they are carrying, what is in their inventory or what items they have, put "inventory"
-            i) Something else, put "Act"
-             
-        2. In <verb> tags, put the single most important verb I need to know, which best expresses the player's intention. If there is a simpler, more common synonym for the verb, use that instead.
-           To avoid confusion, if the player wants to turn something on, or turn on something like a light, use the verb "activate". if the player wants to turn something off, or turn off something light a lamp, use the verb "deactivate"
-           To avoid confusion, if the player wants wear or put on clothing, replace their verb with the verb "don". If the player wants take off clothing, or remove clothing, replace their verb with the the verb "doff"
-
-        3. For each noun phrase that is an argument or modifier of the main verb, wrap the head noun (and any immediately preceding adjectives) in <noun>…</noun> tags. Do NOT include any preceding preposition (e.g., 'with', 'under') inside the tags
-
-        4. If there are two nouns, in separate <preposition> tags outside any other tags, put the preposition which connects the nouns. Otherwise, omit these tags.
-
-        5. If the sentence expresses a desire to move in a certain direction or go a certain way based on their current location, put in <direction> tags the exact word from this list which 
-        best describes where they want to go: "in, out, enter, exit, up, down, east, west, north, south, north-west, north-east, south-west, or south-east." If the sentence includes a term like 
-        'follow' or 'go towards' combined with a specific location described in the player's current environment, use the corresponding direction. If you cannot match any of these words, put "other."
-
-        Do not provide any analysis or explanation, just the tags.
-
-        Examples: 
-
-        "prompt": "type 1", "completion": "<intent>act</intent>\n<verb>type</verb>\n<noun>1</noun>"
-        "prompt": "press 0", "completion": "<intent>act</intent>\n<verb>press</verb>\n<noun>0</noun>"
-        "prompt": "drop the sword", "completion": "<intent>drop</intent>\n<verb>drop</verb>\n<noun>sword</noun>"
-        "prompt": "look under the rug", "completion": "<intent>act</intent>\n<verb>look</verb>\n<noun>rug</noun>"
-        "prompt": "take the sword", "completion": "<intent>take</intent>\n<verb>take</verb>\n<noun>sword</noun>"
-        "prompt": "pull the lever", "completion": "<intent>act</intent>\n<verb>pull</verb>\n<noun>lever</noun>"
-        "prompt": "put on the hat", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>hat</noun>"
-        "prompt": "inflate the pile of plastic with the air pump", "completion":"<intent>act</intent>\n<verb>inflate</verb>\n<noun>pile of plastic</noun>\n<noun>air pump</noun>\n<preposition>with</preposition>"
-        "prompt": "put on the jacket", "completion": "<intent>act</intent>\n<verb>don</verb>\n<noun>jacket</noun>"
-        "prompt": "turn on lamp", "completion": "<intent>act</intent>\n<verb>activate</verb>\n<noun>lamp</noun>"
-        "prompt": "exit the boat", "completion": "<intent>disembark</intent>\n<noun>boat</noun>"
-        "prompt": "go to the kitchen", "completion": "<intent>goto</intent>\n<noun>kitchen</noun>"
-        "prompt": "walk into the shuttle", "completion": "<intent>goto</intent>\n<noun>shuttle</noun>"
-        "prompt": "enter the mess", "completion": "<intent>goto</intent>\n<noun>mess</noun>"
-        "prompt": "go to the galley", "completion": "<intent>goto</intent>\n<noun>kitchen</noun>"
-        "prompt": "head to the reactor", "completion": "<intent>goto</intent>\n<noun>reactor</noun>"
-        "prompt": "enter the dome room", "completion": "<intent>goto</intent>\n<noun>dome room</noun>"
-        "prompt": "take off the jacket", "completion": "<intent>act</intent>\n<verb>doff</verb>\n<noun>jacket</noun>"
-        "prompt": "tie the rope to the railing", "completion": "<intent>act</intent>\n<verb>tie</verb>\n<noun>rope</noun>\n<noun>railing</noun>\n<preposition>to</preposition>"
-        "prompt": "take the bedistor with pliers", "completion": "<intent>act</intent>\n<verb>take</verb>\n<noun>bedistor</noun>\n<noun>pliers</noun>\n<preposition>with</preposition>"
-        "prompt": "remove the bedistor using pliers", "completion": "<intent>act</intent>\n<verb>remove</verb>\n<noun>bedistor</noun>\n<noun>pliers</noun>\n<preposition>using</preposition>"
-        "prompt": "where am I?", "completion": "<intent>look</intent>"
-        "prompt": "what is this place?", "completion": "<intent>look</intent>"
-        "prompt": "what items do I have on me?", "completion": "<intent>inventory</intent>"
-        "prompt": "tell me all the items I am carrying", "completion": "<intent>inventory</intent>"
-
-        """;
+    // The tag-format system prompt that lived here is gone: the AI parser now asks for a structured JSON
+    // object (StructuredIntentParsing.SystemPrompt) and renders it to the tag form GetIntent consumes, so
+    // there is one prompt to keep correct rather than two. Comments in this file and in the parser tests
+    // still cite that prompt's numbered rules; they map onto the structured prompt's fields like this:
+    //   rules 1a-1i -> "intent": 1a move, 1b goto, 1c board, 1d disembark, 1e take (with its "take X WITH
+    //                  a tool is an act" exception), 1f drop, 1g look, 1h inventory, 1i act
+    //   rule 2      -> "verb" (including activate / deactivate / don / doff)
+    //   rule 3      -> "nouns"
+    //   rule 4      -> "preposition"
+    //   rule 5      -> "direction" (the list that includes the literal words "enter" and "exit")
 
     private static ExitSubLocationIntent? DetermineDisembarkIntent(string? response)
     {
