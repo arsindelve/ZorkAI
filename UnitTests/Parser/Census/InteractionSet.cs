@@ -45,13 +45,25 @@ public sealed record Interaction(string Room, string? Holding, string[] Verbs, s
 /// </summary>
 public static class InteractionSet
 {
-    public static async Task<List<Interaction>> Enumerate(InteractionCensus census, Action<string>? progress = null)
+    /// <param name="part">
+    ///     Which share of the rooms and items to cover, when the work is divided between processes: part
+    ///     <c>Index</c> (from zero) of <c>Of</c>. Every part's result goes through <see cref="Tidy" />
+    ///     together afterwards. Null covers everything.
+    /// </param>
+    public static async Task<List<Interaction>> Enumerate(InteractionCensus census, Action<string>? progress = null,
+        (int Index, int Of)? part = null)
     {
         // (where, what the game is like afterwards, the verbs that do it) -> the nouns it works on
         var found = new Dictionary<(CensusContext Where, string State, string Verbs), (List<string> Nouns, string Reply)>();
+        var plan = census.Survey();
 
-        foreach (var (context, nouns) in census.Survey())
+        for (var index = 0; index < plan.Count; index++)
         {
+            if (part is { } share && index % share.Of != share.Index)
+                continue;
+
+            var (context, nouns) = plan[index];
+
             foreach (var noun in nouns)
             {
                 var nothingHappened = await census.StateAfterDoingNothing(context, noun);
@@ -92,22 +104,115 @@ public static class InteractionSet
                 }
             }
 
-            progress?.Invoke(context.ToString());
+            progress?.Invoke($"{index + 1}/{plan.Count} {context}");
         }
 
-        // An item answers the same way lying in its room and in the player's hands, mostly. Where it
-        // does, the room is enough; holding it is kept only for what can only be done while holding it.
+        return Tidy(found.Select(entry => new Interaction(entry.Key.Where.Location, entry.Key.Where.Holding,
+            entry.Key.Verbs.Split('|'), entry.Value.Nouns.ToArray(),
+            entry.Value.Reply.Length > 160 ? entry.Value.Reply[..160] + "..." : entry.Value.Reply)));
+    }
+
+    /// <summary>
+    ///     The interactions in the order the file keeps them, each kept once. An item answers the same
+    ///     way lying in its room and in the player's hands, mostly. Where it does, the room is enough;
+    ///     holding it is kept only for what can only be done while holding it.
+    /// </summary>
+    public static List<Interaction> Tidy(IEnumerable<Interaction> interactions)
+    {
         var once = new HashSet<string>();
 
-        return found
-            .OrderBy(entry => entry.Key.Where.Holding is not null)
-            .ThenBy(entry => entry.Key.Where.Location).ThenBy(entry => entry.Key.Where.Holding)
-            .ThenBy(entry => entry.Value.Nouns[0]).ThenBy(entry => entry.Key.Verbs)
-            .Where(entry => once.Add($"{string.Join('|', entry.Value.Nouns)}#{entry.Key.Verbs}"))
-            .Select(entry => new Interaction(entry.Key.Where.Location, entry.Key.Where.Holding,
-                entry.Key.Verbs.Split('|'), entry.Value.Nouns.ToArray(),
-                entry.Value.Reply.Length > 160 ? entry.Value.Reply[..160] + "..." : entry.Value.Reply))
+        return interactions
+            .OrderBy(interaction => interaction.Holding is not null)
+            .ThenBy(interaction => interaction.Room).ThenBy(interaction => interaction.Holding)
+            .ThenBy(interaction => interaction.Nouns[0]).ThenBy(interaction => string.Join('|', interaction.Verbs))
+            .Where(interaction => once.Add($"{string.Join('|', interaction.Nouns)}#{string.Join('|', interaction.Verbs)}"))
             .ToList();
+    }
+
+    // ------------------------------------------------------------------ generating the file
+
+    /// <summary>
+    ///     Set to "1/4", "2/4" ... in as many shells as there are cores, and each run of the generator
+    ///     covers that share of the game and leaves its result in a temporary file. The engine keeps the
+    ///     game in statics, so one process can only ever play one game at a time; this is how the half
+    ///     hour is divided. <see cref="MergeParts" /> then writes the file.
+    /// </summary>
+    public const string PartVariable = "INTERACTION_SET_PART";
+
+    private static string PartsDirectory => Path.Combine(Path.GetTempPath(), "zorkai-interaction-set");
+
+    /// <summary>What the generating test does: the whole game, or the share <see cref="PartVariable" /> names.</summary>
+    public static async Task<string> Regenerate(InteractionCensus census, string testProject, string fileName,
+        Action<string> progress)
+    {
+        var part = PartFromEnvironment();
+
+        if (part is null)
+        {
+            var everything = await Enumerate(census, progress);
+            Save(PathFor(testProject, fileName), everything);
+            return Describe(everything);
+        }
+
+        Directory.CreateDirectory(PartsDirectory);
+        var stem = Path.Combine(PartsDirectory, $"{fileName}.part{part.Value.Index + 1}of{part.Value.Of}");
+        File.WriteAllText($"{stem}.progress", string.Empty);
+
+        var share = await Enumerate(census, line =>
+        {
+            progress(line);
+            File.AppendAllText($"{stem}.progress", line + Environment.NewLine);
+        }, part);
+
+        Save($"{stem}.json", share);
+        return $"Part {part.Value.Index + 1} of {part.Value.Of}: {Describe(share)}. When every part is done, run " +
+               "MergeTheInteractionSetParts.";
+    }
+
+    /// <summary>Writes the file from the parts, once every part is there.</summary>
+    public static string MergeParts(string testProject, string fileName)
+    {
+        var parts = Directory.Exists(PartsDirectory)
+            ? Directory.GetFiles(PartsDirectory, $"{fileName}.part*of*.json").Order().ToArray()
+            : [];
+
+        var expected = parts.Select(path => int.Parse(path[(path.LastIndexOf("of", StringComparison.Ordinal) + 2)..^5]))
+            .Distinct().ToArray();
+
+        if (expected.Length != 1 || parts.Length != expected[0])
+            throw new InvalidOperationException(
+                $"Expected every part of one run in {PartsDirectory}, and found {parts.Length}: " +
+                string.Join(", ", parts.Select(Path.GetFileName)));
+
+        var everything = Tidy(parts.SelectMany(path =>
+            JsonConvert.DeserializeObject<List<Interaction>>(File.ReadAllText(path)) ?? []));
+
+        Save(PathFor(testProject, fileName), everything);
+
+        foreach (var leftover in Directory.GetFiles(PartsDirectory, $"{fileName}.part*"))
+            File.Delete(leftover);
+
+        return Describe(everything);
+    }
+
+    private static (int Index, int Of)? PartFromEnvironment()
+    {
+        var value = Environment.GetEnvironmentVariable(PartVariable);
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var numbers = value.Split('/');
+        if (numbers.Length == 2 && int.TryParse(numbers[0], out var index) && int.TryParse(numbers[1], out var of) &&
+            index >= 1 && index <= of)
+            return (index - 1, of);
+
+        throw new InvalidOperationException($"{PartVariable} must look like 2/4, not \"{value}\".");
+    }
+
+    private static string Describe(IReadOnlyCollection<Interaction> interactions)
+    {
+        return $"{interactions.Count} interactions, " +
+               $"{interactions.Sum(interaction => interaction.Wordings().Count())} wordings";
     }
 
     public static void Save(string path, IEnumerable<Interaction> interactions)

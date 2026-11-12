@@ -476,9 +476,12 @@ input, the room it is typed in, and what it must mean (`Act("open", "mailbox")`,
   `<Game>.Tests/Parser/interactions.<game>.json`**: a room (and perhaps an item in hand), the verbs and
   the nouns that have that effect. `InteractionSetTests` sends every wording through the production
   parser and requires the game to end in the state it reaches when the engine is handed the verb and noun
-  directly. Also generated (`RegenerateTheInteractionSet`, about half an hour a game): `InteractionCensus`
-  aims every verb at every noun in every room and keeps what leaves the game different from a turn in
-  which nothing happened. Examining and reading change nothing, so they are not in it.
+  directly. Also generated (`RegenerateTheInteractionSet`): `InteractionCensus` aims every verb at
+  every noun in every room and keeps what leaves the game different from a turn in which nothing
+  happened. Examining and reading change nothing, so they are not in it. On one core that is half an hour
+  for Zork I and far longer for Planetfall; the engine keeps the game in statics, so one process plays
+  one game at a time. To use every core, run the generator once per shell with `INTERACTION_SET_PART=1/4`,
+  `2/4` ... and then `MergeTheInteractionSetParts`.
 - `DeterministicParserVocabularyTests` is exhaustive over each game's harvested vocabulary (every noun,
   verb and room name), and every walkthrough fixture has a `...DeterministicFirst` twin that replays it
   through the production grammar. `DeterministicParserCoverageTests` pins the walkthrough commands the

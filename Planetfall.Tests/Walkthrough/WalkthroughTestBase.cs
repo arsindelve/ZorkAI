@@ -25,7 +25,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase, IStudiedWalkthrough
 {
     private readonly DynamoDbSessionRepository _database = new();
     private GameEngine<PlanetfallGame, PlanetfallContext> _target;
-    private ProbeParser _parser;
+    private ProbeParser _parser = null!;
 
     /// <summary>
     ///     Lets a tool look at each step before it is taken (see <see cref="WalkthroughHarvest" />). Null in

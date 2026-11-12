@@ -24,7 +24,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase, IStudiedWalkthrough
     private Mock<IRandomChooser> _thiefAppears;
     private Mock<IRandomChooser> _caveSouthChooser;
     private GameEngine<ZorkI, ZorkIContext> _target;
-    private ProbeParser _parser;
+    private ProbeParser _parser = null!;
 
     /// <summary>
     ///     Lets a tool look at each step before it is taken (see <see cref="WalkthroughHarvest" />). Null in

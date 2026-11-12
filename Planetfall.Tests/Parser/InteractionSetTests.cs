@@ -30,13 +30,18 @@ public class InteractionSetTests
     }
 
     [Test]
-    [Explicit("Rewrites interactions.planetfall.json from what the game answers today - several minutes")]
+    [Explicit("Rewrites interactions.planetfall.json from what the game answers today. Long on one core; to use " +
+              "several, set INTERACTION_SET_PART to 1/4, 2/4 ... in as many shells, then run the merge below")]
     public async Task RegenerateTheInteractionSet()
     {
-        var interactions = await InteractionSet.Enumerate(Census, TestContext.Progress.WriteLine);
+        TestContext.Out.WriteLine(
+            await InteractionSet.Regenerate(Census, "Planetfall.Tests", FileName, TestContext.Progress.WriteLine));
+    }
 
-        InteractionSet.Save(InteractionSet.PathFor("Planetfall.Tests", FileName), interactions);
-        TestContext.Out.WriteLine($"{interactions.Count} interactions, " +
-                                  $"{interactions.Sum(interaction => interaction.Wordings().Count())} wordings");
+    [Test]
+    [Explicit("Writes interactions.planetfall.json from the parts RegenerateTheInteractionSet left behind")]
+    public void MergeTheInteractionSetParts()
+    {
+        TestContext.Out.WriteLine(InteractionSet.MergeParts("Planetfall.Tests", FileName));
     }
 }
