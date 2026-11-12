@@ -131,6 +131,14 @@ public static class Verbs
     /// </summary>
     public static readonly VerbFamily InsertVerbs = new("insert", "put", "place", "feed", "stick", "drop", "put in");
 
+    /// <summary>
+    ///     Using a thing as somewhere to put things, when the thing is all the player names: "put in the
+    ///     bin". Not <see cref="InsertVerbs" />: with the container as the only noun, "drop the bin",
+    ///     "place the bin" and "insert the bin" are about moving the container itself, and must not get
+    ///     the reply meant for someone trying to store something in it.
+    /// </summary>
+    public static readonly VerbFamily PutInsideVerbs = new("put", "put in");
+
     /// <summary>Passing a card or a form through a slot: the way the slots actually work.</summary>
     public static readonly VerbFamily SlideThroughVerbs =
         new("slide", "swipe", "scan", "pass", "glide", "draw", "push", "use");

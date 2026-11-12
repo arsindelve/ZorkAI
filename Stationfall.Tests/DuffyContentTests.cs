@@ -366,6 +366,30 @@ public class DuffyContentTests : EngineTestsBase
 
             (await _target.GetResponse(input)).Should().Contain("only for robots");
         }
+
+        // Verbs.PutInsideVerbs: using the bin as somewhere to put things, naming only the bin.
+        [TestCase("put in first bin")]
+        public async Task AreNotForStoringThingsIn(string input)
+        {
+            ThroughTheProductionGrammar();
+            await GoToRobotPool();
+
+            (await _target.GetResponse(input)).Should().Contain("only for robots");
+        }
+
+        // With the bin as the only noun, these are about moving the BIN, not about putting something in
+        // it. The storage refusal answered them while the bin matched every word for inserting.
+        [TestCase("drop first bin")]
+        [TestCase("place first bin")]
+        [TestCase("stick first bin")]
+        [TestCase("insert first bin")]
+        public async Task AreNotMistakenForTheThingBeingMoved(string input)
+        {
+            ThroughTheProductionGrammar();
+            await GoToRobotPool();
+
+            (await _target.GetResponse(input)).Should().NotContain("only for robots");
+        }
     }
 
     [TestFixture]
