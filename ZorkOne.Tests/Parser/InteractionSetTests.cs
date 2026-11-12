@@ -29,6 +29,25 @@ public class InteractionSetTests
         problems.Should().BeEquivalentTo(Array.Empty<string>());
     }
 
+    /// <summary>
+    ///     Everything here compares the state of one fresh game with the state of another, so two fresh
+    ///     games have to be the same game. A game that rolls dice as it starts - a random time of day, a
+    ///     battery's charge - makes every turn look like an effect.
+    /// </summary>
+    [Test]
+    public async Task TwoFreshGames_AreInTheSameState()
+    {
+        var where = new CensusContext("WestOfHouse", null);
+
+        var once = InteractionCensus.Fingerprint(await Census.StateAfterDoingNothing(where, "door"));
+        var again = InteractionCensus.Fingerprint(await Census.StateAfterDoingNothing(where, "door"));
+        again.Should().Be(once, "a turn in which nothing happens ends in the same place every time");
+
+        once = InteractionCensus.Fingerprint(await Census.StateAfterDoingNothing(where, "door", true));
+        again = InteractionCensus.Fingerprint(await Census.StateAfterDoingNothing(where, "door", true));
+        again.Should().Be(once, "and so it does with every room and item loaded");
+    }
+
     [Test]
     [Explicit("Rewrites interactions.zorkone.json from what the game answers today. Long on one core; to use " +
               "several, set INTERACTION_SET_PART to 1/4, 2/4 ... in as many shells, then run the merge below")]

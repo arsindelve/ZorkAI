@@ -26,12 +26,14 @@ public sealed class CensusGame
     private readonly Func<IIntentParser, IAITakeAndAndDropParser, CensusSession> _start;
 
     private CensusGame(string name, IGlobalCommandFactory commands,
-        Func<IIntentParser, IAITakeAndAndDropParser, CensusSession> start, Action<IContext> light)
+        Func<IIntentParser, IAITakeAndAndDropParser, CensusSession> start, Action<IContext> light,
+        Action<IContext> settle)
     {
         Name = name;
         Commands = commands;
         _start = start;
         Light = light;
+        Settle = settle;
     }
 
     /// <summary>The game's assembly name, which is also what the vocabulary harvest is keyed by.</summary>
@@ -41,6 +43,13 @@ public sealed class CensusGame
 
     /// <summary>Gives the player a light, for rooms that are dark at the start of the game.</summary>
     public Action<IContext> Light { get; }
+
+    /// <summary>
+    ///     Fixes whatever the game rolls as its objects are made, once a probe's room and items are
+    ///     loaded: a battery's charge, say. Two fresh games must be the same game, or every turn in one
+    ///     looks different from every turn in the other.
+    /// </summary>
+    public Action<IContext> Settle { get; }
 
     public CensusSession Start(IIntentParser parser, IAITakeAndAndDropParser takeAndDrop)
     {
@@ -52,7 +61,9 @@ public sealed class CensusGame
     ///     anything that would reach a network.
     /// </param>
     /// <param name="light">How to light a dark room in this game.</param>
-    public static CensusGame For<TGame, TContext>(Action<TContext> boot, Action<IContext> light)
+    /// <param name="settle">See <see cref="Settle" />. Nothing, for a game that rolls nothing at the start.</param>
+    public static CensusGame For<TGame, TContext>(Action<TContext> boot, Action<IContext> light,
+        Action<IContext>? settle = null)
         where TGame : IInfocomGame, new()
         where TContext : class, IContext, new()
     {
@@ -77,6 +88,6 @@ public sealed class CensusGame
 
             return new CensusSession(engine.GetResponse, engine.Context, () => narrator.CompletenessLeaks.Count > 0,
                 engine.SaveGame);
-        }, light);
+        }, light, settle ?? (_ => { }));
     }
 }

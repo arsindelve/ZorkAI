@@ -265,6 +265,7 @@ public sealed class InteractionCensus(CensusGame game)
 
         context.CurrentLocation = Load(TypeNamed(where.Location));
         PinTheDice();
+        game.Settle(context);
 
         if (where.Holding is not null)
             context.ItemPlacedHere(Repository.GetItem(TypeNamed(where.Holding)));
@@ -301,6 +302,9 @@ public sealed class InteractionCensus(CensusGame game)
             if (replace(dice.GetValue(thing)))
                 dice.SetValue(thing, LoadedDice.Instance);
     }
+
+    /// <summary>Dice that always land the same way, for a game to pin its own static choosers with.</summary>
+    public static IRandomChooser PinnedDice => LoadedDice.Instance;
 
     private sealed class LoadedDice : IRandomChooser
     {
