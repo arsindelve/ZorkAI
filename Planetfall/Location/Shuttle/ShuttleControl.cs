@@ -21,6 +21,11 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
     where TCabin : class, ILocation, new()
     where TControl : ShuttleControl<TCabin, TControl>, new()
 {
+    // The control lever and cabin door are matched in this base's handler, not on any item. Extends base
+    // so any derived control room keeps its own Scenery nouns.
+    public override IEnumerable<string> SceneryNouns =>
+        [..base.SceneryNouns, "lever", "controls", "control lever", "cabin door", "cabin"];
+
     protected const int EndOfTunnel = 24;
     protected const int StartOfTunnel = 0;
 

@@ -8,6 +8,10 @@ internal class ElevatorLobby : LocationBase
 {
     public override string Name => "Elevator Lobby";
 
+    // "blue button" is matched in this room's handler (the covered "red button" has a match here too,
+    // but "blue button" was absent from the vocabulary).
+    public override IEnumerable<string> SceneryNouns => ["blue button"];
+
     // Every surface in this room - the two entrances, the description, and "examine <colour> door" -
     // must answer from the effective state, never from the shared OPENBIT flag on its own. See
     // ElevatorBase.IsOpenAtTheLobby for why, and issue #505 for what happens when they disagree. Stating

@@ -18,6 +18,12 @@ public class MaintenanceRoom : DarkLocation, ITurnBasedActor
 
     public override string[] NounsForMatching => ["control room"];
 
+    // The control-panel buttons and the pipe/leak scenery are matched from local lists in this room's
+    // handlers (below), not from any item's NounsForMatching. Declare them so the deterministic parser
+    // knows them and routes "press the yellow button" / "fix the leak" here without an AI call.
+    public override IEnumerable<string> SceneryNouns =>
+        ["button", "blue button", "red button", "yellow button", "brown button", .._leakNouns];
+
     [UsedImplicitly] public int CurrentWaterLevel { get; set; }
 
     public bool RoomFlooded { get; private set; }

@@ -12,6 +12,10 @@ public class SandyCave : DarkLocationWithNoStartingItems
 
     public override string Name => "Sandy Cave";
 
+    // "dig in sand with shovel" matches these from a literal list in the handler below; declare them so
+    // the deterministic parser knows the dig-target nouns without an AI call.
+    public override IEnumerable<string> SceneryNouns => ["sand", "ground", "dirt"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

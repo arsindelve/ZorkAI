@@ -10,6 +10,9 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
 {
     public override string Name => "Bio Lock East";
 
+    // The lab-view window is matched in this room's handler (issue #423), not on any item.
+    public override IEnumerable<string> SceneryNouns => ["window"];
+
     // Issue #493: this MUST have a setter. The deployed game is stateless — each turn is a separate
     // request whose full state travels in the base64 session — and the session serializer deliberately
     // drops read-only properties (GameEngine.DoNotSerializeReadOnlyPropertiesResolver). As a get-only
@@ -27,10 +30,13 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (
-            (action.Match(new[] { "examine" }
-                .Concat(Verbs.LookVerbs)
-                .ToArray(), ["window"]) && action.OriginalInput != null && action.OriginalInput.Contains("through")) ||
+        // Issue #423: on prod the AI parser does not reliably resolve "look through window" to
+        // verb ∈ LookVerbs + noun "window" — the "through" disrupts verb/noun extraction, so the
+        // through-branch (the exact phrasing the handler was written to catch, and the walkthrough's own)
+        // fired only intermittently and silently degraded to the room description. The parser-level #423
+        // change alone can't cure that variance, so gate the view on the raw input (a look/examine verb +
+        // "through" + "window"). The second branch keeps examine / look at / look into window working.
+        if (action.MatchInInput(Verbs.LookVerbs.Concat(Verbs.ExamineVerbs).ToArray(), "through", ["window"]) ||
             action.Match(Verbs.ExamineVerbs, ["window"]))
         {
             var view =

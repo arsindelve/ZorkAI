@@ -357,21 +357,13 @@ public static class Repository
     }
 
     /// <summary>
-    /// For unit testing purposes only.
-    /// </summary>
-    /// <remarks>
-    /// Issue #486: <paramref name="gameName"/> is required - it is the game assembly to reflect over,
-    /// and <see cref="Repository"/> is engine-level and game-agnostic. A default here would bake one
-    /// specific game into the shared engine and silently load the wrong game's nouns whenever a caller
-    /// omitted it. Callers already have the game name available (e.g. <c>context.Game.GameName</c>).
-    /// </remarks>
-    /// <returns></returns>
-    /// <summary>
-    ///     Every noun the game's locations advertise as scenery. These are not items, so
-    ///     <see cref="GetNouns" /> — which reflects over ItemBase — cannot see them, and anything built
-    ///     from that list alone is blind to every piece of scenery in the game. The deterministic test
-    ///     parser is built from that list, which is why scenery appeared to answer to nothing at all
-    ///     under test while working perfectly in play.
+    ///     Every noun the game advertises as scenery: each location's declared Scenery plus the game-wide
+    ///     <see cref="IInfocomGame.GlobalScenery" />. <see cref="GetNouns" /> covers per-location scenery
+    ///     too (through <see cref="LocationBase.SceneryNouns" />), but not GlobalScenery, which lives on the
+    ///     game rather than on any item or location - so a vocabulary that must know every noun unions this
+    ///     in, as <c>UnitTests.TestParser</c> and <see cref="DeterministicParser" /> both do. Built from
+    ///     item nouns alone, the test parser once made scenery appear to answer to nothing under test while
+    ///     it worked perfectly in play.
     /// </summary>
     public static string[] GetSceneryNouns(string gameName)
     {
@@ -424,27 +416,94 @@ public static class Repository
         return nouns.Distinct().ToArray();
     }
 
+    /// <summary>
+    ///     Every noun the game declares on its items and locations: item NounsForMatching, location
+    ///     NounsForMatching aliases, and location <see cref="LocationBase.SceneryNouns" />. The production
+    ///     <see cref="DeterministicParser" /> builds its vocabulary from this (plus
+    ///     <see cref="GetSceneryNouns" /> for game-wide scenery).
+    /// </summary>
+    /// <remarks>
+    /// Issue #486: <paramref name="gameName"/> is required - it is the game assembly to reflect over,
+    /// and <see cref="Repository"/> is engine-level and game-agnostic. A default here would bake one
+    /// specific game into the shared engine and silently load the wrong game's nouns whenever a caller
+    /// omitted it. Callers already have the game name available (e.g. <c>context.Game.GameName</c>).
+    /// </remarks>
     public static string[] GetNouns(string gameName)
     {
         lock (_allNouns)
         {
-            var allItems = new List<ItemBase>();
             var assembly = Assembly.Load(gameName);
-
             var types = assembly.GetTypes();
 
-            foreach (var type in types)
+            var nouns = new List<string>();
 
-                if (type is { IsClass: true, IsGenericType: false, IsAbstract: false } &&
-                    type.IsSubclassOf(typeof(ItemBase)))
+            foreach (var type in types)
+            {
+                if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false })
+                    continue;
+
+                if (type.IsSubclassOf(typeof(ItemBase)))
                 {
                     var instance = (ItemBase)Activator.CreateInstance(type)!;
-                    allItems.Add(instance);
+                    nouns.AddRange(instance.NounsForMatching);
                 }
+                else if (type.IsSubclassOf(typeof(LocationBase)))
+                {
+                    // A location owns its scenery nouns (LocationBase.SceneryNouns, backed by its Scenery
+                    // declarations) and any destination aliases (NounsForMatching). Harvesting them here —
+                    // instead of hardcoding a per-game noun list in the parser — keeps the engine ignorant of
+                    // any specific game's content: each game declares, the engine reflects. Guarded so a
+                    // location that can't be constructed bare doesn't sink the whole vocabulary.
+                    try
+                    {
+                        var location = (LocationBase)Activator.CreateInstance(type)!;
+                        nouns.AddRange(location.NounsForMatching);
+                        nouns.AddRange(location.SceneryNouns);
+                    }
+                    catch
+                    {
+                        // A location that throws when constructed without Init() simply contributes no
+                        // vocabulary; the AI parser still covers its nouns as a fallback.
+                    }
+                }
+            }
 
-            _allNouns = allItems.SelectMany(s => s.NounsForMatching).ToArray();
+            _allNouns = nouns.ToArray();
             return _allNouns;
         }
+    }
+
+    /// <summary>
+    ///     Every name a player may give a room as a "go to" destination: each location's display
+    ///     <see cref="ILocation.Name" /> plus its <see cref="ILocation.NounsForMatching" /> aliases - the same
+    ///     terms <c>DestinationNavigation</c> matches against. Room names are not nouns (nothing in
+    ///     <see cref="GetNouns" /> says "Kitchen"), so a parser that wants to know whether a destination is
+    ///     real must ask here, not there.
+    /// </summary>
+    public static string[] GetDestinationNames(string gameName)
+    {
+        var names = new List<string>();
+
+        foreach (var type in Assembly.Load(gameName).GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false } ||
+                !type.IsSubclassOf(typeof(LocationBase)))
+                continue;
+
+            try
+            {
+                var location = (LocationBase)Activator.CreateInstance(type)!;
+                names.Add(location.Name);
+                names.AddRange(location.NounsForMatching);
+            }
+            catch
+            {
+                // A location that cannot be constructed standalone contributes no destination names; the AI
+                // parser still covers it.
+            }
+        }
+
+        return names.Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().ToArray();
     }
 
     /// <summary>

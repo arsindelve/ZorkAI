@@ -320,6 +320,17 @@ public abstract class LocationBase : ILocation, ICanContainItems
     protected virtual IReadOnlyList<SceneryItem> Scenery => [];
 
     /// <summary>
+    ///     The scenery nouns this room recognises but which back no takeable item — the literal noun lists
+    ///     its handlers <c>Match</c> on. Surfaced (read-only) so the engine's vocabulary harvest
+    ///     (<see cref="Repository.GetNouns" />) can resolve them deterministically, WITHOUT the engine ever
+    ///     naming a specific game's scenery. Defaults to the nouns already declared on <see cref="Scenery" />;
+    ///     a room whose scenery nouns live in ad-hoc local lists (e.g. control-panel buttons) overrides this
+    ///     to add them, keeping the declaration co-located with the handler that consumes it. Parser-vocabulary
+    ///     only — this does not affect examine/take routing.
+    /// </summary>
+    public virtual IEnumerable<string> SceneryNouns => Scenery.SelectMany(s => s.Nouns);
+
+    /// <summary>
     ///     We have parsed the user input and determined that we have a <see cref="SimpleIntent" /> corresponding
     ///     of a verb and a noun. Does that combination do anything in this location? The default implementation
     ///     of the base class checks each item in these locations and asks them if they provide any interaction. This

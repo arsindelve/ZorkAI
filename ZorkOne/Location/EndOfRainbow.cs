@@ -13,6 +13,10 @@ public class EndOfRainbow : LocationWithNoStartingItems
 
     public override string Name => "End of Rainbow";
 
+    // "rainbow" is matched via RainbowInteraction (cross / look under the rainbow), not on any item.
+    // Extend the Scenery-derived nouns with it so the deterministic parser resolves those commands.
+    public override IEnumerable<string> SceneryNouns => [..base.SceneryNouns, "rainbow"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

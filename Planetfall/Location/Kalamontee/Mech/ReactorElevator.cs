@@ -13,6 +13,10 @@ internal class ReactorElevator : LocationWithNoStartingItems
 {
     public override string Name => "Reactor Elevator";
 
+    // Control-panel scenery matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns =>
+        ["up button", "down button", "control panel", "controls", "buttons"];
+
     // The door and the exits it gates, stated once. Both exits and the description below read this one
     // predicate, so the room cannot describe a door the player is then refused (issue #523).
     private Doorway Door => new(Repository.GetItem<ReactorElevatorDoor>());

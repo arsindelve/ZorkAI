@@ -49,10 +49,19 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     /// </summary>
     protected int DeckNineEncounterRoll { get; set; } = 3;
 
+    /// <summary>
+    ///     Which intent parser the walkthrough runs through. Defaults to the standard
+    ///     <see cref="UnitTests.TestParser" /> (via <c>GetTarget()</c>); a subclass overrides this to drive
+    ///     the SAME steps through a different parser - e.g.
+    ///     <see cref="UnitTests.DeterministicFirstTestParser" />, which puts the production
+    ///     DeterministicParser ahead of it.
+    /// </summary>
+    protected virtual IIntentParser? BuildParser() => null;
+
     [OneTimeSetUp]
     public void Init()
     {
-        _target = GetTarget();
+        _target = GetTarget(BuildParser());
 
         // Set up ParseConversation to recognize "floyd, go north" as conversation
         ParseConversationMock.Setup(x => x.ParseAsync("floyd, go north"))

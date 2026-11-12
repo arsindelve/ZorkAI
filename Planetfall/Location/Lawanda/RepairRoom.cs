@@ -15,6 +15,10 @@ internal class RepairRoom : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHere
 
     public override string[] NounsForMatching => ["workshop", "machine shop"];
 
+    // The locked storage cabinets are matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns =>
+        [..base.SceneryNouns, "cabinet", "cabinets", "storage cabinet", "storage cabinets"];
+
     [UsedImplicitly] public bool HasToldMeAboutAchilles { get; set; }
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

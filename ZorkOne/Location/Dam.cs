@@ -14,6 +14,10 @@ public class Dam : LocationBase
 
     public override string[] NounsForMatching => ["flood control dam"];
 
+    // "bolt" is the dam's sluice-gate bolt, matched in this room's handlers (below) rather than on any
+    // item, so declare it for the deterministic parser ("turn bolt with wrench").
+    public override IEnumerable<string> SceneryNouns => ["bolt"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

@@ -11,6 +11,10 @@ public class WestOfHouse : LocationBase
 {
     public override string Name => "West Of House";
 
+    // "front door" is matched from a local list in this room's handler (below), not on any item, so
+    // declare it for the deterministic parser ("examine the front door").
+    public override IEnumerable<string> SceneryNouns => ["front door"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return "You are standing in an open field west of a white house, with a boarded front door. ";

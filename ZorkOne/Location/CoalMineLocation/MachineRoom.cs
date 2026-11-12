@@ -10,6 +10,11 @@ public class MachineRoom : DarkLocation
 {
     public override string Name => "Machine Room";
 
+    // The machine's "switch" and "lid" are matched from literal lists in this room's / the machine's
+    // handlers, not exposed as item nouns. Declare them so the deterministic parser resolves
+    // "turn switch with screwdriver" and "open lid" here without an AI call.
+    public override IEnumerable<string> SceneryNouns => ["switch", "lid"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

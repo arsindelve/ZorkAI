@@ -10,6 +10,9 @@ internal class RecArea : LocationBase
 
     public override string[] NounsForMatching => ["recreation", "lounge", "game room"];
 
+    // "games"/"tapes" scenery ("scattered about the room") matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => ["games", "tapes"];
+
     private ConferenceRoomDoor Door => Repository.GetItem<ConferenceRoomDoor>();
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

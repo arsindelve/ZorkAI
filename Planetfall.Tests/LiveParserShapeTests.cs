@@ -24,25 +24,32 @@ namespace Planetfall.Tests;
 ///     the player got invented narrator prose instead of the action they asked for.
 ///     <para>
 ///         These tests close that blind spot for the specific shapes involved. They run the genuine
-///         <see cref="ParsingHelper" /> (via <see cref="OpenAIParser" />) over the raw tagged
-///         completions gpt-4o actually emits — including the degraded shapes that caused the
-///         dropped turns — and assert the command still reaches its handler.
+///         <see cref="ParsingHelper" /> (via <see cref="OpenAIParser" />) over the raw completions
+///         gpt-4o actually emits — including the degraded shapes that caused the dropped turns — and
+///         assert the command still reaches its handler.
+///     </para>
+///     <para>
+///         The parser now asks for a structured JSON completion rather than pseudo-XML tags, so each
+///         stub is the JSON form of the shape the issue reported: the same fields present, the same
+///         fields missing (a null preposition, an empty noun list, a move-bucketed "enter door").
+///         <see cref="OpenAIParser" /> renders that JSON back to tags and hands it to
+///         <see cref="ParsingHelper" />, so the repairs these tests prove still sit on the path.
 ///     </para>
 /// </summary>
 public class LiveParserShapeTests : EngineTestsBase
 {
     /// <summary>
     ///     Builds a real <see cref="IntentParser" /> whose AI layer is stubbed to return a fixed
-    ///     tagged completion. Everything downstream of the model — tag extraction, intent-shape
-    ///     classification, engine dispatch — is the production code path.
+    ///     structured completion. Everything downstream of the model — JSON parsing, tag rendering,
+    ///     intent-shape classification, engine dispatch — is the production code path.
     /// </summary>
-    private static IIntentParser ParserReturning(string taggedCompletion)
+    private static IIntentParser ParserReturning(string structuredCompletion)
     {
         var completion = new Mock<IChatCompletionClient>();
         completion
             .Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
                 It.IsAny<ChatCompletionOptions>()))
-            .ReturnsAsync(taggedCompletion);
+            .ReturnsAsync(structuredCompletion);
 
         return new IntentParser(new OpenAIParser(null, completion.Object), new PlanetfallGlobalCommandFactory());
     }
@@ -51,10 +58,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task SetDialToTheCode_WhenTheParserOmitsThePreposition_StillOpensTheConferenceRoomDoor()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>act</intent>
-                                               <verb>set</verb>
-                                               <noun>dial</noun>
-                                               <noun>419</noun>
+                                               {"intent": "act", "verb": "set", "nouns": ["dial", "419"], "preposition": null, "direction": null, "adjective": null}
                                                """));
         StartHere<RecArea>();
         GetItem<ConferenceRoomDoor>().UnlockCode = "419";
@@ -69,10 +73,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task SetLaserDial_WhenTheParserOmitsThePreposition_StillMovesTheSetting()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>act</intent>
-                                               <verb>set</verb>
-                                               <noun>laser</noun>
-                                               <noun>1</noun>
+                                               {"intent": "act", "verb": "set", "nouns": ["laser", "1"], "preposition": null, "direction": null, "adjective": null}
                                                """));
         StartHere<StripNearRelay>();
         Take<Laser>();
@@ -87,10 +88,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task SlideCardThroughSlot_WhenTheParserOmitsThePreposition_StillActivatesTheBooth()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>act</intent>
-                                               <verb>slide</verb>
-                                               <noun>teleportation card</noun>
-                                               <noun>slot</noun>
+                                               {"intent": "act", "verb": "slide", "nouns": ["teleportation card", "slot"], "preposition": null, "direction": null, "adjective": null}
                                                """));
         StartHere<BoothTwo>();
         Take<TeleportationAccessCard>();
@@ -110,8 +108,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task PressADigitButton_WhenTheParserOmitsTheNoun_StillTeleports()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>act</intent>
-                                               <verb>press</verb>
+                                               {"intent": "act", "verb": "press", "nouns": [], "preposition": null, "direction": null, "adjective": null}
                                                """));
         var booth = StartHere<BoothTwo>();
         booth.IsEnabled = true;
@@ -132,9 +129,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task PressADigitButton_WhenTheParserExpandsItToButtonN_StillTeleports()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>act</intent>
-                                               <verb>press</verb>
-                                               <noun>button 3</noun>
+                                               {"intent": "act", "verb": "press", "nouns": ["button 3"], "preposition": null, "direction": null, "adjective": null}
                                                """));
         var booth = StartHere<BoothTwo>();
         booth.IsEnabled = true;
@@ -157,10 +152,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task EnterADoor_WhenTheParserBucketsItAsAMove_StillAsksWhichDoor()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>enter</verb>
-                                               <noun>door</noun>
-                                               <direction>enter</direction>
+                                               {"intent": "move", "verb": "enter", "nouns": ["door"], "preposition": null, "direction": "enter", "adjective": null}
                                                """));
         StartHere<ElevatorLobby>();
 
@@ -181,10 +173,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task EnterANamedDoor_WhenTheParserBucketsItAsAMove_StillWalksThroughIt()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>enter</verb>
-                                               <noun>blue door</noun>
-                                               <direction>enter</direction>
+                                               {"intent": "move", "verb": "enter", "nouns": ["blue door"], "preposition": null, "direction": "enter", "adjective": null}
                                                """));
         StartHere<ElevatorLobby>();
         GetItem<UpperElevatorDoor>().IsOpen = true;
@@ -206,10 +195,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task ExitADoor_WhenTheParserBucketsItAsAMove_StillAsksWhichDoor()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>exit</verb>
-                                               <noun>door</noun>
-                                               <direction>exit</direction>
+                                               {"intent": "move", "verb": "exit", "nouns": ["door"], "preposition": null, "direction": "exit", "adjective": null}
                                                """));
         StartHere<ElevatorLobby>();
 
@@ -229,10 +215,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task ExitANamedDoor_WhenTheParserBucketsItAsAMove_StillWalksThroughIt()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>exit</verb>
-                                               <noun>blue door</noun>
-                                               <direction>exit</direction>
+                                               {"intent": "move", "verb": "exit", "nouns": ["blue door"], "preposition": null, "direction": "exit", "adjective": null}
                                                """));
         StartHere<ElevatorLobby>();
         GetItem<UpperElevatorDoor>().IsOpen = true;
@@ -262,9 +245,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task EnterADoor_WhenTheParserDropsTheNounEntirely_StillAsksWhichDoor()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>enter</verb>
-                                               <direction>enter</direction>
+                                               {"intent": "move", "verb": "enter", "nouns": [], "preposition": null, "direction": "enter", "adjective": null}
                                                """));
         StartHere<ElevatorLobby>();
 
@@ -285,9 +266,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task EnterADoor_WhenTheParserDropsTheNounAndTagsTheDirectionIn_StillAsksWhichDoor()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>enter</verb>
-                                               <direction>in</direction>
+                                               {"intent": "move", "verb": "enter", "nouns": [], "preposition": null, "direction": "in", "adjective": null}
                                                """));
         StartHere<ElevatorLobby>();
 
@@ -308,9 +287,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task EnterADoor_WhenTheParserDropsTheNoun_StillWalksThroughTheOnlyDoorInTheRoom()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>enter</verb>
-                                               <direction>enter</direction>
+                                               {"intent": "move", "verb": "enter", "nouns": [], "preposition": null, "direction": "enter", "adjective": null}
                                                """));
         StartHere<UpperElevator>();
         GetItem<UpperElevatorDoor>().IsOpen = true;
@@ -332,9 +309,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task ExitADoor_WhenTheParserDropsTheNounEntirely_StillAsksWhichDoor()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>move</intent>
-                                               <verb>exit</verb>
-                                               <direction>exit</direction>
+                                               {"intent": "move", "verb": "exit", "nouns": [], "preposition": null, "direction": "exit", "adjective": null}
                                                """));
         StartHere<ElevatorLobby>();
 
@@ -350,11 +325,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task TakeWithATool_WhenTheParserBucketsItAsATake_StillRemovesTheFusedBedistor()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>take</intent>
-                                               <verb>take</verb>
-                                               <noun>fused bedistor</noun>
-                                               <noun>pliers</noun>
-                                               <preposition>with</preposition>
+                                               {"intent": "take", "verb": "take", "nouns": ["fused bedistor", "pliers"], "preposition": "with", "direction": null, "adjective": null}
                                                """));
         StartHere<CourseControl>();
         Take<Pliers>();
@@ -385,11 +356,7 @@ public class LiveParserShapeTests : EngineTestsBase
     public async Task PutTheBedistorByItsBareAdjective_WithTheRealParser_StillFixesCourseControl()
     {
         var target = GetTarget(ParserReturning("""
-                                               <intent>act</intent>
-                                               <verb>put</verb>
-                                               <noun>good</noun>
-                                               <noun>cube</noun>
-                                               <preposition>in</preposition>
+                                               {"intent": "act", "verb": "put", "nouns": ["good", "cube"], "preposition": "in", "direction": null, "adjective": null}
                                                """));
         StartHere<CourseControl>();
         GetItem<LargeMetalCube>().IsOpen = true;

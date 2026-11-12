@@ -537,6 +537,38 @@ public class KitchenWindowTests : EngineTestsBase
             target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
         }
 
+        [TestCase("enter the house")]
+        [TestCase("go into the house")]
+        [TestCase("walk into the house")]
+        public async Task EnterTheHouse_ActuallyEnters_WhenWindowOpen(string command)
+        {
+            // Regression: "enter the house" / "go into the house" from Behind House must go IN through the
+            // (open) window like "in"/"west" do. The AI parser classifies these inconsistently (often a
+            // "goto" whose destination "house" matches the neighbouring North/South of House rooms and
+            // yields a nonsense disambiguation), so BehindHouse resolves them deterministically on the raw
+            // input.
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+            Repository.GetItem<KitchenWindow>().IsOpen = true;
+
+            await target.GetResponse(command);
+
+            target.Context.CurrentLocation.Should().BeOfType<Kitchen>();
+        }
+
+        [TestCase("enter the house")]
+        [TestCase("go into the house")]
+        public async Task EnterTheHouse_Blocked_WhenWindowClosed(string command)
+        {
+            var target = GetTarget();
+            target.Context.CurrentLocation = Repository.GetLocation<BehindHouse>();
+
+            var response = await target.GetResponse(command);
+
+            response.Should().Contain("The kitchen window is closed.");
+            target.Context.CurrentLocation.Should().BeOfType<BehindHouse>();
+        }
+
         [Test]
         public async Task EnterCarriedSack_DoesNotTeleportThroughTheWindow_EvenWhenOpen()
         {

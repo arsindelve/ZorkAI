@@ -10,6 +10,10 @@ public class ForestPath : LocationWithNoStartingItems, ITurnBasedActor
 {
     public override string Name => "Forest Path";
 
+    // "branches" is matched from a local list in this room's handler (below), not on any item, so declare
+    // it for the deterministic parser ("examine the branches"). "tree" is already covered.
+    public override IEnumerable<string> SceneryNouns => ["branches"];
+
     public Task<string> Act(IContext context, IGenerationClient client)
     {
         if (context.CurrentLocation is not ForestPath)

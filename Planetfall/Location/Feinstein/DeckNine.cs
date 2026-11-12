@@ -12,6 +12,10 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     // as a digit — the room title spells it, but "go to deck 9" is at least as common (issue #268).
     public override string[] NounsForMatching => ["deck 9"];
 
+    // The deck/floor surface ("swab the deck" easter egg) is matched in this room's handler; only the
+    // "deck 8"/"deck 9" room aliases were in the vocabulary.
+    public override IEnumerable<string> SceneryNouns => ["floor", "deck"];
+
     [UsedImplicitly] [JsonIgnore]
     public IRandomChooser Chooser { get; set; } = new RandomChooser();
 

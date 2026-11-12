@@ -16,6 +16,12 @@ public class LivingRoom : LocationBase
 
     public override string[] NounsForMatching => ["parlor", "lounge"];
 
+    // The gothic lettering is matched from a local list in this room's handler (below), not on any item.
+    // Declare the adjective forms (issue #317) so the deterministic parser resolves "read the gothic
+    // lettering". Plural "engravings" and "door" are already covered elsewhere.
+    public override IEnumerable<string> SceneryNouns =>
+        ["lettering", "gothic lettering", "strange gothic lettering", "engraving"];
+
     protected override string GetContextBasedDescription(IContext context)
     {
         return "You are in the living room.  " +

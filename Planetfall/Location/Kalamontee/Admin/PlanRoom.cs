@@ -9,6 +9,10 @@ internal class PlanRoom : LocationWithNoStartingItems
 
     public override string[] NounsForMatching => ["map room", "blueprint room"];
 
+    // The cubbyhole wall is matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns =>
+        [..base.SceneryNouns, "cubbyholes", "holes", "cubbies", "cubby"];
+
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {
         return new Dictionary<Direction, MovementParameters>

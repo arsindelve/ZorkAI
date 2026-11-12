@@ -15,6 +15,9 @@ public class Helicopter : FloydSpecialInteractionLocation
     // was refused with "You cannot go that way." (issue #519).
     public override string[] NounsForMatching => ["chopper", "copter", "vehicle", "large vehicle"];
 
+    // Control-panel scenery matched in this room's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => [..base.SceneryNouns, "control panel", "controls"];
+
     public override string FloydPrompt => FloydPrompts.Helicopter;
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)

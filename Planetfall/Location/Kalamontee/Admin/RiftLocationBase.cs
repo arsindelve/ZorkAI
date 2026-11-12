@@ -8,6 +8,10 @@ internal abstract class RiftLocationBase : LocationWithNoStartingItems
 {
     internal static readonly string[] RiftNouns = ["rift", "gap", "split", "crack", "fissure", "break", "chasm", "gaping rift"];
 
+    // The rift is matched from RiftNouns (above), not on any item, so surface those exact nouns for the
+    // deterministic parser ("throw the coin into the rift"). Extends base so derived rooms keep their Scenery.
+    public override IEnumerable<string> SceneryNouns => [..base.SceneryNouns, ..RiftNouns];
+
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {

@@ -195,9 +195,49 @@ public class PronounResolverBehaviorTests
 public class OpenAIParsingBehaviorTests
 {
     [Test]
-    public async Task Parser_ConvertsTaggedCompletionToIntent()
+    public async Task Parser_ConvertsStructuredJsonResponseToIntent()
     {
-        var completion = CompletionReturning("<intent>move</intent><direction>north</direction>");
+        // The parser now consumes an OpenAI Structured Output (strict JSON) instead of pseudo-XML tags,
+        // so the model returns a ParsedIntent-shaped object; the parser must still resolve it to the
+        // correct engine intent.
+        var completion = CompletionReturning(
+            "{\"intent\":\"move\",\"verb\":\"walk\",\"nouns\":[],\"preposition\":null," +
+            "\"direction\":\"north\",\"adjective\":null}");
+        var target = new OpenAIParser(null, completion.Object);
+
+        var result = await target.AskTheAIParser("head north", "A corridor", "session");
+
+        result.Should().BeOfType<MoveIntent>().Which.Direction.Should().Be(Direction.N);
+    }
+
+    [Test]
+    public async Task Parser_WhenTheServerRejectsTheJsonSchemaFormat_RetriesWithoutItAndStillParses()
+    {
+        // Self-hosted OpenAI-compatible servers (issue #383) may reject a json_schema response format
+        // outright. The parser must retry once without it - as OpenAITakeAndDropListParser does - rather
+        // than throw, and the free-form reply then arrives wrapped in code fences.
+        var completion = new Mock<IChatCompletionClient>();
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
+                It.Is<ChatCompletionOptions>(o => o.ResponseFormat != null)))
+            .ThrowsAsync(new InvalidOperationException("response_format json_schema is not supported"));
+        completion.Setup(c => c.CompleteChatAsync(It.IsAny<IReadOnlyList<ChatMessage>>(),
+                It.Is<ChatCompletionOptions>(o => o.ResponseFormat == null)))
+            .ReturnsAsync("```json\n{\"intent\":\"move\",\"verb\":\"walk\",\"nouns\":[],\"preposition\":null," +
+                          "\"direction\":\"north\",\"adjective\":null}\n```");
+        var target = new OpenAIParser(null, completion.Object);
+
+        var result = await target.AskTheAIParser("head north", "A corridor", "session");
+
+        result.Should().BeOfType<MoveIntent>().Which.Direction.Should().Be(Direction.N);
+    }
+
+    [Test]
+    public async Task Parser_ToleratesProseAndCodeFencesAroundTheJson()
+    {
+        // A local model that honours the format can still wrap the object in fences and chatter.
+        var completion = CompletionReturning(
+            "Here is the parse:\n```json\n{\"intent\":\"move\",\"verb\":\"walk\",\"nouns\":[]," +
+            "\"preposition\":null,\"direction\":\"north\",\"adjective\":null}\n```");
         var target = new OpenAIParser(null, completion.Object);
 
         var result = await target.AskTheAIParser("head north", "A corridor", "session");

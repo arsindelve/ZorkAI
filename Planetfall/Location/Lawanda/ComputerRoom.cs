@@ -8,6 +8,10 @@ namespace Planetfall.Location.Lawanda;
 internal class ComputerRoom : LocationBase, ITurnBasedActor
 {
     public override string Name => "Computer Room";
+
+    // The malfunction "red light" is matched in this room's handler; bare "light" resolves to the Lamp
+    // item, so the compound needs declaring here.
+    public override IEnumerable<string> SceneryNouns => ["red light"];
     
     [UsedImplicitly] public bool FloydHasExpressedConcern { get; set; }
 

@@ -5,6 +5,9 @@ namespace Planetfall.Location.Kalamontee;
 internal class BoothTwo : BoothBase
 {
     public override string Name => "Booth 2";
+
+    // The teleport-booth buttons are matched in this booth's handler, not on any item.
+    public override IEnumerable<string> SceneryNouns => ["tan button", "brown button"];
     
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
     {

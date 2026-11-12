@@ -269,10 +269,42 @@ public class RepositoryTests
     {
         // Act
         var nouns = Repository.GetNouns("Planetfall");
-    
+
         // Assert
         nouns.Should().NotBeEmpty();
         nouns.Should().Contain("paper"); // PieceOfPaper's noun
+    }
+
+    [Test]
+    public void GetNouns_IncludesLocationSceneryAndAliases_NotJustItems()
+    {
+        // The deterministic parser's vocabulary must include scenery nouns and destination aliases that
+        // no item declares. The engine holds NO hardcoded per-game noun list: the locations that HANDLE
+        // those nouns declare them (LocationBase.SceneryNouns / NounsForMatching / Scenery), and the
+        // harvest reflects them out of the game assembly — so a new game or a new piece of scenery is
+        // understood with zero engine changes. This test guards that harvest against being ripped out
+        // (which would silently push these commands back onto the flaky AI parser).
+        var nouns = Repository.GetNouns("ZorkOne");
+
+        nouns.Should().Contain("bolt");          // Dam.SceneryNouns override (the sluice-gate bolt)
+        nouns.Should().Contain("yellow button"); // MaintenanceRoom.SceneryNouns override (control panel)
+        nouns.Should().Contain("basement");      // Cellar.NounsForMatching (destination alias)
+        nouns.Should().Contain("railing");       // TorchRoom.Scenery -> default SceneryNouns (SceneryItem)
+    }
+
+    [Test]
+    public void GetNouns_HarvestsPlanetfallLocationScenery()
+    {
+        // The same location-scenery harvest must work for Planetfall (proves it is game-agnostic, not
+        // ZorkOne-special). These are scenery nouns declared on Planetfall locations' SceneryNouns.
+        var nouns = Repository.GetNouns("Planetfall");
+
+        nouns.Should().Contain("rift");        // RiftLocationBase.SceneryNouns (RiftNouns)
+        nouns.Should().Contain("crevice");     // AdminCorridorSouth.SceneryNouns
+        nouns.Should().Contain("lever");       // ShuttleControl.SceneryNouns
+        nouns.Should().Contain("window");      // BioLockEast.SceneryNouns (#423)
+        nouns.Should().Contain("up button");   // ElevatorBase.SceneryNouns
+        nouns.Should().Contain("green button"); // MachineShop.SceneryNouns
     }
     
     [Test]

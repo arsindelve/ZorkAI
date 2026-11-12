@@ -23,10 +23,18 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private Mock<IRandomChooser> _caveSouthChooser;
     private GameEngine<ZorkI, ZorkIContext> _target;
 
+    /// <summary>
+    /// Which intent parser the walkthrough runs through. Defaults to the standard <see cref="TestParser" />
+    /// (via <c>GetTarget()</c>); a subclass can override this to drive the SAME walkthrough steps through a
+    /// different parser — e.g. <see cref="DeterministicFirstTestParser" />, to exercise the production
+    /// DeterministicParser on a full real game sequence.
+    /// </summary>
+    protected virtual IIntentParser? BuildParser() => null;
+
     [OneTimeSetUp]
     public void Init()
     {
-        _target = GetTarget();
+        _target = GetTarget(BuildParser());
 
         _adventurerChooser = new Mock<IRandomChooser>();
         _attackerChooser = new Mock<IRandomChooser>();
