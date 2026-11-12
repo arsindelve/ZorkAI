@@ -37,6 +37,26 @@ public class LanternTests : EngineTestsBase
         lantern.TurnsWhileOn.Should().BeGreaterThan(0);
     }
 
+    // Verbs.TurnOnVerbs / TurnOffVerbs are the same for a lamp as for a robot or a radio; Verbs.LightVerbs
+    // and Verbs.ExtinguishVerbs are the extra words only a light answers.
+    [TestCase("turn on lantern", "turn off lantern")]
+    [TestCase("start lantern", "stop lantern")]
+    [TestCase("enable lantern", "disable lantern")]
+    [TestCase("light lantern", "extinguish lantern")]
+    public async Task TheLantern_GoesOnAndOff_InAnyOfTheWordsForIt(string on, string off)
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<ForestOne>();
+        var lantern = Repository.GetItem<Lantern>();
+        target.Context.Take(lantern);
+
+        await target.GetResponse(on);
+        lantern.IsOn.Should().BeTrue($"\"{on}\" switches it on");
+
+        await target.GetResponse(off);
+        lantern.IsOn.Should().BeFalse($"\"{off}\" switches it off");
+    }
+
     [Test]
     public async Task CounterDoesNotIncrease_WhenLanternIsOff()
     {

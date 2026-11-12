@@ -350,15 +350,6 @@ public static class Verbs
     public static readonly VerbFamily SwipeCardVerbs =
         new("slide", "swipe", "scan", "pass", "glide", "draw", "push", "use");
 
-    public static readonly VerbFamily SwitchOffFloydVerbs = new("turn off", "deactivate", "stop");
-
-    public static readonly VerbFamily SwitchOffRadioVerbs =
-        new("turn off", "switch off", "deactivate", "stop", "silence");
-
-    public static readonly VerbFamily SwitchOnFloydVerbs = new("turn on", "activate", "start");
-
-    public static readonly VerbFamily SwitchOnRadioVerbs = new("turn on", "switch on", "activate", "start");
-
     public static readonly VerbFamily TasteVerbs = new("taste", "eat");
 
     public static readonly VerbFamily ThrowOrDropVerbs = new([..ThrowVerbs, ..DropVerbs]);
@@ -411,13 +402,24 @@ public static class Verbs
         new("eat", "drink", "swallow", "sip", "consume", "gobble", "snack on", "devour", "chew");
 
     /// <summary>
-    ///     Switching something on (<c>TurnOnOrOffProcessor</c>). The canonical verb comes first:
+    ///     Switching something on or off: a lamp, a robot, a radio. One grouping for all of them -
+    ///     <c>TurnOnOrOffProcessor</c> answers it for anything switchable, and Floyd and the radio, which
+    ///     switch on in their own way, match on the same words. The canonical verb comes first:
     ///     "activate" / "deactivate" are what the parsers reduce "turn on" / "turn off" to.
     /// </summary>
-    public static readonly VerbFamily TurnOnVerbs = new("activate", "turn on", "light", "strike", "enable");
+    public static readonly VerbFamily TurnOnVerbs = new("activate", "turn on", "switch on", "start", "enable");
 
     public static readonly VerbFamily TurnOffVerbs =
-        new("deactivate", "turn off", "extinguish", "blow out", "disable");
+        new("deactivate", "turn off", "switch off", "stop", "silence", "disable");
+
+    /// <summary>
+    ///     The extra words for bringing a light to life and putting it out, which only a light answers
+    ///     (<c>TurnOnOrOffProcessor</c>). Kept out of <see cref="TurnOnVerbs" /> on purpose: "strike" is
+    ///     also how a player hits something, and "strike floyd" must not switch him on.
+    /// </summary>
+    public static readonly VerbFamily LightVerbs = new("light", "strike");
+
+    public static readonly VerbFamily ExtinguishVerbs = new("extinguish", "blow out");
 
     /// <summary>A bare "turn", when the parser could not tell on from off; the adverb decides.</summary>
     public static readonly VerbFamily TurnVerbs = new("turn");

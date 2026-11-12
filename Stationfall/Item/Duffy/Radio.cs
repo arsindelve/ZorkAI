@@ -63,7 +63,7 @@ public class Radio : ItemBase, ICanBeExamined, ITurnBasedActor
             return new PositiveInteractionResult(
                 IsOn ? "\"Hiss. Crackle.\" " : "The radio isn't on! ");
 
-        if (action.MatchVerb(Verbs.SwitchOnRadioVerbs))
+        if (action.MatchVerb(Verbs.TurnOnVerbs))
         {
             if (IsOn)
                 return new PositiveInteractionResult("It's already on. ");
@@ -73,7 +73,7 @@ public class Radio : ItemBase, ICanBeExamined, ITurnBasedActor
             return new PositiveInteractionResult("The radio comes on with a wash of static. ");
         }
 
-        if (action.MatchVerb(Verbs.SwitchOffRadioVerbs))
+        if (action.MatchVerb(Verbs.TurnOffVerbs))
         {
             if (!IsOn)
                 return new PositiveInteractionResult("It's already off. ");

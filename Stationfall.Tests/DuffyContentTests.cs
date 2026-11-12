@@ -112,6 +112,22 @@ public class DuffyContentTests : EngineTestsBase
             (await _target.GetResponse("listen to radio")).Should().Contain("isn't on");
         }
 
+        // Verbs.TurnOnVerbs / TurnOffVerbs: the radio answers the same words as anything else that
+        // switches on and off.
+        [TestCase("start radio", "stop radio")]
+        [TestCase("enable radio", "disable radio")]
+        [TestCase("activate radio", "silence radio")]
+        public async Task GoesOnAndOff_InAnyOfTheWordsForIt(string on, string off)
+        {
+            await BoardTheTruck();
+
+            await _target.GetResponse(on);
+            Repository.GetItem<Radio>().IsOn.Should().BeTrue($"\"{on}\" switches it on");
+
+            await _target.GetResponse(off);
+            Repository.GetItem<Radio>().IsOn.Should().BeFalse($"\"{off}\" switches it off");
+        }
+
         [Test]
         public async Task TurnsOnAndOff()
         {

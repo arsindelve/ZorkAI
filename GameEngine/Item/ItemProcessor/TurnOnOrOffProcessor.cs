@@ -26,10 +26,12 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case var verb when Verbs.TurnOnVerbs.Contains(verb):
+            // LightVerbs and ExtinguishVerbs are the flame words ("light", "strike", "blow out"). They are
+            // answered here and nowhere else, so a robot or a radio is not switched on by being struck.
+            case var verb when Verbs.TurnOnVerbs.Contains(verb) || Verbs.LightVerbs.Contains(verb):
                 return Task.FromResult(ProcessOn(context, item));
 
-            case var verb when Verbs.TurnOffVerbs.Contains(verb):
+            case var verb when Verbs.TurnOffVerbs.Contains(verb) || Verbs.ExtinguishVerbs.Contains(verb):
                 return Task.FromResult(ProcessOff(context, item, client));
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,

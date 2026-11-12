@@ -289,8 +289,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(Verbs.SwitchOnFloydVerbs, NounsForMatching)) return _powerManager.Activate(context);
-        if (action.Match(Verbs.SwitchOffFloydVerbs, NounsForMatching)) return _powerManager.Deactivate(context);
+        if (action.Match(Verbs.TurnOnVerbs, NounsForMatching)) return _powerManager.Activate(context);
+        if (action.Match(Verbs.TurnOffVerbs, NounsForMatching)) return _powerManager.Deactivate(context);
         
         if (HasDied)
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
