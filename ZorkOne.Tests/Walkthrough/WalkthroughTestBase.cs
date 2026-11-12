@@ -7,14 +7,16 @@ using GameEngine.IntentEngine;
 using JetBrains.Annotations;
 using Model.Interface;
 using Moq;
+using UnitTests.Parser.Walkthroughs;
 using ZorkOne.ActorInteraction;
+using ZorkOne.GlobalCommand;
 using ZorkOne.Item;
 using ZorkOne.Location;
 using ZorkOne.Location.MazeLocation;
 
 namespace ZorkOne.Tests.Walkthrough;
 
-public abstract class WalkthroughTestBase : EngineTestsBase
+public abstract class WalkthroughTestBase : EngineTestsBase, IStudiedWalkthrough
 {
     private readonly DynamoDbSessionRepository _database = new();
     private Mock<IRandomChooser> _adventurerChooser;
@@ -22,6 +24,13 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     private Mock<IRandomChooser> _thiefAppears;
     private Mock<IRandomChooser> _caveSouthChooser;
     private GameEngine<ZorkI, ZorkIContext> _target;
+    private ProbeParser _parser;
+
+    /// <summary>
+    ///     Lets a tool look at each step before it is taken (see <see cref="WalkthroughHarvest" />). Null in
+    ///     an ordinary test run, where it costs nothing.
+    /// </summary>
+    public Func<GameUnderStudy, string, Task>? BeforeEachStep { get; set; }
 
     /// <summary>
     /// Which intent parser the walkthrough runs through. Defaults to the standard <see cref="TestParser" />
@@ -34,7 +43,10 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     [OneTimeSetUp]
     public void Init()
     {
-        _target = GetTarget(BuildParser());
+        // The parser is wrapped so that a tool studying the walkthrough can see what the engine was
+        // handed for each sentence. It passes everything through.
+        _parser = new ProbeParser(BuildParser() ?? new TestParser(new ZorkOneGlobalCommandFactory()));
+        _target = GetTarget(_parser);
 
         _adventurerChooser = new Mock<IRandomChooser>();
         _attackerChooser = new Mock<IRandomChooser>();
@@ -53,6 +65,17 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         _thiefAppears.Setup(s => s.RollDiceSuccess(ThiefRobsYouEngine.ThiefRobsYouChance)).Returns(false);
         
         _caveSouthChooser.Setup(s => s.RollDiceSuccess(2)).Returns(true);
+
+        PinTheDice();
+    }
+
+    /// <summary>
+    ///     Attaches the fixed outcomes above to the game's objects. They are not part of a saved game, so a
+    ///     tool that restores one mid-walkthrough calls this again for the objects the restore built.
+    /// </summary>
+    private void PinTheDice()
+    {
+        Context = _target.Context;
 
         GetItem<Thief>().ThiefRobbingEngine = new ThiefRobsYouEngine(_thiefAppears.Object);
         GetItem<Thief>().ThiefAttackedEngine = new AdventurerVersusThiefCombatEngine(_adventurerChooser.Object);
@@ -92,6 +115,9 @@ public abstract class WalkthroughTestBase : EngineTestsBase
 
     protected async Task Do(string input, params string[] outputs)
     {
+        if (BeforeEachStep is not null)
+            await BeforeEachStep(GameUnderStudy.Of(_target, _parser, PinTheDice), input);
+
         var result = await _target.GetResponse(input);
         if (Debugger.IsAttached)
         {

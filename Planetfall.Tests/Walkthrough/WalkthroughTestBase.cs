@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Model.Interface;
 using Moq;
 using Planetfall.AI;
+using Planetfall.GlobalCommand;
 using Planetfall.Item.Computer;
 using Planetfall.Item.Feinstein;
 using Planetfall.Item.Kalamontee.Mech;
@@ -15,13 +16,22 @@ using Planetfall.Item.Kalamontee.Mech.FloydPart;
 using Planetfall.Item.Lawanda.BioLab;
 using Planetfall.Location.Feinstein;
 using Planetfall.Location.Kalamontee.Admin;
+using UnitTests;
+using UnitTests.Parser.Walkthroughs;
 
 namespace Planetfall.Tests.Walkthrough;
 
-public abstract class WalkthroughTestBase : EngineTestsBase
+public abstract class WalkthroughTestBase : EngineTestsBase, IStudiedWalkthrough
 {
     private readonly DynamoDbSessionRepository _database = new();
     private GameEngine<PlanetfallGame, PlanetfallContext> _target;
+    private ProbeParser _parser;
+
+    /// <summary>
+    ///     Lets a tool look at each step before it is taken (see <see cref="WalkthroughHarvest" />). Null in
+    ///     an ordinary test run, where it costs nothing.
+    /// </summary>
+    public Func<GameUnderStudy, string, Task>? BeforeEachStep { get; set; }
     private Mock<IRandomChooser> _floydChooser;
     private Mock<IRandomChooser> _laserChooser;
     private Mock<IRandomChooser> _chaseChooser;
@@ -61,7 +71,7 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     [OneTimeSetUp]
     public void Init()
     {
-        _target = GetTarget(BuildParser());
+        _target = GetTarget(Wrapped());
 
         // Set up ParseConversation to recognize "floyd, go north" as conversation
         ParseConversationMock.Setup(x => x.ParseAsync("floyd, go north"))
@@ -148,13 +158,50 @@ public abstract class WalkthroughTestBase : EngineTestsBase
     /// </summary>
     protected void StartOver()
     {
-        _target = GetTarget();
+        _target = GetTarget(Wrapped());
+    }
+
+    /// <summary>
+    ///     The walkthrough's parser, wrapped so that a tool studying the walkthrough can see what the
+    ///     engine was handed for each sentence. It passes everything through.
+    /// </summary>
+    private ProbeParser Wrapped()
+    {
+        return _parser = new ProbeParser(
+            BuildParser() ?? new TestParser(new PlanetfallGlobalCommandFactory(), "Planetfall"));
     }
 
     /// <summary>The engine's actual response text, for tools that need it (not just the assertions).</summary>
     protected string LastResponse { get; private set; } = string.Empty;
 
     protected async Task Do(string input, params string[] outputs)
+    {
+        PinTheDice();
+
+        if (BeforeEachStep is not null)
+            await BeforeEachStep(GameUnderStudy.Of(_target, _parser, PinTheDice), input);
+
+        var result = await _target.GetResponse(input);
+        LastResponse = result ?? string.Empty;
+        if (Debugger.IsAttached)
+        {
+            Console.WriteLine(result);
+            var sessionId = Environment.MachineName + "8";
+            var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
+            var encodedText = Convert.ToBase64String(bytesToEncode);
+            await _database.WriteSessionState(sessionId, encodedText, _target.SessionTableName);
+        }
+
+        foreach (var output in outputs)
+            result.Should().Contain(output);
+    }
+
+    /// <summary>
+    ///     Attaches the fixed outcomes to the game's objects. They are not part of a saved game or of a
+    ///     game restarted after a death, so this runs before every step - and again whenever a tool
+    ///     restores a saved game mid-walkthrough.
+    /// </summary>
+    private void PinTheDice()
     {
         var floyd = Repository.GetItem<Floyd>();
         floyd.Chooser = _floydChooser.Object;
@@ -171,20 +218,6 @@ public abstract class WalkthroughTestBase : EngineTestsBase
         Repository.GetLocation<AdminCorridorSouth>().Chooser = _adminCorridorSouthChooser.Object;
         Repository.GetItem<Ambassador>().Chooser = _ambassadorChooser.Object;
         Repository.GetItem<Microbe>().Chooser = _microbeChooser.Object;
-
-        var result = await _target.GetResponse(input);
-        LastResponse = result ?? string.Empty;
-        if (Debugger.IsAttached)
-        {
-            Console.WriteLine(result);
-            var sessionId = Environment.MachineName + "8";
-            var bytesToEncode = Encoding.UTF8.GetBytes(_target.Context.Engine!.SaveGame());
-            var encodedText = Convert.ToBase64String(bytesToEncode);
-            await _database.WriteSessionState(sessionId, encodedText, _target.SessionTableName);
-        }
-
-        foreach (var output in outputs)
-            result.Should().Contain(output);
     }
 
     protected async Task DoWithSetup(string input, string? setup, params string[] outputs)

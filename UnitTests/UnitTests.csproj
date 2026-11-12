@@ -51,6 +51,7 @@
 
     <ItemGroup>
       <EmbeddedResource Include="IntentMappings\*.json" />
+      <EmbeddedResource Include="Parser\Walkthroughs\*.json" />
     </ItemGroup>
 
 </Project>

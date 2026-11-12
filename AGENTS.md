@@ -429,9 +429,14 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   grouping. Two consequences: a helper class that is neither an item nor a room owns no nouns, so the
   grammar never resolves what only it matches on; and a room whose handler matches a noun must own that
   noun - put it in the room's `SceneryNouns`.
-- Multi-word phrases ("pour out") are fine in a family, but the deterministic parser acts only on single
-  words plus its small `MultiWordVerbCanon` rewrite table ("turn on" → "activate"). Other phrases still
-  reach handlers through the AI parser.
+- Multi-word phrases ("pour out") are fine in a family. The deterministic parser reads a **two-word
+  phrase a game class matches on as typed, on that class's nouns** ("pour out the soup", "look into the
+  leaves") - the same ownership rule as its single-word verbs. On any other noun it acts only on single
+  words plus its small `MultiWordVerbCanon` rewrite table ("turn on" → "activate"); other phrases reach
+  handlers through the AI parser.
+- **The engine rewrites "look at / look in / look inside <noun>" to "examine <noun>" before any parser
+  runs** (`GameEngine.NormalizeLookAt`, issue #396). A handler that matches "look in" is therefore never
+  reached by those words as typed - only by a parser that answers "look in" for some other sentence.
 
 ### Parser Tests - one corpus, three layers, mock or live AI
 The parser is tested from one list of cases, `UnitTests/Parser/ParserCorpus.*.cs`: a line of player
@@ -456,6 +461,24 @@ input, the room it is typed in, and what it must mean (`Act("open", "mailbox")`,
 - **Changing AI provider**: implement `IAIParser`, return it from `LiveAiParserContractTests.CreateAi`, and
   render `ModelAnswer` as the new provider's response in `ScriptedAiParserContractTests`. The cases and the
   contract do not change.
+- **The corpus also holds cases nobody wrote: every sentence a walkthrough types that changes the
+  game.** `UnitTests/Parser/Walkthroughs/walkthrough.<game>.json` lists each one with the room it is
+  typed in and every reading of it the game answers identically - other verbs of the same grouping,
+  other names of the same object, the grammar's own reading. `ParserCorpus.Walkthroughs.cs` loads them as
+  ordinary cases, so the scripted and live contract tests cover them with no harness of their own. These
+  are the commands that need setup or two nouns ("unlock grate with key"); the walkthrough is the setup.
+  The file is generated, never edited: `WalkthroughHarvest` replays each walkthrough and, at every
+  sentence that reaches a parser, saves the game, tries a reading, restores, and keeps the reading when
+  the game ends in the same state. Regenerate after changing a walkthrough or a handler:
+  `dotnet test ZorkOne.Tests --filter "FullyQualifiedName~RegenerateTheWalkthroughInteractions"` (and
+  the same for `Planetfall.Tests`); a few minutes each.
+- **Every single-noun interaction that changes a fresh game is in
+  `<Game>.Tests/Parser/interactions.<game>.json`**: a room (and perhaps an item in hand), the verbs and
+  the nouns that have that effect. `InteractionSetTests` sends every wording through the production
+  parser and requires the game to end in the state it reaches when the engine is handed the verb and noun
+  directly. Also generated (`RegenerateTheInteractionSet`, about half an hour a game): `InteractionCensus`
+  aims every verb at every noun in every room and keeps what leaves the game different from a turn in
+  which nothing happened. Examining and reading change nothing, so they are not in it.
 - `DeterministicParserVocabularyTests` is exhaustive over each game's harvested vocabulary (every noun,
   verb and room name), and every walkthrough fixture has a `...DeterministicFirst` twin that replays it
   through the production grammar. `DeterministicParserCoverageTests` pins the walkthrough commands the

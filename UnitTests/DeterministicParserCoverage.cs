@@ -33,6 +33,19 @@ public static class DeterministicParserCoverage
             .ToList();
     }
 
+    /// <summary>Everything any walkthrough fixture types, whatever becomes of it.</summary>
+    public static IReadOnlySet<string> AllWalkthroughInput(Type walkthroughBase)
+    {
+        return walkthroughBase.Assembly.GetTypes()
+            .Where(t => t is { IsClass: true, IsAbstract: false } && t.IsSubclassOf(walkthroughBase))
+            .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            .SelectMany(m => m.GetCustomAttributes<TestCaseAttribute>())
+            .Select(a => (a.Arguments.FirstOrDefault() as string)?.Trim())
+            .Where(input => !string.IsNullOrEmpty(input))
+            .Select(input => input!)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
     /// <summary>The commands in <paramref name="commands" /> the parser hands to the AI.</summary>
     public static IReadOnlyList<string> Declined(string gameName, IEnumerable<string> commands)
     {

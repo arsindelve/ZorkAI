@@ -19,7 +19,20 @@ namespace UnitTests.Parser;
 /// </summary>
 public static partial class ParserCorpus
 {
-    public static IReadOnlyList<ParserCase> All { get; } = [..ZorkOne(), ..Planetfall(), ..Stationfall()];
+    public static IReadOnlyList<ParserCase> All { get; } = Everything();
+
+    private static IReadOnlyList<ParserCase> Everything()
+    {
+        var zork = ZorkOne().ToList();
+        var planetfall = Planetfall().ToList();
+
+        return
+        [
+            ..zork, ..FromWalkthroughs("ZorkOne", "walkthrough.zorkone.json", zork),
+            ..planetfall, ..FromWalkthroughs("Planetfall", "walkthrough.planetfall.json", planetfall),
+            ..Stationfall()
+        ];
+    }
 
     /// <summary>Cases that reach a parser: the grammar resolves them or the AI does.</summary>
     public static IEnumerable<TestCaseData> Parsed =>
