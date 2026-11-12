@@ -574,7 +574,7 @@ public class Chest : OpenAndCloseContainerBase, ICanBeExamined
 
     // Verbs are always a declared VerbFamily, never an inline list - that is how the game's vocabulary
     // knows every verb its objects answer. Families several objects answer live in Model/Verbs.cs;
-    // "search" is one of them. Only a set of words nothing else declares goes on the class itself.
+    // "search" is one of them. Only a single verb nothing else uses is declared on the class itself.
 
     // Support "search chest" and "look in chest"
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
@@ -773,7 +773,8 @@ public class Button : ItemBase, ICanBeExamined
 {
     public override string[] NounsForMatching => ["button", "red button", "big button"];
 
-    private static readonly VerbFamily PushVerbs = new("push", "press", "hit");
+    // Declared in Model/Verbs.cs, like every grouping of two or more verbs:
+    //     public static readonly VerbFamily PressButtonVerbs = new("push", "press", "hit", ...);
 
     public override string? CannotBeTakenDescription => "The button is attached to the wall.";
 
@@ -790,7 +791,7 @@ public class Button : ItemBase, ICanBeExamined
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(PushVerbs, NounsForMatching))
+        if (action.Match(Verbs.PressButtonVerbs, NounsForMatching))
         {
             // Do something when button is pressed
             if (context is YourGameContext gameContext)
@@ -1542,15 +1543,15 @@ public override Task<InteractionResult?> RespondToMultiNounInteraction(
     MultiNounIntent action, IContext context, IGenerationClient client)
 
 // Verbs are matched against a declared VerbFamily, never an inline list of strings.
-// Look in Model/Verbs.cs first - a family several objects answer is declared there, once:
-//     Verbs.UnlockVerbs ("unlock", "open"), Verbs.Exactly.Unlock (just "unlock"), Verbs.PushVerbs ...
-// Only words no other class declares go on the class that answers them, as a static readonly field:
-private static readonly VerbFamily RingVerbs = new("ring", "chime", "toll");
+// Every grouping of two or more verbs is declared in Model/Verbs.cs, once, and matched from there:
+//     Verbs.UnlockVerbs ("unlock", "open"), Verbs.PushVerbs, Verbs.RingBellVerbs ...
+// Only a single verb that nothing else uses is declared on the class that answers it:
+private static readonly VerbFamily DigVerb = new("dig");
 
 // Matching helpers
 action.Match(Verbs.UnlockVerbs, NounsForMatching)              // verb + this item
 action.Match(Verbs.UnlockVerbs, NounsForMatching, keyNouns, ["with", "using"])  // verb + item + item + preposition
-action.MatchVerb(RingVerbs)                                    // just verb matching
+action.MatchVerb(Verbs.RingBellVerbs)                          // just verb matching
 ```
 
 ---

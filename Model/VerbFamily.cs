@@ -13,10 +13,10 @@ namespace Model;
 ///         (<c>Repository.GetVerbs</c>) can find by reflection.
 ///     </para>
 ///     <para>
-///         A family lives in one of two places. <see cref="Verbs" /> holds every family the engine
-///         answers and every family more than one class answers. The one item or room that answers a
-///         verb nothing else does declares it on itself, as a <c>static readonly</c> field:
-///         <code>private static readonly VerbFamily ShiftVerbs = new("move", "slide", "pull");</code>
+///         A family lives in one of two places. <see cref="Verbs" /> holds every collection of verbs -
+///         whoever answers it, an engine processor or a single rug. The one thing an item or room
+///         declares for itself is a single verb nothing else uses, as a <c>static readonly</c> field:
+///         <code>private static readonly VerbFamily DigVerb = new("dig");</code>
 ///         Never build one inline inside a method - it would work, and it would be invisible to the
 ///         harvest. <c>VerbFamilyDeclarationTests</c> fails the build when one is.
 ///     </para>

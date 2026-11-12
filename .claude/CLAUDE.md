@@ -387,17 +387,21 @@ This Lambda integration demonstrates how the core game engine's excellent archit
 - **Never match a verb against a loose list of strings.** `SimpleIntent` / `MultiNounIntent`
   `Match`, `MatchVerb` and `MatchInInput` take a `VerbFamily` (`Model/VerbFamily.cs`), not a `string[]`,
   so `action.MatchVerb(["pull", "yank"])` does not compile.
-- **Declare the family on whatever answers it**, as a `static readonly` field:
+- **Every collection of verbs is declared in `Model/Verbs.cs`**, once, as a grouping named for the action it
+  stands for, and matched from there:
   ```csharp
-  private static readonly VerbFamily ShiftVerbs = new("move", "slide", "pull", "rearrange");
-  ...
-  if (action.Match(ShiftVerbs, NounsForMatching)) ...
+  // Model/Verbs.cs
+  public static readonly VerbFamily SlideAsideVerbs = new("move", "slide", "pull", "rearrange");
+
+  // the rug's handler
+  if (action.Match(Verbs.SlideAsideVerbs, NounsForMatching)) ...
   ```
-  - several objects answer it → `Model/Verbs.cs` (`action.Match(Verbs.SearchVerbs, NounsForMatching)`)
-  - an engine processor or the parser answers it → `Model/Verbs.cs` as well (`Verbs.TurnOnVerbs`,
-    `Verbs.PutVerbs`). The engine declares no families of its own;
-    `VerbFamilyDeclarationTests.TheEngineDeclaresNoFamiliesOfItsOwn` fails if it does.
-  - one item or room answers it, and no other class declares those words → that class
+  - It does not matter who answers it - one object, several, an engine processor, the parser. Two words
+    or more go in `Verbs.cs`; `VerbFamilyDeclarationTests.ACollectionOfVerbsIsDeclaredInVerbsCs` fails on a
+    collection declared anywhere else.
+  - The engine declares no families at all (`...TheEngineDeclaresNoFamiliesOfItsOwn`).
+  - The one family a game class declares for itself is a **single verb that nothing else uses**:
+    `private static readonly VerbFamily DigVerb = new("dig");`
 - **The same words are never declared twice.** Before declaring a family, look in `Verbs.cs`; if another
   class already declares those exact words, move the family to `Verbs.cs` and use it from both.
   `VerbFamilyDeclarationTests.NoTwoFamiliesHoldTheSameWords` fails on a repeat and names both fields.
@@ -621,7 +625,7 @@ Commands allow players to interact with the game world. Here's how to add new ve
 **1. Declare the Verb Family Where It Is Answered**
 
 Every verb a handler matches belongs to a `VerbFamily` declared as a `static readonly` field (see
-"Verb Pattern (VerbFamily)"). If several objects will answer it, put it in the shared thesaurus:
+"Verb Pattern (VerbFamily)"). A grouping of two or more verbs always goes in the shared thesaurus:
 
 ```csharp
 // Model/Verbs.cs
@@ -637,9 +641,9 @@ public static class Verbs
 }
 ```
 
-If only one item or room answers it, declare it on that class instead - the vocabulary harvest
-(`Repository.GetVerbs`) finds it either way. A family an engine processor answers always goes in
-`Verbs.cs`.
+Only a single verb that nothing else uses is declared on the item or room that answers it. The
+vocabulary harvest (`Repository.GetVerbs`) finds a family in either place: what puts a `Verbs.cs` grouping
+in a game's vocabulary is that game's code matching on it.
 
 **2. Create a Command Processor**
 
@@ -1068,8 +1072,8 @@ _processors.Add(new PolishProcessor());
 | Create location | Location class | Inherit `LocationBase`, override exits |
 | Block direction | Location class | Return `null` from `GetNorth()` etc |
 | Require light | Location class | `IsLit => false` |
-| Add verb synonym | The `VerbFamily` that owns it (`Model/Verbs.cs` or the answering class) | Add the word to the family |
-| Answer a new verb | The answering class | Declare a `static readonly VerbFamily`, then `action.Match(...)` |
+| Add verb synonym | The grouping in `Model/Verbs.cs` | Add the word to the grouping |
+| Answer a new verb | `Model/Verbs.cs`, then the answering class | Add a grouping to `Verbs.cs`, then `action.Match(Verbs.X, ...)` |
 | Create command | `StaticCommand/Implementation/` | Implement `IStaticCommandProcessor` |
 | Custom interaction | `Item/ItemProcessor/` | Implement `IInteractionProcessor` |
 
