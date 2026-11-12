@@ -22,7 +22,7 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
         if (action.Match(Verbs.CleanOffVerbs, NounsForMatching))
             return new PositiveInteractionResult("Whew. You've cleaned up maybe one ten-thousandth of the slime. ");
 
-        if (action.Match(Verbs.TouchSlimeVerbs, NounsForMatching))
+        if (action.Match(Verbs.TouchVerbs, NounsForMatching))
             return new PositiveInteractionResult(CannotBeTakenDescription);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

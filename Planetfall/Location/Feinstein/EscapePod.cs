@@ -69,7 +69,7 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
         // in"/"get out" with the preposition lost), and standing up in the landed pod arms an
         // unrecoverable sinking clock - a hazard an ambiguous verb must never trigger. Only an explicit
         // leave/exit (or the raw "stand", handled by RespondToSpecificLocationInteraction) may unseat.
-        if (action.MatchVerb(Verbs.LeaveSeatVerbs))
+        if (action.MatchVerb(Verbs.DisembarkVerbs))
             return new PositiveInteractionResult(GetOut(context));
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

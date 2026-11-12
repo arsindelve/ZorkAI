@@ -30,7 +30,7 @@ public static class Verbs
     ///     The "put it down" family. A short list today (the engine only acts on "drop"), but centralized
     ///     so adding a synonym updates the processor and pronoun scoping together rather than drifting.
     /// </summary>
-    public static readonly VerbFamily DropVerbs = new("drop");
+    public static readonly VerbFamily DropVerbs = new("drop", "put down");
 
     public static readonly VerbFamily DrinkVerbs =
         new("swallow", "sip", "drink", "consume", "gulp", "guzzle", "slurp");
@@ -45,7 +45,7 @@ public static class Verbs
     public static readonly VerbFamily ApplyVerbs =
         new("use", "apply", "stick", "put", "place", "spread", "smear", "press");
     public static readonly VerbFamily PushVerbs =
-        new("push", "press", "activate", "toggle", "click", "flip", "switch", "depress");
+        new("push", "press", "activate", "toggle", "click", "flip", "switch", "depress", "hit", "punch");
 
     public static readonly VerbFamily MoveVerbs =
         new("move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape", "march", "wander", "venture",
@@ -193,8 +193,6 @@ public static class Verbs
     // item, so composing this inline would re-allocate on each dispatch before the noun check runs.
     public static readonly VerbFamily AttackVerbs = new([..KillVerbs, "kick"]);
 
-    public static readonly VerbFamily BoardSpacetruckVerbs = new("enter", "board", "get in", "climb in");
-
     public static readonly VerbFamily ChooseVerbs = new("pick", "choose", "select", "requisition", "hire");
 
     public static readonly VerbFamily CleanOffVerbs = new("clean", "scrub", "remove");
@@ -228,8 +226,6 @@ public static class Verbs
             "push", "depress", "shove", "move", "raise", "lift", "lower", "kick", "kiss"
         ]);
 
-    public static readonly VerbFamily EatGooVerbs = new("eat", "drink", "swallow");
-
     public static readonly VerbFamily EmptyKitVerbs = new("empty", "dump", "pour out", "tip out");
 
     public static readonly VerbFamily ExamineOrLookInVerbs = new("examine", "look in");
@@ -247,7 +243,11 @@ public static class Verbs
     public static readonly VerbFamily ForceOpenVerbs =
         new("open", "pry", "break", "jimmie", "crack", "force", "bust", "pop", "split");
 
-    public static readonly VerbFamily GetInBinVerbs = new("enter", "get in", "climb in", "sit in", "put", "put in");
+    /// <summary>
+    ///     Trying to use a robot bin as storage. Provisional: it belongs with the other "put a thing
+    ///     into a slot or a container" groupings once those are settled.
+    /// </summary>
+    public static readonly VerbFamily PutInBinVerbs = new("put", "put in");
 
     public static readonly VerbFamily GiveOrThrowVerbs = new([..GiveVerbs, ..ThrowVerbs]);
 
@@ -269,8 +269,6 @@ public static class Verbs
     public static readonly VerbFamily KnockVerbs = new("knock", "knock on");
 
     public static readonly VerbFamily LaunchVerbs = new("launch", "start", "drive", "fly", "turn on");
-
-    public static readonly VerbFamily LeaveSeatVerbs = new("leave", "exit");
 
     public static readonly VerbFamily ListenVerbs = new("listen", "listen to", "hear");
 
@@ -301,19 +299,11 @@ public static class Verbs
 
     public static readonly VerbFamily OpenOrSearchVerbs = new("open", "search");
 
-    public static readonly VerbFamily PickUpGooVerbs = new("take", "get", "pick up", "remove", "grab");
-
     public static readonly VerbFamily PlaceUnderSpoutVerbs = new("put", "place", "move", "shove", "jam", "push");
 
     public static readonly VerbFamily PourOutSoupVerbs = new("pour", "empty", "pour out", "dump", "spill");
 
     public static readonly VerbFamily PourOutThermosVerbs = new("pour", "empty", "pour out", "dump");
-
-    public static readonly VerbFamily PressButtonVerbs = new("push", "press", "hit", "punch", "activate", "turn on");
-
-    public static readonly VerbFamily PressDiaryButtonVerbs = new("press", "push", "use");
-
-    public static readonly VerbFamily PutDownGooVerbs = new("drop", "put down", "throw");
 
     public static readonly VerbFamily PutInThermosVerbs = new("put", "place", "insert", "drop");
 
@@ -358,9 +348,8 @@ public static class Verbs
 
     public static readonly VerbFamily TouchOrTasteVerbs = new("touch", "taste", "feel", "reach in", "reach into");
 
-    public static readonly VerbFamily TouchSlimeVerbs = new("touch", "feel");
-
-    public static readonly VerbFamily UseOnVerbs = new("use", "apply");
+    /// <summary>Using a thing, by itself or on something: "use the key on the padlock", "use the button".</summary>
+    public static readonly VerbFamily UseVerbs = new("use", "apply");
 
     public static readonly VerbFamily WalkOnVerbs = new("go", "walk", "move");
 
@@ -445,7 +434,7 @@ public static class Verbs
         new("look", "peer", "peek", "glance", "examine", "search", "inspect");
 
     /// <summary>"enter the boat" is a request to get into it, which is its own intent.</summary>
-    public static readonly VerbFamily BoardVerbs = new("enter", "board");
+    public static readonly VerbFamily BoardVerbs = new("enter", "board", "get in", "climb in", "sit in");
 
     /// <summary>
     ///     Getting out of a thing. Only the AI path builds that intent (with the door and sub-location

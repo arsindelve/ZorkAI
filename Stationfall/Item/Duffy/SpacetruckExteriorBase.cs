@@ -71,7 +71,7 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
             if (action.MatchVerb(Verbs.LaunchVerbs))
                 return new PositiveInteractionResult("You're not even in it! ");
 
-            if (action.MatchVerb(Verbs.BoardSpacetruckVerbs))
+            if (action.MatchVerb(Verbs.BoardVerbs))
                 return new PositiveInteractionResult(
                     Repository.GetItem<SpacetruckHatch>().IsOpen
                         ? "You'll have to go in. "

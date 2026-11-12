@@ -93,4 +93,23 @@ public class DiaryTests : EngineTestsBase
 
         response.Should().Contain("Nothing happens");
     }
+
+    // Verbs.PushVerbs and Verbs.UseVerbs: the diary's button is worked in the same words as any button.
+    [TestCase("press button")]
+    [TestCase("click button")]
+    [TestCase("depress button")]
+    [TestCase("hit button")]
+    [TestCase("use button")]
+    public async Task TheButton_IsPressed_HoweverThePlayerSaysIt(string input)
+    {
+        var target = GetTarget();
+        StartHere<DeckNine>();
+        Take<Diary>();
+
+        await AdvanceToEntry(target, 14);
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("Nothing happens");
+    }
 }

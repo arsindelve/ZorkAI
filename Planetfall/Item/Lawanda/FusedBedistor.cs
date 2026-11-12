@@ -34,7 +34,7 @@ public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
         var match = action.Match<Pliers>(Verbs.RemoveVerbs, NounsForMatching, ["with", "using"]);
 
         // Also support "use pliers on bedistor"
-        match |= action.Match<FusedBedistor>(Verbs.UseOnVerbs, Repository.GetItem<Pliers>().NounsForMatching, ["on"]);
+        match |= action.Match<FusedBedistor>(Verbs.UseVerbs, Repository.GetItem<Pliers>().NounsForMatching, ["on"]);
 
         if (match)
         {

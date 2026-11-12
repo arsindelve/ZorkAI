@@ -87,7 +87,7 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
         Repository.GetItem<Padlock>().AttachedToDoor.Should().BeTrue();
     }
 
-    // Verbs.UseOnVerbs: "apply the key to it" is "use the key on it".
+    // Verbs.UseVerbs: "apply the key to it" is "use the key on it".
     [Test]
     public async Task ApplyKeyOnPadlock_UnlocksPadlock()
     {

@@ -45,7 +45,7 @@ public abstract class RobotBin : ItemBase, ICanBeExamined
             return new PositiveInteractionResult(ExaminationDescription);
 
         // The original refuses to let you climb in or use a bin as storage, in as many words.
-        if (action.MatchVerb(Verbs.GetInBinVerbs))
+        if (action.MatchVerb(Verbs.BoardVerbs) || action.MatchVerb(Verbs.PutInBinVerbs))
             return new PositiveInteractionResult("The bin is only for robots. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

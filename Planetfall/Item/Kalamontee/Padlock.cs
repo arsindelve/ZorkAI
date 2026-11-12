@@ -68,7 +68,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             : NounsForMatching;
 
         var match = action.Match<Key>(Verbs.OpenLockVerbs, nounsToMatch, ["with", "using"]);
-        match |= action.Match(Verbs.UseOnVerbs, Repository.GetItem<Key>().NounsForMatching, nounsToMatch, ["on"]);
+        match |= action.Match(Verbs.UseVerbs, Repository.GetItem<Key>().NounsForMatching, nounsToMatch, ["on"]);
 
         if (match)
         {

@@ -29,7 +29,8 @@ public class RedButton : ItemBase, ICanBeExamined
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(Verbs.PressButtonVerbs))
+        // Switching a button on is pressing it.
+        if (action.MatchVerb(Verbs.PushVerbs) || action.MatchVerb(Verbs.TurnOnVerbs))
             return new PositiveInteractionResult(Press());
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

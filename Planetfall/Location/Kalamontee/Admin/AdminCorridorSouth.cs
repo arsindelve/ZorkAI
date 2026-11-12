@@ -98,7 +98,7 @@ public class AdminCorridorSouth : LocationBase, ITurnBasedActor
         match |= action.Match(Verbs.DropVerbs, magnetNouns, crackNouns, ["in", "into", "down", "down into"]);
 
         // "use" / "apply" the magnet on/in/against the crack or key.
-        match |= action.Match(Verbs.UseOnVerbs, magnetNouns, crackNouns,
+        match |= action.Match(Verbs.UseVerbs, magnetNouns, crackNouns,
             ["on", "in", "into", "to", "against", "near"]);
 
         // Magnetic-attraction framing — aim/point/touch the magnet AT or TO the key in the crack.
