@@ -9,6 +9,8 @@ namespace ZorkOne.Item;
 
 public class Canary : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase, IGivePointsWhenFirstPickedUp
 {
+    private static readonly VerbFamily WindVerbs = new("wind", "wind up", "crank", "twist", "turn");
+
     internal const string DestroyedMessage = "It seems to have recently had a bad experience. The mountings for " +
                                              "its jewel-like eyes are empty, and its silver beak is crumpled. " +
                                              "Through a cracked crystal window below its left wing you can see the " +
@@ -33,7 +35,7 @@ public class Canary : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTr
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.Match(["wind", "wind up", "crank", "twist", "turn"], NounsForMatching))
+        if (!action.Match(WindVerbs, NounsForMatching))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (IsDestroyed)

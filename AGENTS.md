@@ -374,6 +374,37 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   `Planetfall/Item/Feinstein/Ambassador.cs`. These make their randomness untestable; refactor to
   `Chooser` (and mock it) when modifying them.
 
+### Verb Pattern (VerbFamily) - verbs are declared, never inlined
+- **Never match a verb against a loose list of strings.** `SimpleIntent` / `MultiNounIntent`
+  `Match`, `MatchVerb` and `MatchInInput` take a `VerbFamily` (`Model/VerbFamily.cs`), not a `string[]`,
+  so `action.MatchVerb(["pull", "yank"])` does not compile.
+- **Declare the family on whatever answers it**, as a `static readonly` field:
+  ```csharp
+  private static readonly VerbFamily ShiftVerbs = new("move", "slide", "pull", "rearrange");
+  ...
+  if (action.Match(ShiftVerbs, NounsForMatching)) ...
+  ```
+  - several objects answer it → `Model/Verbs.cs`
+  - an engine capability answers it → its processor (e.g. `TurnOnOrOffProcessor.TurnOnVerbs`)
+  - one item or room answers it → that class
+- **Build on another family with a spread**: `new([..Verbs.KillVerbs, "kick"])`. The first word is the
+  family's canonical `Name`.
+- **Why**: `Repository.GetVerbs(gameName)` harvests every static `VerbFamily` field in the engine and the
+  game by reflection - the verb counterpart of `GetNouns`. The production `DeterministicParser` and the
+  tests' `TestParser` take their verb vocabulary from it; there is no hand-kept verb list anywhere, so a
+  verb a handler answers cannot be missing from the vocabulary. A family built inline inside a method
+  would still match and would be invisible to the harvest, so `VerbFamilyDeclarationTests` (UnitTests)
+  reads the compiled IL and fails if one is.
+- **Don't compare `action.Verb` to a string literal** (`action.Verb == "ring"`, `switch (action.Verb)`).
+  It compiles, and it hides the verb from the vocabulary exactly as an inline list did. Use a family:
+  `action.MatchVerb(RingVerb)`, or `RingVerb.Contains(verb)` on an already-normalised verb.
+- **Don't borrow a family with a different word set to save a line.** It silently widens or narrows what
+  the object answers. Declare a new one; merging near-duplicates is a deliberate change of its own.
+- Each game's vocabulary is its own: a verb only the ZorkOne rug declares is unknown to Planetfall's parser.
+- Multi-word phrases ("pour out") are fine in a family, but the deterministic parser acts only on single
+  words plus its small `MultiWordVerbCanon` rewrite table ("turn on" → "activate"). Other phrases still
+  reach handlers through the AI parser.
+
 ### AI Integration Guidelines  
 - **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls
 - **Context matters**: AI parsers receive location descriptions to better understand commands
@@ -497,10 +528,13 @@ For complex interactions, create an item processor:
 // GameEngine/Item/ItemProcessor/WearRingProcessor.cs
 public class WearRingProcessor : IInteractionProcessor
 {
+    // Verbs are always a declared VerbFamily - see "Verb Pattern (VerbFamily)".
+    private static readonly VerbFamily WearVerbs = new("wear", "put on");
+
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (!action.MatchVerb(["wear", "put on"]))
+        if (!action.MatchVerb(WearVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         var ring = Repository.GetItem<MagicRing>();
@@ -528,21 +562,27 @@ public class WearRingProcessor : IInteractionProcessor
 
 Commands allow players to interact with the game world. Here's how to add new verbs:
 
-**1. Add Verb to Verb Collections**
+**1. Declare the Verb Family Where It Is Answered**
+
+Every verb a handler matches belongs to a `VerbFamily` declared as a `static readonly` field (see
+"Verb Pattern (VerbFamily)"). If several objects will answer it, put it in the shared thesaurus:
 
 ```csharp
 // Model/Verbs.cs
 public static class Verbs
 {
-    // Add new verb array or extend existing one
-    public static readonly string[] WearVerbs = ["wear", "put on", "don"];
-    public static readonly string[] RemoveVerbs = ["remove", "take off", "doff"];
+    // A new family - the first word is the canonical verb
+    public static readonly VerbFamily WearVerbs = new("wear", "put on", "don");
+    public static readonly VerbFamily RemoveVerbs = new("remove", "take off", "doff");
 
-    // Or extend existing array
-    public static readonly string[] UseVerbs =
-        ["use", "apply", "activate", "press", "push", "wield"]; // added "wield"
+    // Or extend an existing family
+    public static readonly VerbFamily ApplyVerbs =
+        new("use", "apply", "stick", "put", "place", "spread", "smear", "press", "wield"); // added "wield"
 }
 ```
+
+If only one item, room or processor answers it, declare it on that class instead - the vocabulary
+harvest (`Repository.GetVerbs`) finds it either way.
 
 **2. Create a Command Processor**
 
@@ -575,10 +615,12 @@ For **item-specific commands**:
 // GameEngine/Item/ItemProcessor/ClimbProcessor.cs
 public class ClimbProcessor : IInteractionProcessor
 {
+    private static readonly VerbFamily ClimbVerbs = new("climb", "scale", "ascend");
+
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (!action.MatchVerb(["climb", "scale", "ascend"]))
+        if (!action.MatchVerb(ClimbVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         // Check if item can be climbed
@@ -912,11 +954,13 @@ For specialized item behaviors, create interaction processors:
 // GameEngine/Item/ItemProcessor/PolishProcessor.cs
 public class PolishProcessor : IInteractionProcessor
 {
+    private static readonly VerbFamily PolishVerbs = new("polish", "shine", "clean", "rub");
+
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
         // Only handle "polish" verb
-        if (!action.MatchVerb(["polish", "shine", "clean", "rub"]))
+        if (!action.MatchVerb(PolishVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         var item = Repository.GetItem(action.Noun);
@@ -967,7 +1011,8 @@ _processors.Add(new PolishProcessor());
 | Create location | Location class | Inherit `LocationBase`, override exits |
 | Block direction | Location class | Return `null` from `GetNorth()` etc |
 | Require light | Location class | `IsLit => false` |
-| Add verb synonym | `Model/Verbs.cs` | Add to appropriate array |
+| Add verb synonym | The `VerbFamily` that owns it (`Model/Verbs.cs` or the answering class) | Add the word to the family |
+| Answer a new verb | The answering class | Declare a `static readonly VerbFamily`, then `action.Match(...)` |
 | Create command | `StaticCommand/Implementation/` | Implement `IStaticCommandProcessor` |
 | Custom interaction | `Item/ItemProcessor/` | Implement `IInteractionProcessor` |
 

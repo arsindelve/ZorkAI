@@ -9,6 +9,8 @@ namespace ZorkOne.Location;
 
 internal class EntranceToHades : DarkLocation
 {
+    private static readonly VerbFamily RingVerbs = new("ring", "activate", "shake");
+
     public override string Name => "Entrance to Hades";
 
     public override string[] NounsForMatching => ["hell", "underworld"];
@@ -55,9 +57,8 @@ internal class EntranceToHades : DarkLocation
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        string[] verbs = ["ring", "activate", "shake"];
         if (Items.Contains(Repository.GetItem<Spirits>()) &&
-            action.Match(verbs, Repository.GetItem<BrassBell>().NounsForMatching))
+            action.Match(RingVerbs, Repository.GetItem<BrassBell>().NounsForMatching))
             return await RingTheBell(context);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

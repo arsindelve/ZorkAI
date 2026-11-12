@@ -4,6 +4,8 @@ namespace Planetfall.Item.Lawanda.PlanetaryDefense;
 
 public abstract class FromitzBoardBase : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 {
+    private static readonly VerbFamily RemoveVerb = new("remove");
+
     /// <summary>
     /// Remove "board" and "fromitz board" from the list of disambiguation nouns. The adventurer will have to be more specific. 
     /// </summary>
@@ -21,7 +23,7 @@ public abstract class FromitzBoardBase : ItemBase, ICanBeExamined, ICanBeTakenAn
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Redirect "remove" verb to the Take processor only when the board is inside the FromitzAccessPanel
-        if (!action.MatchVerb(["remove"]) ||
+        if (!action.MatchVerb(RemoveVerb) ||
             !action.MatchNoun(NounsForMatching) ||
             CurrentLocation is not FromitzAccessPanel)
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

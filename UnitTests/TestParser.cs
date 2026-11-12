@@ -21,18 +21,11 @@ public class TestParser : IntentParser
     public TestParser(IGlobalCommandFactory gameSpecificCommandFactory, string gameName = "ZorkOne") : base(
         Mock.Of<IAIParser>(), gameSpecificCommandFactory)
     {
-        _verbs =
-        [
-            "take", "drop", "open", "close", "examine", "inspect", "look", "eat", "press", "remove", "play", "shoot",
-            "deactivate", "type", "key", "punch", "push", "pull", "burn", "set", "search", "empty", "wear",
-            "drink", "use", "count", "touch", "read", "turn", "wave", "move", "ring", "activate", "search",
-            "smell", "turn on", "turn off", "throw", "light", "rub", "kiss", "wind", "kick", "deflate",
-            "lower", "raise", "get", "carry", "inflate", "leave", "unlock", "lock", "climb", "extend", "lift", "shake",
-            "oil", "lubricate", "cross", "through", "go", "break", "smash", "squeeze", "attack", "kill", "salute",
-            // Ordinary verbs the originals answer for that this parser could not see at all, so any
-            // object handling them looked unimplemented under test while working in play.
-            "pour", "crumple", "taste", "destroy"
-        ];
+        // Harvested, not listed: every word of every VerbFamily the engine or this game declares. This used
+        // to be a hand-kept array, which meant an object answering a verb the array lacked looked
+        // unimplemented under test while working in play. A handler can no longer answer a verb that is not
+        // in a family, so that can no longer happen.
+        _verbs = Repository.GetVerbs(gameName).SelectMany(family => family).Distinct().ToArray();
 
         _allNouns = Repository.GetNouns(gameName);
         _allContainers = Repository.GetContainers(gameName);

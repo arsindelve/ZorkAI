@@ -4,6 +4,8 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public abstract class BatteryBase : ItemBase
 {
+    private static readonly VerbFamily RemoveVerb = new("remove");
+
     public override int Size => 1;
 
     public override string[] NounsForPreciseMatching => NounsForMatching.Except(["battery"]).ToArray();
@@ -14,7 +16,7 @@ public abstract class BatteryBase : ItemBase
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Redirect "remove" verb to the Take processor only when the battery is inside the Laser
-        if (!action.MatchVerb(["remove"]) ||
+        if (!action.MatchVerb(RemoveVerb) ||
             !action.MatchNoun(NounsForMatching) ||
             CurrentLocation is not Laser)
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

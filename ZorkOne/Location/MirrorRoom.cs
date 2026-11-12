@@ -10,8 +10,8 @@ internal abstract class MirrorRoom : LocationBase, IThiefMayVisit
     // Breaking the mirror permanently disables the touch-to-teleport. Reuse the shared attack and break
     // synonym sets so the verb coverage stays consistent with the rest of the engine, plus "kick". Throw is
     // intentionally excluded: "throw the mirror" makes no sense for a wall-sized fixture. Built once, not per call.
-    private static readonly string[] BreakMirrorVerbs =
-        [..Verbs.KillVerbs, ..Verbs.BreakVerbs, "kick"];
+    private static readonly VerbFamily BreakMirrorVerbs =
+        new([..Verbs.KillVerbs, ..Verbs.BreakVerbs, "kick"]);
 
     public override string Name => "Mirror Room";
 

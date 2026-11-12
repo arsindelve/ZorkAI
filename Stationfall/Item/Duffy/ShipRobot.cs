@@ -9,6 +9,11 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class ShipRobot : ContainerBase, ICanBeExamined, ITurnBasedActor, ICanBeTalkedTo
 {
+    private static readonly VerbFamily ChooseVerbs = new("pick", "choose", "select", "requisition", "hire");
+    private static readonly VerbFamily PhysicalContactVerbs =
+        new("take", "get", "grab", "touch", "push", "pull", "move", "kick", "shake", "hit", "kiss", "attack", "kill",
+            "turn on", "turn off", "open", "close", "hug", "tickle");
+
     /// <summary>
     ///     Which bin this robot occupies, and therefore the number that selects it on the keypad.
     /// </summary>
@@ -155,16 +160,13 @@ public abstract class ShipRobot : ContainerBase, ICanBeExamined, ITurnBasedActor
         {
             // You cannot requisition a robot by asking for it; that is what the equipment is for, and
             // saying so is what points the player at the keypad.
-            if (action.MatchVerb(["pick", "choose", "select", "requisition", "hire"]))
+            if (action.MatchVerb(ChooseVerbs))
                 return new PositiveInteractionResult(PickResponse());
 
             // Only physical contact is blocked. The original gates on TOUCHING?, not on visibility -
             // and it matters: the passed-over robot's reaction is meant to be seen, so refusing to let
             // the player look at them would hide the one thing choosing has consequences for.
-            var isPhysical = action.MatchVerb([
-                "take", "get", "grab", "touch", "push", "pull", "move", "kick", "shake", "hit", "kiss",
-                "attack", "kill", "turn on", "turn off", "open", "close", "hug", "tickle"
-            ]);
+            var isPhysical = action.MatchVerb(PhysicalContactVerbs);
 
             if (isPhysical && !IsWithinReach && AnyRobotPicked)
                 return new PositiveInteractionResult($"You can't reach {Name} from here. ");

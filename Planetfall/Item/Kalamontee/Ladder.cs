@@ -5,6 +5,10 @@ namespace Planetfall.Item.Kalamontee;
 
 public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 {
+    private static readonly VerbFamily ExtendVerbs =
+        new("extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen");
+    private static readonly VerbFamily RetractVerbs = new("retract", "collapse", "shorten", "close", "contract");
+
     [UsedImplicitly] public bool IsAcrossRift { get; set; }
 
     [UsedImplicitly] public bool IsExtended { get; set; }
@@ -38,10 +42,10 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen"], NounsForMatching))
+        if (action.Match(ExtendVerbs, NounsForMatching))
             return ExtendTheLadder(context);
 
-        if (action.Match(["retract", "collapse", "shorten", "close", "contract"], NounsForMatching))
+        if (action.Match(RetractVerbs, NounsForMatching))
             return CollapseTheLadder();
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

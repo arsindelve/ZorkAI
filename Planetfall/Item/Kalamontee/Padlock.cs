@@ -6,6 +6,10 @@ namespace Planetfall.Item.Kalamontee;
 
 public class Padlock : ItemBase, ICanBeTakenAndDropped
 {
+    private static readonly VerbFamily RemoveVerbs = new("remove", "take");
+    private static readonly VerbFamily UnlockVerbs = new("unlock", "open");
+    private static readonly VerbFamily UseVerb = new("use");
+
     [UsedImplicitly] public bool Locked { get; set; } = true;
 
     [UsedImplicitly] public bool AttachedToDoor { get; set; } = true;
@@ -38,7 +42,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["remove", "take"], NounsForMatching))
+        if (action.Match(RemoveVerbs, NounsForMatching))
         {
             if (Locked && AttachedToDoor)
                 return new PositiveInteractionResult("The padlock is locked to the door. ");
@@ -48,7 +52,7 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             return new PositiveInteractionResult("Taken. ");
         }
 
-        if (action.Match(["unlock", "open"], NounsForMatching))
+        if (action.Match(UnlockVerbs, NounsForMatching))
         {
             if (!Locked)
                 return new PositiveInteractionResult("The padlock is already open. ");
@@ -67,8 +71,8 @@ public class Padlock : ItemBase, ICanBeTakenAndDropped
             ? [..NounsForMatching, "door"]
             : NounsForMatching;
 
-        var match = action.Match<Key>(["unlock", "open"], nounsToMatch, ["with", "using"]);
-        match |= action.Match(["use"], Repository.GetItem<Key>().NounsForMatching, nounsToMatch, ["on"]);
+        var match = action.Match<Key>(UnlockVerbs, nounsToMatch, ["with", "using"]);
+        match |= action.Match(UseVerb, Repository.GetItem<Key>().NounsForMatching, nounsToMatch, ["on"]);
 
         if (match)
         {

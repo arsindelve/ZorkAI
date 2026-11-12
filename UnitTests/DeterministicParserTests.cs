@@ -348,6 +348,41 @@ public class DeterministicParserPlanetfallTests
         simple.Noun.Should().Be(noun);
     }
 
+    [TestCase("pull the lever", "pull", "lever")]            // ShuttleControl.DecelerateVerbs
+    [TestCase("collapse the ladder", "collapse", "ladder")]  // Ladder.RetractVerbs
+    [TestCase("deactivate floyd", "deactivate", "floyd")]    // TurnOnOrOffProcessor.TurnOffVerbs
+    [TestCase("kiss floyd", "kiss", "floyd")]                // FloydSocialResponses.KissVerb
+    public void AVerbAHandlerDeclares_IsKnown_WithoutBeingListedInTheParser(string input, string verb, string noun)
+    {
+        // None of these verbs is in Verbs.cs, and the parser holds no verb list of its own. They are known
+        // because the object that answers them declares a VerbFamily, which Repository.GetVerbs harvests.
+        var result = _parser.Parse(input);
+
+        result.Should().BeOfType<SimpleIntent>();
+        var simple = (SimpleIntent)result!;
+        simple.Verb.Should().Be(verb);
+        simple.Noun.Should().Be(noun);
+    }
+
+    [TestCase("exit the blue door")]
+    [TestCase("leave the booth")]
+    [TestCase("exit web")]
+    public void LeavingSomething_FallsBackToAi_EvenThoughAnObjectDeclaresTheVerb(string input)
+    {
+        // The safety webbing answers "leave"/"exit", so both are in Planetfall's harvested vocabulary. But
+        // leaving a thing is the disembark intent, which only the AI path builds (with its door and
+        // sub-location handling). A SimpleIntent here would reach nothing for a door or a booth.
+        _parser.Parse(input).Should().BeNull();
+    }
+
+    [Test]
+    public void AVerbOnlyAnotherGameDeclares_FallsBackToAi()
+    {
+        // "rearrange" is the ZorkOne rug's verb. Each game's vocabulary is its own.
+        _parser.Parse("rearrange the ladder").Should().BeNull();
+        new DeterministicParser("ZorkOne").Parse("rearrange the rug").Should().BeOfType<SimpleIntent>();
+    }
+
     [Test]
     public void TravelPrefix_WithAWholeWordOfARoomName_BecomesGoToDestinationIntent()
     {

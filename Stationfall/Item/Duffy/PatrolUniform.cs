@@ -7,6 +7,8 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class PatrolUniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, IAmClothing
 {
+    private static readonly VerbFamily OpenCloseVerbs = new("open", "close", "shut", "unfasten", "fasten");
+
     public override string[] NounsForMatching => ["patrol uniform", "uniform"];
 
     // The pocket has no lid: you can always see what's in it.
@@ -40,7 +42,7 @@ public class PatrolUniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamine
         IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.MatchNounAndAdjective(NounsForMatching) &&
-            action.MatchVerb(["open", "close", "shut", "unfasten", "fasten"]))
+            action.MatchVerb(OpenCloseVerbs))
             return new PositiveInteractionResult(
                 "There's no way to open or close the pocket of the uniform. ");
 

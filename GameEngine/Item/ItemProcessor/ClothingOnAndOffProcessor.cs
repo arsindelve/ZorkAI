@@ -6,6 +6,11 @@ namespace GameEngine.Item.ItemProcessor;
 
 public class ClothingOnAndOffProcessor : IVerbProcessor
 {
+    // The canonical verb comes first: "don" / "doff" are what the parsers reduce "put on" / "take off" to.
+    private static readonly VerbFamily DonVerbs = new("don", "wear", "put on", "dress in", "slip on");
+
+    private static readonly VerbFamily DoffVerbs = new("doff", "take off", "remove", "discard", "slip off");
+
     /// <summary>
     ///     Processes the action of putting on or taking off an item of clothing. 
     /// </summary>
@@ -22,18 +27,10 @@ public class ClothingOnAndOffProcessor : IVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case "don":
-            case "wear":
-            case "put on":
-            case "dress in":
-            case "slip on":
+            case var verb when DonVerbs.Contains(verb):
                 return Task.FromResult(PutOn(item));
 
-            case "take off":
-            case "doff":
-            case "remove":
-            case "discard":
-            case "slip off":
+            case var verb when DoffVerbs.Contains(verb):
                 return Task.FromResult(TakeOff(item));
         }
 

@@ -10,6 +10,16 @@ namespace GameEngine.Item.ItemProcessor;
 /// </summary>
 public class TurnOnOrOffProcessor : IVerbProcessor
 {
+    // The canonical verb comes first: "activate" / "deactivate" are what the parsers reduce
+    // "turn on" / "turn off" to.
+    private static readonly VerbFamily TurnOnVerbs = new("activate", "turn on", "light", "strike", "enable");
+
+    private static readonly VerbFamily TurnOffVerbs =
+        new("deactivate", "turn off", "extinguish", "blow out", "disable");
+
+    // A bare "turn", when the parser could not tell on from off; the adverb decides.
+    private static readonly VerbFamily TurnVerb = new("turn");
+
     /// <summary>
     ///     Processes the action of turning on or off an object.
     /// </summary>
@@ -26,23 +36,15 @@ public class TurnOnOrOffProcessor : IVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case "light":
-            case "strike":
-            case "turn on":
-            case "activate":
-            case "enable":
+            case var verb when TurnOnVerbs.Contains(verb):
                 return Task.FromResult(ProcessOn(context, item));
 
-            case "turn off":
-            case "extinguish":
-            case "blow out":
-            case "deactivate":
-            case "disable":
+            case var verb when TurnOffVerbs.Contains(verb):
                 return Task.FromResult(ProcessOff(context, item, client));
 
             // Sometimes, the parser can't determine the adverb "on" or "off". It that case, hopefully,
             // the parser gave us the preposition (it's really an adverb, but save it for the semantics dome, E.B. White)  
-            case "turn":
+            case var verb when TurnVerb.Contains(verb):
                 return Task.FromResult(ProcessTurn(action, context, item, client));
         }
 

@@ -37,9 +37,13 @@ public record MultiNounIntent : IntentBase
         return nouns.Any(s => s.Equals(NounTwo, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    public bool MatchVerb(string[] verbs)
+    /// <summary>
+    ///     Verbs are matched only against a declared <see cref="VerbFamily" />; see
+    ///     <see cref="SimpleIntent.MatchVerb" />.
+    /// </summary>
+    public bool MatchVerb(VerbFamily verbs)
     {
-        return verbs.Any(s => s.Equals(Verb, StringComparison.InvariantCultureIgnoreCase));
+        return verbs.Matches(Verb);
     }
 
     public bool MatchPreposition(string[] prepositions)
@@ -47,7 +51,7 @@ public record MultiNounIntent : IntentBase
         return prepositions.Any(s => s.Equals(Preposition, StringComparison.InvariantCultureIgnoreCase));
     }
 
-    public bool Match(string[] verbs, string[] nounsOneForMatching, string[] nounsTwoForMatching,
+    public bool Match(VerbFamily verbs, string[] nounsOneForMatching, string[] nounsTwoForMatching,
         string[] prepositionsForMatching)
     {
         return MatchNounOne(nounsOneForMatching) && MatchNounTwo(nounsTwoForMatching) && MatchVerb(verbs) &&

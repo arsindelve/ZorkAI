@@ -10,6 +10,8 @@ namespace Planetfall.Location.Lawanda;
 
 internal class MiniaturizationBooth : LocationBase, ICardActivatedDevice
 {
+    private static readonly VerbFamily KeyInVerbs = new([..Verbs.TypeVerbs, "press", "push", "key"]);
+
     public override string Name => "Miniaturization Booth";
 
     public override string[] NounsForMatching => ["shrink booth", "miniaturizer"];
@@ -68,7 +70,7 @@ internal class MiniaturizationBooth : LocationBase, ICardActivatedDevice
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push", "key"]).ToArray()))
+        if (action.MatchVerb(KeyInVerbs))
         {
             // Issue #433: gate on the noun, not the verb alone. Without this, "push slot" / "press wall"
             // (a keypress verb on any noun) hit the keyboard logic instead of the actual noun, shadowing

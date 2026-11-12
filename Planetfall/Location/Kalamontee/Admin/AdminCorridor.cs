@@ -4,6 +4,9 @@ namespace Planetfall.Location.Kalamontee.Admin;
 
 internal class AdminCorridor : RiftLocationBase
 {
+    private static readonly VerbFamily PlaceLadderVerbs = new("move", "place", "put");
+    private static readonly VerbFamily UseVerb = new("use");
+
     public override string Name => "Admin Corridor";
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -58,14 +61,13 @@ internal class AdminCorridor : RiftLocationBase
         IContext context)
     {
         var ladder = GetItem<Ladder>();
-        string[] verbs = ["move", "place", "put"];
         var nounOne = ladder.NounsForMatching;
         string[] prepositions = ["across", "over"];
 
-        var match = action.Match(verbs, nounOne, RiftNouns, prepositions);
+        var match = action.Match(PlaceLadderVerbs, nounOne, RiftNouns, prepositions);
 
         // Also support "use ladder on rift"
-        match |= action.Match(["use"], nounOne, RiftNouns, ["on"]);
+        match |= action.Match(UseVerb, nounOne, RiftNouns, ["on"]);
 
         if (match)
         {

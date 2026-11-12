@@ -4,6 +4,8 @@ namespace Planetfall.Item.Kalamontee;
 
 public class TinCan : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
 {
+    private static readonly VerbFamily OpenVerb = new("open");
+
     public override string[] NounsForMatching => ["can", "tin can", "Spam and Egz"];
 
     public string ExaminationDescription =>
@@ -28,7 +30,7 @@ public class TinCan : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["open"], NounsForMatching))
+        if (action.Match(OpenVerb, NounsForMatching))
             return new PositiveInteractionResult(
                 "You certainly can't open it with your hands, and you don't seem to have found a can opener yet. ");
 

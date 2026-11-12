@@ -9,6 +9,10 @@ namespace ZorkOne.Item;
 
 public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
 {
+    private static readonly VerbFamily CountVerb = new("count");
+    private static readonly VerbFamily MoveSearchVerbs = new("move", "search");
+    private static readonly VerbFamily BurnVerb = new("burn");
+
     public override string[] NounsForMatching => ["leaves", "pile", "pile of leaves"];
 
     public override bool IsSoft => true;
@@ -50,10 +54,10 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
         IItemProcessorFactory itemProcessorFactory
         )
     {
-        if (action.Match(["count"], NounsForMatching))
+        if (action.Match(CountVerb, NounsForMatching))
             return new PositiveInteractionResult("There are 69,105 leaves here. ");
 
-        if (action.Match(["move", "search"], NounsForMatching))
+        if (action.Match(MoveSearchVerbs, NounsForMatching))
         {
             var clearing = Repository.GetLocation<Clearing>();
             var grating = Repository.GetItem<Grating>();
@@ -73,7 +77,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
             );
         }
 
-        if (action.Match(["burn"], NounsForMatching))
+        if (action.Match(BurnVerb, NounsForMatching))
         {
             var matches = Repository.GetItem<Matchbook>();
             var candles = Repository.GetItem<Candles>();

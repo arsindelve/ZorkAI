@@ -9,6 +9,11 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurnBasedActor
 {
+    private static readonly VerbFamily ThrowOrDropVerbs = new([..Verbs.ThrowVerbs, ..Verbs.DropVerbs]);
+    private static readonly VerbFamily SetDialVerbs = new("turn", "set");
+    private static readonly VerbFamily FireLaserVerbs = new("shoot", "fire", "activate", "discharge");
+    private static readonly VerbFamily ShootAtVerbs = new("shoot", "fire");
+
     [UsedImplicitly] [JsonIgnore]
     public IRandomChooser Chooser { get; set; } = new RandomChooser();
 
@@ -122,7 +127,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["turn", "set"], ["dial", "laser", "setting"]))
+        if (action.Match(SetDialVerbs, ["dial", "laser", "setting"]))
         {
             // Try to extract text after "to" from the original input (handles "set laser to one" or "set laser to blue" case)
             var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
@@ -133,7 +138,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
         }
 
-        if (action.Match(["shoot", "fire", "activate", "discharge"], NounsForMatching))
+        if (action.Match(FireLaserVerbs, NounsForMatching))
             return Task.FromResult<InteractionResult?>(
                 ShootLaser(context));
 
@@ -291,7 +296,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         // Handle "throw/drop laser off the strip / into the void" — only while on the strip itself.
-        if (action.MatchVerb([..Verbs.ThrowVerbs, ..Verbs.DropVerbs]) &&
+        if (action.MatchVerb(ThrowOrDropVerbs) &&
             action.MatchPreposition(["off", "over", "into", "in", "down"]) &&
             action.MatchNounOne(NounsForMatching) &&
             action.MatchNounTwo(StripNouns) &&
@@ -299,7 +304,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             return Task.FromResult<InteractionResult?>(ThrowOffStrip(context));
 
         // Handle "shoot X with laser" - laser is NounTwo, target is NounOne
-        if (action.MatchVerb(["shoot", "fire"]) &&
+        if (action.MatchVerb(ShootAtVerbs) &&
             action.MatchPreposition(["with"]) &&
             action.MatchNounTwo(NounsForMatching))
         {
@@ -315,7 +320,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         }
 
         // Handle "shoot laser at X" - laser is NounOne, target is NounTwo
-        if (action.MatchVerb(["shoot", "fire"]) &&
+        if (action.MatchVerb(ShootAtVerbs) &&
             action.MatchPreposition(["at"]) &&
             action.MatchNounOne(NounsForMatching))
         {
@@ -330,7 +335,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             return Task.FromResult<InteractionResult?>(ShootLaserAt(action.NounTwo, context));
         }
 
-        if (!action.MatchVerb(["turn", "set"]))
+        if (!action.MatchVerb(SetDialVerbs))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!action.MatchPreposition(["to"]))

@@ -4,6 +4,9 @@ namespace Planetfall.Item.Lawanda;
 
 public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
 {
+    private static readonly VerbFamily TakeRemoveVerbs = new("take", "remove");
+    private static readonly VerbFamily UseVerb = new("use");
+
     public override string[] NounsForMatching => ["fused ninety-ohm bedistor", "ninety-ohm bedistor", "bedistor", "fused", "fused bedistor"];
 
     public override string? CannotBeTakenDescription =>
@@ -31,10 +34,10 @@ public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
         if (CurrentLocation is not LargeMetalCube cube)
             return await base.RespondToMultiNounInteraction(action, context);
 
-        var match = action.Match<Pliers>(["take", "remove"], NounsForMatching, ["with", "using"]);
+        var match = action.Match<Pliers>(TakeRemoveVerbs, NounsForMatching, ["with", "using"]);
 
         // Also support "use pliers on bedistor"
-        match |= action.Match<FusedBedistor>(["use"], Repository.GetItem<Pliers>().NounsForMatching, ["on"]);
+        match |= action.Match<FusedBedistor>(UseVerb, Repository.GetItem<Pliers>().NounsForMatching, ["on"]);
 
         if (match)
         {

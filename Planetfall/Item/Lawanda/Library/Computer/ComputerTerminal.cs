@@ -6,6 +6,8 @@ namespace Planetfall.Item.Lawanda.Library.Computer;
 
 public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAndOn
 {
+    private static readonly VerbFamily KeyInVerbs = new([..Verbs.TypeVerbs, "press", "push"]);
+
     [UsedImplicitly] public MenuState MenuState { get; set; } = new();
 
     public override string[] NounsForMatching =>
@@ -50,7 +52,7 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
         // Handle phrasings where the player names both the key and the terminal/keyboard as
         // separate nouns, e.g. "type 1 on the keyboard" or "key 4 on the terminal". One noun
         // must refer to this terminal; the other is the number to key in.
-        if (!action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push"]).ToArray()))
+        if (!action.MatchVerb(KeyInVerbs))
             return await base.RespondToMultiNounInteraction(action, context);
 
         var nounOneIsTerminal = action.MatchNounOne(NounsForMatching);
@@ -67,7 +69,7 @@ public class ComputerTerminal : ItemBase, ICanBeExamined, ICanBeRead, ITurnOffAn
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push"]).ToArray()))
+        if (!action.MatchVerb(KeyInVerbs))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         return ProcessKeyPress(action.Noun.ToInteger(), context);

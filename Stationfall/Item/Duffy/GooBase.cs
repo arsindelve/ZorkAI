@@ -8,6 +8,10 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class GooBase : ItemBase, ICanBeExamined, ICanBeEaten
 {
+    private static readonly VerbFamily EatVerbs = new("eat", "drink", "swallow");
+    private static readonly VerbFamily PickUpVerbs = new("take", "get", "pick up", "remove", "grab");
+    private static readonly VerbFamily PutDownVerbs = new("drop", "put down", "throw");
+
     /// <summary>
     ///     What the ration is optimistically labelled as.
     /// </summary>
@@ -31,7 +35,7 @@ public abstract class GooBase : ItemBase, ICanBeExamined, ICanBeEaten
         // Eating it where it sits is the ONLY thing that works, so it has to work even though the kit
         // is on the deck rather than in your hands (ship.zil GOO-F gates on being in the kit, not on
         // the player holding it).
-        if (action.MatchVerb(["eat", "drink", "swallow"]))
+        if (action.MatchVerb(EatVerbs))
         {
             var (message, consumed) = OnEating(context);
 
@@ -45,12 +49,12 @@ public abstract class GooBase : ItemBase, ICanBeExamined, ICanBeEaten
             return new PositiveInteractionResult(message);
         }
 
-        if (action.MatchVerb(["take", "get", "pick up", "remove", "grab"]))
+        if (action.MatchVerb(PickUpVerbs))
             return new PositiveInteractionResult(
                 "It would ooze through your fingers. You'll have to eat it right out of the survival " +
                 "kit. ");
 
-        if (action.MatchVerb(["drop", "put down", "throw"]))
+        if (action.MatchVerb(PutDownVerbs))
             return new PositiveInteractionResult(
                 "The goo, being gooey, sticks where it is. You'll have to eat it right out of the " +
                 "survival kit. ");

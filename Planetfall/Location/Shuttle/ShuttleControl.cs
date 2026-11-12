@@ -50,8 +50,8 @@ public abstract class ShuttleControl<TCabin, TControl> : LocationWithNoStartingI
         }
     };
 
-    private static readonly string[] AccelerateVerbs = ["push"];
-    private static readonly string[] DecelerateVerbs = ["pull"];
+    private static readonly VerbFamily AccelerateVerbs = new("push");
+    private static readonly VerbFamily DecelerateVerbs = new("pull");
     private static readonly string[] LeverNouns = ["lever", "controls", "control lever"];
 
     public bool DoorIsClosed => TunnelPosition is > StartOfTunnel and < EndOfTunnel;

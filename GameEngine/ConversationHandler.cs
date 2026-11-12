@@ -149,7 +149,7 @@ public class ConversationHandler(
     /// </summary>
     private static bool OpensWithAGameVerb(string input)
     {
-        string[][] families =
+        VerbFamily[] families =
         [
             Verbs.ExamineVerbs, Verbs.LookVerbs, Verbs.TakeVerbs, Verbs.DropVerbs, Verbs.OpenVerbs,
             Verbs.CloseVerbs, Verbs.PushVerbs, Verbs.MoveVerbs, Verbs.KillVerbs, Verbs.BreakVerbs,

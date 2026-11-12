@@ -9,6 +9,10 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class Thermos : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 {
+    private static readonly VerbFamily PourVerbs = new("pour", "empty", "pour out", "dump");
+    private static readonly VerbFamily LookInVerbs = new("look in", "look inside", "reach in", "reach into");
+    private static readonly VerbFamily PutVerbs = new("put", "place", "insert", "drop");
+
     public override string[] NounsForMatching => ["thermos", "bottle", "thermos bottle"];
 
     public override int Size => 4;
@@ -41,7 +45,7 @@ public class Thermos : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeE
 
             // Emptying the Thermos means emptying what is in it, which is worth doing deliberately:
             // the soup is gone for good, and the bottle matters later.
-            if (action.MatchVerb(["pour", "empty", "pour out", "dump"]) && Items.Contains(soup))
+            if (action.MatchVerb(PourVerbs) && Items.Contains(soup))
             {
                 RemoveItem(soup);
                 soup.CurrentLocation = null;
@@ -51,7 +55,7 @@ public class Thermos : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeE
                     "smell of blueberries fills the place. ");
             }
 
-            if (action.MatchVerb(["look in", "look inside", "reach in", "reach into"]))
+            if (action.MatchVerb(LookInVerbs))
                 return new PositiveInteractionResult(
                     Items.Contains(soup) ? soup.ExaminationDescription : "The Thermos is empty. ");
         }
@@ -68,7 +72,7 @@ public class Thermos : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeE
         IContext context)
     {
         var isPuttingSomethingIn =
-            action.MatchVerb(["put", "place", "insert", "drop"]) &&
+            action.MatchVerb(PutVerbs) &&
             action.MatchNounTwo(NounsForMatching) &&
             action.Preposition is "in" or "into" or "inside";
 

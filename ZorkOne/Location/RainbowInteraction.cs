@@ -8,8 +8,11 @@ namespace ZorkOne.Location;
 
 internal static class RainbowInteraction
 {
+    private static readonly VerbFamily LookVerb = new("look");
+    private static readonly VerbFamily GoVerbs = new("go", "walk", "move");
+
     private static readonly string[] RainbowNouns = ["rainbow"];
-    private static readonly string[] CrossRainbowVerbs = ["cross", "through", "traverse"];
+    private static readonly VerbFamily CrossRainbowVerbs = new("cross", "through", "traverse");
 
     public static InteractionResult? TryHandle(SimpleIntent action, IContext context, Func<ILocation?> destinationWhenSolid)
     {
@@ -36,13 +39,13 @@ internal static class RainbowInteraction
 
     private static bool IsLookUnderRainbow(SimpleIntent action)
     {
-        return action.MatchVerb(["look"]) && IsAdverbOrOriginalInput(action, "under");
+        return action.MatchVerb(LookVerb) && IsAdverbOrOriginalInput(action, "under");
     }
 
     private static bool IsCrossingRainbow(SimpleIntent action)
     {
         return action.MatchVerb(CrossRainbowVerbs) ||
-               action.MatchVerb(["go", "walk", "move"]) && IsAdverbOrOriginalInput(action, "through");
+               action.MatchVerb(GoVerbs) && IsAdverbOrOriginalInput(action, "through");
     }
 
     private static bool IsAdverbOrOriginalInput(SimpleIntent action, string preposition)

@@ -8,6 +8,8 @@ namespace Planetfall.Item.Feinstein;
 
 internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICanBeTalkedTo
 {
+    private static readonly VerbFamily SaluteVerb = new("salute");
+
     // Factory-resolved: cloud Lambda normally, local model in self-hosted mode (issue #383).
     [UsedImplicitly] [JsonIgnore]
     public IChatWithBlather ChatWithBlather { get; set; } = CompanionChatFactory.Blather(BlatherPrompts.SystemPrompt);
@@ -37,7 +39,7 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
     // ATTACK/KICK are fatal (BLATHER-F, globals.zil:751-753). Built once, not per call (mirroring
     // ZorkOne/Location/MirrorRoom.cs): the location forwards every simple command to every present
     // item, so composing this inline would re-allocate on each dispatch before the noun check runs.
-    private static readonly string[] FatalVerbs = [..Verbs.KillVerbs, "kick"];
+    private static readonly VerbFamily FatalVerbs = new([..Verbs.KillVerbs, "kick"]);
 
     // TAKE (BLATHER-F, globals.zil:770-772). Expressed as CannotBeTakenDescription so both the
     // simple-intent path (CannotBeTakenProcessor) and the AI-tagged TakeIntent path (TakeIt) respond.
@@ -53,7 +55,7 @@ internal class Blather : QuirkyCompanion, IAmANamedPerson, ITurnBasedActor, ICan
                 "Blather removes several of your appendages and internal organs.", context);
 
         // SALUTE (BLATHER-F, globals.zil:754-757).
-        if (action.Match(["salute"], NounsForMatching))
+        if (action.Match(SaluteVerb, NounsForMatching))
             return new PositiveInteractionResult(
                 "Blather's sneer softens a bit. \"First right thing you've done today. Only five demerits.\" ");
 

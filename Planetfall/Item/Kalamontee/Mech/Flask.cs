@@ -6,6 +6,8 @@ namespace Planetfall.Item.Kalamontee.Mech;
 
 public class Flask : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
 {
+    private static readonly VerbFamily EmptyVerbs = new("empty", "dump", "pour");
+
     public override string[] NounsForMatching => ["glass flask", "flask", "large glass flask"];
 
     public string? LiquidColor { get; set; }
@@ -57,7 +59,7 @@ public class Flask : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
             return Task.FromResult<InteractionResult?>(result);
         }
 
-        if (action.Match(["empty", "dump", "pour"], NounsForMatching))
+        if (action.Match(EmptyVerbs, NounsForMatching))
         {
             if (string.IsNullOrEmpty(LiquidColor))
                 return Task.FromResult<InteractionResult?>(

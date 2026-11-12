@@ -9,6 +9,10 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class RobotBin : ItemBase, ICanBeExamined
 {
+    private static readonly VerbFamily LookInVerbs =
+        new("look in", "look inside", "search", "examine", "inspect", "look at");
+    private static readonly VerbFamily EnterVerbs = new("enter", "get in", "climb in", "sit in", "put", "put in");
+
     /// <summary>
     ///     Which bin this is, and therefore which robot stands in it.
     /// </summary>
@@ -41,11 +45,11 @@ public abstract class RobotBin : ItemBase, ICanBeExamined
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(["look in", "look inside", "search", "examine", "inspect", "look at"]))
+        if (action.MatchVerb(LookInVerbs))
             return new PositiveInteractionResult(ExaminationDescription);
 
         // The original refuses to let you climb in or use a bin as storage, in as many words.
-        if (action.MatchVerb(["enter", "get in", "climb in", "sit in", "put", "put in"]))
+        if (action.MatchVerb(EnterVerbs))
             return new PositiveInteractionResult("The bin is only for robots. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

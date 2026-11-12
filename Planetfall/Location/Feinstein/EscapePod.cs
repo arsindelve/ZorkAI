@@ -8,6 +8,9 @@ namespace Planetfall.Location.Feinstein;
 
 internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
 {
+    private static readonly VerbFamily SitVerbs = new("sit", "rest", "get");
+    private static readonly VerbFamily LeaveVerbs = new("leave", "exit");
+
     public override string[] NounsForMatching => ["webbing", "safety webbing", "web"];
 
     public string ExaminationDescription =>
@@ -62,14 +65,14 @@ internal class SafetyWeb : ItemBase, ISubLocation, ICanBeExamined
         // reach its own *complaint* - naming the webbing in the other state matched no branch and fell
         // through to base, where nothing handles sit/leave on the web, so the player got a blank line.
         // GetIn/GetOut each already answer their own wrong-state case, so no state gate is needed here.
-        if (action.MatchVerb(["sit", "rest", "get"]))
+        if (action.MatchVerb(SitVerbs))
             return new PositiveInteractionResult(GetIn(context));
 
         // "get" is deliberately absent here. It's the one verb that reads in both directions ("get
         // in"/"get out" with the preposition lost), and standing up in the landed pod arms an
         // unrecoverable sinking clock - a hazard an ambiguous verb must never trigger. Only an explicit
         // leave/exit (or the raw "stand", handled by RespondToSpecificLocationInteraction) may unseat.
-        if (action.MatchVerb(["leave", "exit"]))
+        if (action.MatchVerb(LeaveVerbs))
             return new PositiveInteractionResult(GetOut(context));
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

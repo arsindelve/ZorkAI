@@ -9,6 +9,9 @@ namespace ZorkOne.Location.CoalMineLocation;
 
 internal class DraftyRoom : DarkLocation, IThiefMayVisit
 {
+    private static readonly VerbFamily RaiseVerb = new("raise");
+    private static readonly VerbFamily LowerVerb = new("lower");
+
     public override string Name => "Drafty Room";
 
     protected override Dictionary<Direction, MovementParameters> Map(IContext context)
@@ -41,7 +44,7 @@ internal class DraftyRoom : DarkLocation, IThiefMayVisit
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var basket = Repository.GetItem<Basket>();
-        if (action.Match(["raise"], basket.NounsForMatching))
+        if (action.Match(RaiseVerb, basket.NounsForMatching))
         {
             if (Items.Contains(basket))
             {
@@ -52,7 +55,7 @@ internal class DraftyRoom : DarkLocation, IThiefMayVisit
             return new PositiveInteractionResult("Too late for that. ");
         }
 
-        if (action.Match(["lower"], basket.NounsForMatching))
+        if (action.Match(LowerVerb, basket.NounsForMatching))
         {
             if (Items.Contains(basket))
                 return new PositiveInteractionResult("Too late for that. ");

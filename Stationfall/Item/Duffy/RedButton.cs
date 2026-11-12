@@ -9,6 +9,8 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class RedButton : ItemBase, ICanBeExamined
 {
+    private static readonly VerbFamily PushPressVerbs = new("push", "press", "hit", "punch", "activate", "turn on");
+
     public override string[] NounsForMatching =>
         ["red button", "button", "beacon", "emergency beacon", "distress beacon"];
 
@@ -29,7 +31,7 @@ public class RedButton : ItemBase, ICanBeExamined
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(["push", "press", "hit", "punch", "activate", "turn on"]))
+        if (action.MatchVerb(PushPressVerbs))
             return new PositiveInteractionResult(Press());
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

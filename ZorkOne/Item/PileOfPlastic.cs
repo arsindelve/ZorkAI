@@ -8,6 +8,10 @@ namespace ZorkOne.Item;
 
 public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation, ICanBeExamined
 {
+    private static readonly VerbFamily InflateWithPumpVerbs = new("inflate", "blow", "blow up", "use");
+    private static readonly VerbFamily InflateVerbs = new("inflate", "blow up", "blow");
+    private static readonly VerbFamily DeflateVerb = new("deflate");
+
     [UsedImplicitly] public bool IsPunctured { get; set; }
 
     public bool IsInflated { get; set; }
@@ -97,7 +101,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["inflate", "blow up", "blow"], NounsForMatching))
+        if (action.Match(InflateVerbs, NounsForMatching))
         {
             if (context.HasItem<PileOfPlastic>())
                 return new PositiveInteractionResult("The boat must be on the ground to be inflated. ");
@@ -105,7 +109,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
             return new PositiveInteractionResult("You don't have enough lung power to inflate it. ");
         }
 
-        if (action.Match(["deflate"], NounsForMatching))
+        if (action.Match(DeflateVerb, NounsForMatching))
         {
             if (context.HasItem<PileOfPlastic>())
                 return new PositiveInteractionResult("The boat must be on the ground to be deflated. ");
@@ -135,16 +139,15 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         if (fixIntentMatch)
             return FixTheLeak(context);
 
-        string[] verbs = ["inflate", "blow", "blow up", "use"];
         string[] prepositions = ["with", "to", "on", "using"];
 
         if (!action.MatchNounOne(NounsForMatching))
             return await base.RespondToMultiNounInteraction(action, context);
 
-        return await InflateTheBoat(action, context, verbs, prepositions);
+        return await InflateTheBoat(action, context, prepositions);
     }
 
-    private async Task<InteractionResult?> InflateTheBoat(MultiNounIntent action, IContext context, string[] verbs,
+    private async Task<InteractionResult?> InflateTheBoat(MultiNounIntent action, IContext context,
         string[] prepositions)
     {
         if (context.HasItem<PileOfPlastic>())
@@ -153,7 +156,7 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         if (!action.MatchNounTwo<AirPump>())
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+        if (!InflateWithPumpVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))

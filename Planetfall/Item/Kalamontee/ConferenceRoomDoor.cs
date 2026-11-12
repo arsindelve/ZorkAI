@@ -9,6 +9,9 @@ namespace Planetfall.Item.Kalamontee;
 
 public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
 {
+    private static readonly VerbFamily SetDialVerbs = new("turn", "set");
+    private static readonly VerbFamily ReadDialVerbs = new("examine", "look", "look at", "inspect", "read");
+
     public override string[] NounsForMatching => ["conference room door", "door"];
 
     [UsedImplicitly] [JsonIgnore]
@@ -48,7 +51,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["turn", "set"], ["dial"]))
+        if (action.Match(SetDialVerbs, ["dial"]))
         {
             // Try to extract text after "to" from the original input (handles "set dial to twelve" case)
             var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
@@ -59,7 +62,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
         }
 
-        if (action.Match(["examine", "look", "look at", "inspect", "read"], ["dial"]) && context.CurrentLocation is RecArea)
+        if (action.Match(ReadDialVerbs, ["dial"]) && context.CurrentLocation is RecArea)
             return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult($"The dial is set to {Code}. "));
 
@@ -71,7 +74,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         if (context.CurrentLocation is not RecArea)
             return base.RespondToMultiNounInteraction(action, context);
 
-        if (!action.MatchVerb(["turn", "set"]))
+        if (!action.MatchVerb(SetDialVerbs))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!action.MatchPreposition(["to"]))

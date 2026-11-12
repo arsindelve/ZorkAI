@@ -9,6 +9,10 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class BoxedForms : ItemBase, ICanBeExamined
 {
+    private static readonly VerbFamily TouchFeelVerbs = new("touch", "feel", "examine", "look at", "inspect", "read");
+    private static readonly VerbFamily CrumpleVerbs =
+        new("crumple", "tear", "rip", "destroy", "break", "smash", "burn", "eat");
+
     public override string[] NounsForMatching => ["form", "forms", "boxed forms", "sealed forms"];
 
     public string ExaminationDescription => "The forms are sealed inside the boxes. ";
@@ -28,11 +32,11 @@ public class BoxedForms : ItemBase, ICanBeExamined
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(["touch", "feel", "examine", "look at", "inspect", "read"]))
+        if (action.MatchVerb(TouchFeelVerbs))
             return new PositiveInteractionResult(ExaminationDescription);
 
         // Damaging Patrol paperwork is, of course, a violation of an Act.
-        if (action.MatchVerb(["crumple", "tear", "rip", "destroy", "break", "smash", "burn", "eat"]))
+        if (action.MatchVerb(CrumpleVerbs))
             return new PositiveInteractionResult(
                 "Willful destruction of Patrol forms is a violation of the Uniform Code of Paperwork, " +
                 "Section Nine, and you have no wish to explain yourself at a hearing. ");

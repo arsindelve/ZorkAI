@@ -18,11 +18,8 @@ public class DeterministicParserCoverageTests
         "floyd, go north", "floyd, take board", "floyd, are you okay", "ask floyd about the card", "lab door",
         "drop all",
 
-        // Verbs the parser does not know yet.
-        "pull lever", "collapse ladder", "deactivate floyd", "deactivate terminal", "lie down in bed",
-        "slide kitchen access card through slot", "slide upper access card through slot",
-        "slide lower access card through slot", "slide shuttle access card through slot",
-        "slide teleportation card through slot", "slide mini card through slot",
+        // A verb no handler declares (getting into bed is answered from the raw command, before parsing).
+        "lie down in bed",
 
         // Numerals and ordinals are not declared nouns.
         "press 2", "press 3", "type 0", "type 1", "type 6", "type 384", "type 385", "set laser to 1",

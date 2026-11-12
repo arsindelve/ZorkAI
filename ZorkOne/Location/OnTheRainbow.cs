@@ -9,6 +9,8 @@ namespace ZorkOne.Location;
 
 public class OnTheRainbow : LocationWithNoStartingItems
 {
+    private static readonly VerbFamily WaveVerbs = new("wave", "swing", "twirl");
+
     public override string Name => "On The Rainbow";
 
     // "rainbow" is matched via RainbowInteraction (cross / look under the rainbow), not on any item.
@@ -48,7 +50,7 @@ public class OnTheRainbow : LocationWithNoStartingItems
         if (rainbowResult is not null)
             return rainbowResult;
 
-        if (action.Match(["wave", "swing", "twirl"], GetItem<Sceptre>().NounsForMatching))
+        if (action.Match(WaveVerbs, GetItem<Sceptre>().NounsForMatching))
         {
             if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
                 return new PositiveInteractionResult("You don't have the sceptre. ");

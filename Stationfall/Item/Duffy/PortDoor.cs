@@ -9,6 +9,11 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class PortDoor : ItemBase, ICanBeExamined
 {
+    private static readonly VerbFamily OpenUnlockVerbs =
+        new("open", "unlock", "unseal", "force", "pull", "push", "pry");
+    private static readonly VerbFamily CloseShutVerbs = new("close", "shut");
+    private static readonly VerbFamily KnockVerbs = new("knock", "knock on");
+
     public override string[] NounsForMatching => ["door", "port door", "closed door", "sealed door"];
 
     public string ExaminationDescription =>
@@ -30,14 +35,14 @@ public class PortDoor : ItemBase, ICanBeExamined
 
         // The refusal names the remedy, which is the point: it sends the player looking for a way to
         // validate the form rather than leaving them rattling a door with no explanation.
-        if (action.MatchVerb(["open", "unlock", "unseal", "force", "pull", "push", "pry"]))
+        if (action.MatchVerb(OpenUnlockVerbs))
             return new PositiveInteractionResult(
                 "You must insert a validated Assignment Completion Form in the slot. ");
 
-        if (action.MatchVerb(["close", "shut"]))
+        if (action.MatchVerb(CloseShutVerbs))
             return new PositiveInteractionResult("It's already closed. ");
 
-        if (action.MatchVerb(["knock", "knock on"]))
+        if (action.MatchVerb(KnockVerbs))
             return new PositiveInteractionResult(
                 "You knock. Somewhere beyond the door, the business of the Patrol continues without " +
                 "you. ");

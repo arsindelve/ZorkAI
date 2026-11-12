@@ -9,13 +9,14 @@ namespace GameEngine.Item.ItemProcessor;
 /// </summary>
 public class SmellInteractionProcessor : IVerbProcessor
 {
+    private static readonly VerbFamily SmellVerbs = new("smell", "sniff");
+
     Task<InteractionResult?> IVerbProcessor.Process(SimpleIntent action, IContext context, IInteractionTarget item,
         IGenerationClient client)
     {
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case "smell":
-            case "sniff":
+            case var verb when SmellVerbs.Contains(verb):
 
                 if (context.ItIsDarkHere)
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see! "));

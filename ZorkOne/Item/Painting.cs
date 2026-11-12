@@ -8,6 +8,8 @@ namespace ZorkOne.Item;
 public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
     IGivePointsWhenFirstPickedUp
 {
+    private static readonly VerbFamily CutVerbs = new("cut", "chop", "slash", "destroy");
+
     public override string[] NounsForMatching => ["painting"];
 
     public override int Size => 4;
@@ -35,7 +37,7 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (action.Match(["cut", "chop", "slash", "destroy"], NounsForMatching,
+        if (action.Match(CutVerbs, NounsForMatching,
                 Repository.GetItem<Sword>().NounsForMatching, ["with", "using"]))
         {
             if (!context.HasItem<Sword>())

@@ -9,6 +9,13 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
 {
+    private static readonly VerbFamily OpenBoxVerbs =
+        new("open", "look in", "look inside", "search", "empty", "unseal");
+    private static readonly VerbFamily CountVerb = new("count");
+    private static readonly VerbFamily DestroyVerbs =
+        new("destroy", "tear", "rip", "shred", "burn", "break", "crumple");
+    private static readonly VerbFamily CloseShutVerbs = new("close", "shut", "seal");
+
     public override string[] NounsForMatching => ["pallets", "pallet", "boxes", "box", "pallets of boxes"];
 
     // Far too heavy to be carried; the original tells you to fetch a forklift.
@@ -38,22 +45,22 @@ public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
             return new NoNounMatchInteractionResult();
 
         // Opening a box is a joke with a long windup, and the length is the joke (ship.zil PALLETS-F).
-        if (action.MatchVerb(["open", "look in", "look inside", "search", "empty", "unseal"]))
+        if (action.MatchVerb(OpenBoxVerbs))
             return new PositiveInteractionResult(
                 "You work a box open. Inside are forms" + string.Concat(Enumerable.Repeat(" and forms", 50)) +
                 ". Horrified, you reseal the box. ");
 
-        if (action.MatchVerb(["count"]))
+        if (action.MatchVerb(CountVerb))
             return new PositiveInteractionResult(
                 "You get as far as the fourth row before losing your place, and the thought of " +
                 "starting again is more than you can bear. ");
 
-        if (action.MatchVerb(["destroy", "tear", "rip", "shred", "burn", "break", "crumple"]))
+        if (action.MatchVerb(DestroyVerbs))
             return new PositiveInteractionResult(
                 "Destroying Patrol forms on this scale would be a violation of the Uniform Code of " +
                 "Paperwork so comprehensive that it probably has its own form. ");
 
-        if (action.MatchVerb(["close", "shut", "seal"]))
+        if (action.MatchVerb(CloseShutVerbs))
             return new PositiveInteractionResult("The boxes are already sealed. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

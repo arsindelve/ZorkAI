@@ -17,8 +17,9 @@ public class DeterministicParserCoverageTests
         // pronoun is rewritten before parsing.
         "take all", "get all", "drop all", "read it",
 
-        // Verbs the parser does not know yet ("get in" as a boarding phrase, "leave", "cross").
-        "get in the boat", "leave boat", "cross the rainbow",
+        // Verbs no handler declares: "get in" as a boarding phrase, and "leave" (leaving the boat is the
+        // disembark intent, which only the AI produces).
+        "get in the boat", "leave boat",
 
         // A shape outside the grammar: the preposition comes straight after the verb.
         "dig in sand with shovel",

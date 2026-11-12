@@ -9,8 +9,8 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class FormSlotBase : ContainerBase, ICanBeExamined
 {
-    private static readonly string[] InsertVerbs =
-        ["put", "insert", "place", "slide", "feed", "push", "stick", "drop"];
+    private static readonly VerbFamily InsertVerbs =
+        new("put", "insert", "place", "slide", "feed", "push", "stick", "drop");
 
     private static readonly string[] Prepositions = ["in", "into", "in to", "inside", "through"];
 

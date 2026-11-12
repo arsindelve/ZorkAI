@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using GameEngine.Item;
 using GameEngine.Location;
@@ -470,6 +471,103 @@ public static class Repository
 
             _allNouns = nouns.ToArray();
             return _allNouns;
+        }
+    }
+
+    private static readonly ConcurrentDictionary<string, VerbFamily[]> VerbsByGame = new();
+
+    /// <summary>
+    ///     Every verb family the game answers: the engine-wide thesaurus (<see cref="Verbs" />), the
+    ///     families the engine's own processors declare, and every family declared by one of the game's
+    ///     items or locations. This is the verb counterpart of <see cref="GetNouns" />, and it is complete
+    ///     for the same reason: a handler can only match a verb through a <see cref="VerbFamily" />, and a
+    ///     family can only be created in a static field, so there is nothing a handler answers that this
+    ///     cannot see. (See <see cref="VerbFamily" />; <c>VerbFamilyDeclarationTests</c> enforces the rule.)
+    /// </summary>
+    /// <remarks>
+    ///     Cached per game. Unlike nouns, families are immutable statics, so nothing about a running game
+    ///     can change the answer.
+    /// </remarks>
+    public static VerbFamily[] GetVerbs(string gameName)
+    {
+        return VerbsByGame.GetOrAdd(gameName, HarvestVerbs);
+    }
+
+    private static VerbFamily[] HarvestVerbs(string gameName)
+    {
+        var families = new List<VerbFamily>();
+
+        foreach (var assembly in VocabularyAssemblies(gameName))
+        foreach (var type in LoadableTypes(assembly))
+            // Walk the base types too. A generic base such as SlotBase<TCard, TSlot> has no statics of its
+            // own to read - only its closed forms do - and the closed form is only ever reachable as the
+            // base type of a concrete subclass.
+            for (var current = type; current is not null; current = current.BaseType)
+            {
+                if (current.ContainsGenericParameters)
+                    continue;
+
+                foreach (var field in current.GetFields(BindingFlags.Static | BindingFlags.Public |
+                                                        BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                {
+                    if (field.FieldType != typeof(VerbFamily))
+                        continue;
+
+                    try
+                    {
+                        if (field.GetValue(null) is VerbFamily family)
+                            families.Add(family);
+                    }
+                    catch
+                    {
+                        // A type whose static initialiser fails contributes no verbs; the AI parser still
+                        // covers them, and that failure is not this method's to report.
+                    }
+                }
+            }
+
+        // The same closed generic base is reached once per subclass, each with its own copy of the field,
+        // so collapse families that hold exactly the same words.
+        return families
+            .DistinctBy(family => string.Join('\n', family), StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    /// <summary>
+    ///     The assemblies that can declare vocabulary for a game: the shared model, this engine, the game
+    ///     itself, and any library the game is built on that references the model (so could declare a
+    ///     <see cref="VerbFamily" /> of its own).
+    /// </summary>
+    private static IEnumerable<Assembly> VocabularyAssemblies(string gameName)
+    {
+        var model = typeof(VerbFamily).Assembly;
+        var game = Assembly.Load(gameName);
+        var assemblies = new List<Assembly> { model, typeof(Repository).Assembly, game };
+
+        foreach (var reference in game.GetReferencedAssemblies())
+            try
+            {
+                var library = Assembly.Load(reference);
+                if (library.GetReferencedAssemblies().Any(name => name.Name == model.GetName().Name))
+                    assemblies.Add(library);
+            }
+            catch
+            {
+                // A reference that cannot be loaded here cannot have contributed a handler either.
+            }
+
+        return assemblies.Distinct();
+    }
+
+    private static IEnumerable<Type> LoadableTypes(Assembly assembly)
+    {
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException partial)
+        {
+            return partial.Types.Where(type => type is not null)!;
         }
     }
 

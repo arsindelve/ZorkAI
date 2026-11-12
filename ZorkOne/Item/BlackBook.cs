@@ -9,6 +9,10 @@ namespace ZorkOne.Item;
 
 public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBeRead
 {
+    private static readonly VerbFamily BurnVerb = new("burn");
+    private static readonly VerbFamily ReadVerb = new("read");
+    private static readonly VerbFamily LightVerbs = new("light", "burn", "torch");
+
     public override string[] NounsForMatching => ["book", "black book", "large black book"];
 
     public override int Size => 2;
@@ -46,10 +50,10 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["burn"], NounsForMatching))
+        if (action.Match(BurnVerb, NounsForMatching))
             return new PositiveInteractionResult("You'll need to specify what you want to burn it with. ");
 
-        if (action.Match(["read"], NounsForMatching))
+        if (action.Match(ReadVerb, NounsForMatching))
         {
             var location = Repository.GetLocation<EntranceToHades>();
             var spirits = Repository.GetItem<Spirits>();
@@ -93,7 +97,7 @@ public class BlackBook : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ICanBe
             .ToArray();
 
         if (!action.Match(
-                ["light", "burn", "torch"],
+                LightVerbs,
                 NounsForMatching,
                 burnyThings,
                 ["with"]

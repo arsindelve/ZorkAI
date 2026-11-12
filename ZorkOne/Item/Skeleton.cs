@@ -19,12 +19,13 @@ public class Skeleton : ItemBase
     // "touch" all trigger the ghost), but deliberately NOT to Verbs.PushVerbs — that family folds in
     // machine-operation synonyms (toggle/flip/switch/activate/click) that read as nonsense on bones.
     // PUSH/RAISE/LOWER/MOVE/KICK/KISS are spelled out with only their sensible "manhandle" synonyms.
-    private static readonly string[] CurseVerbs =
-        Verbs.TakeVerbs                       // TAKE
-            .Concat(Verbs.TouchVerbs)         // RUB
-            .Concat(Verbs.KillVerbs)          // ATTACK
-            .Concat(["push", "depress", "shove", "move", "raise", "lift", "lower", "kick", "kiss"])
-            .ToArray();
+    private static readonly VerbFamily CurseVerbs = new(
+    [
+        ..Verbs.TakeVerbs,                    // TAKE
+        ..Verbs.TouchVerbs,                   // RUB
+        ..Verbs.KillVerbs,                    // ATTACK
+        "push", "depress", "shove", "move", "raise", "lift", "lower", "kick", "kiss"
+    ]);
 
     private const string CurseMessage =
         "A ghost appears in the room and is appalled at your desecration of the remains of a fellow " +

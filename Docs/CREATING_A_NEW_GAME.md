@@ -572,11 +572,15 @@ public class Chest : OpenAndCloseContainerBase, ICanBeExamined
         StartWithItemInside<Treasure>();
     }
 
+    // Verbs are always a declared VerbFamily (a static readonly field), never an inline list -
+    // that is how the game's vocabulary knows every verb its objects answer.
+    private static readonly VerbFamily SearchVerbs = new("search", "look in", "look inside");
+
     // Support "search chest" and "look in chest"
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["search", "look in", "look inside"], NounsForMatching))
+        if (action.Match(SearchVerbs, NounsForMatching))
             return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ExaminationDescription));
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
@@ -676,12 +680,14 @@ public class ExitDoor : OpenAndCloseBase, ICanBeExamined, ICannotBeTaken
                context.CurrentScore;
     }
 
+    private static readonly VerbFamily UnlockVerb = new("unlock");
+
     // Handle "unlock door with key"
     public override Task<InteractionResult?> RespondToMultiNounInteraction(
         MultiNounIntent action, IContext context, IGenerationClient client)
     {
         // Check for "unlock door with key"
-        if (action.Match(["unlock"], NounsForMatching, ["with", "using"]))
+        if (action.Match(UnlockVerb, NounsForMatching, ["with", "using"]))
         {
             var key = Repository.GetItem<Key>();
 
@@ -769,6 +775,8 @@ public class Button : ItemBase, ICanBeExamined
 {
     public override string[] NounsForMatching => ["button", "red button", "big button"];
 
+    private static readonly VerbFamily PushVerbs = new("push", "press", "hit");
+
     public override string? CannotBeTakenDescription => "The button is attached to the wall.";
 
     public string ExaminationDescription => "A big red button on the wall. It looks tempting to press.";
@@ -784,7 +792,7 @@ public class Button : ItemBase, ICanBeExamined
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["push", "press", "hit"], NounsForMatching))
+        if (action.Match(PushVerbs, NounsForMatching))
         {
             // Do something when button is pressed
             if (context is YourGameContext gameContext)
@@ -1535,10 +1543,15 @@ public override Task<InteractionResult?> RespondToSimpleInteraction(
 public override Task<InteractionResult?> RespondToMultiNounInteraction(
     MultiNounIntent action, IContext context, IGenerationClient client)
 
+// Verbs are matched against a declared VerbFamily, never an inline list of strings.
+// Declare each family as a static readonly field on the class that answers it:
+private static readonly VerbFamily UnlockVerbs = new("unlock", "open");
+private static readonly VerbFamily PushVerbs = new("push", "press");
+
 // Matching helpers
-action.Match(["verb1", "verb2"], NounsForMatching)  // verb + this item
-action.Match(["unlock"], NounsForMatching, ["with", "using"])  // verb + item + preposition
-action.MatchVerb(["push", "press"])  // just verb matching
+action.Match(UnlockVerbs, NounsForMatching)                    // verb + this item
+action.Match(UnlockVerbs, NounsForMatching, keyNouns, ["with", "using"])  // verb + item + item + preposition
+action.MatchVerb(PushVerbs)                                    // just verb matching
 ```
 
 ---

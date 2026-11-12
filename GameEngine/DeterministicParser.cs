@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Reflection;
 using Model;
 using Model.Intent;
 using Model.Movement;
@@ -20,9 +19,10 @@ namespace GameEngine;
 /// phrasing ("would you please put the sword in the case, ok?"). Standard grammar never touches the AI.
 ///
 /// It stays conservative: it returns null (defer to the AI) whenever it cannot confidently resolve the verb
-/// AND the noun(s) against the known vocabulary, so it is never wrong, only sometimes silent. The known
-/// verbs are derived from <see cref="Verbs" /> (single source of truth); multi-word verb phrases
-/// ("turn on", "put on", "look at") are canonicalised to the engine's canonical verb.
+/// AND the noun(s) against the known vocabulary, so it is never wrong, only sometimes silent. Both halves of
+/// that vocabulary are harvested from the game rather than listed here: nouns from what items and locations
+/// declare, verbs from every <see cref="VerbFamily" /> a handler matches on (<see cref="Repository.GetVerbs" />).
+/// Multi-word verb phrases ("turn on", "put on", "look at") are canonicalised to the engine's canonical verb.
 /// </summary>
 public class DeterministicParser
 {
@@ -30,33 +30,15 @@ public class DeterministicParser
 
     private readonly Vocabulary _vocab;
 
-    // Verbs the engine handles that are NOT yet in the Verbs thesaurus. Verbs.cs is a relatively new,
-    // still-incomplete construct: verbs like "read" and "tie" are handled by the game (via item processors
-    // and, previously, the TestParser's JSON fixtures) but were never centralised. Surfacing these is the
-    // point of migrating tests to this parser — each is a real command. TODO: fold these into Verbs.cs
-    // proper (new families) so there is a single source of truth; kept here meanwhile.
-    private static readonly string[] SupplementalVerbs =
-    [
-        "read", "tie", "untie", "fill", "pour", "dig", "type", "key", "punch", "set", "count", "use", "wave",
-        "ring", "smell", "light", "wind", "kick", "deflate", "inflate", "lower", "raise", "extend", "lift",
-        "oil", "lubricate", "salute", "eat", "play", "shoot", "empty", "remove", "spin", "spray", "water",
-        "pump", "knock", "poke", "prod", "wear", "unlock", "lock", "flip", "board", "enter",
-        "turn", "twist", "rotate", "swing"
-    ];
-
-    // Every single-word verb the engine knows, harvested from the Verbs thesaurus (single source of truth)
-    // plus the still-uncentralised supplement above. A synonym added to Verbs.cs is understood here
-    // automatically. Multi-word entries (e.g. "look at") are handled by MultiWordVerbCanon instead.
-    private static readonly HashSet<string> KnownVerbs = typeof(Verbs)
-        .GetFields(BindingFlags.Public | BindingFlags.Static)
-        .Where(f => f.FieldType == typeof(string[]))
-        .SelectMany(f => (string[])f.GetValue(null)!)
-        .Where(v => !v.Contains(' '))
-        .Concat(SupplementalVerbs)
-        .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
     // Multi-word verb phrases -> the engine's canonical single verb. These MUST be canonicalised because the
     // second word would otherwise be read as a preposition/noun ("turn on lamp" -> verb "turn", "on lamp").
+    //
+    // This is a table of REWRITES, not vocabulary, which is why it is not harvested like the verbs are. A
+    // phrase can sit in several families whose owners want different things from it, and the only reading
+    // that is safe everywhere is the one the AI parser's prompt already makes ("turn on" -> "activate").
+    // Phrases that are not listed here are deliberately left to the AI: recognising one verbatim just because
+    // some object declares it would, for example, turn "put down the lamp" into a verb only Stationfall's
+    // goo answers, instead of the drop the AI makes of it.
     private static readonly Dictionary<string, string> MultiWordVerbCanon = new(StringComparer.OrdinalIgnoreCase)
     {
         ["turn on"] = "activate",
@@ -83,10 +65,17 @@ public class DeterministicParser
     // Verbs that lead an EXPLORATORY "verb under/through <object>" command ("look under rug", "peer through
     // crack"). Look/examine family only, NOT movement verbs — "go through <opening>" is a request to MOVE
     // through it, which the AI resolves to a MoveIntent, so those fall through to the AI.
-    private static readonly HashSet<string> ExploratoryVerbs = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "look", "peer", "peek", "glance", "examine", "search", "inspect"
-    };
+    private static readonly VerbFamily ExploratoryVerbs =
+        new("look", "peer", "peek", "glance", "examine", "search", "inspect");
+
+    // "enter <thing>" / "board <thing>" is a request to get into it, which is its own intent.
+    private static readonly VerbFamily BoardVerbs = new("enter", "board");
+
+    // Getting OUT of a thing is the disembark intent, and only the AI path builds that (with the door and
+    // sub-location handling that goes with it). These are declined, not parsed. The trap: because verbs are
+    // harvested, "exit" and "leave" become known the moment any object answers them (Planetfall's safety
+    // webbing does), and "exit the blue door" would then come out as a verb+noun that nothing answers.
+    private static readonly VerbFamily DisembarkVerbs = new("exit", "leave", "disembark");
 
     private static readonly string[] TravelPrefixes =
         ["go to ", "walk to ", "head to ", "travel to ", "go into ", "walk into ", "run to ", "proceed to "];
@@ -116,7 +105,16 @@ public class DeterministicParser
             .Distinct()
             .ToArray();
 
-        return new Vocabulary(nouns, destinations);
+        // The verbs are harvested exactly as the nouns are: every word of every VerbFamily the engine or
+        // this game declares (Repository.GetVerbs). There is no verb list in this class to fall behind -
+        // a handler cannot answer a verb that is not in a family. Single words only: a multi-word phrase
+        // reaches the grammar through MultiWordVerbCanon or not at all.
+        var verbs = Repository.GetVerbs(gameName)
+            .SelectMany(family => family)
+            .Where(word => !word.Contains(' '))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return new Vocabulary(nouns, destinations, verbs);
     }
 
     /// <summary>
@@ -178,15 +176,15 @@ public class DeterministicParser
         {
             verb = words[0];
             rest = words[1..];
-            if (!KnownVerbs.Contains(verb))
+            if (!_vocab.Verbs.Contains(verb))
                 return null; // not an imperative we recognise -> let the AI try
         }
 
-        if (rest.Length == 0)
+        if (rest.Length == 0 || DisembarkVerbs.Matches(verb))
             return null;
 
         // 3. Exploratory "look/peer under|through <object>" -> SimpleIntent with the preposition as adverb.
-        if (rest.Length >= 2 && (rest[0] == "under" || rest[0] == "through") && ExploratoryVerbs.Contains(verb))
+        if (rest.Length >= 2 && (rest[0] == "under" || rest[0] == "through") && ExploratoryVerbs.Matches(verb))
         {
             var noun = string.Join(' ', rest[1..]);
             return _vocab.Nouns.Contains(noun)
@@ -215,7 +213,7 @@ public class DeterministicParser
         var single = string.Join(' ', rest);
         if (!_vocab.Nouns.Contains(single))
             return null;
-        if (verb is "enter" or "board")
+        if (BoardVerbs.Matches(verb))
             return new EnterSubLocationIntent { Noun = single, Message = original };
         return new SimpleIntent { Verb = verb, Noun = single, OriginalInput = original, Message = original };
     }
@@ -234,5 +232,5 @@ public class DeterministicParser
         return lowered.Trim();
     }
 
-    private readonly record struct Vocabulary(HashSet<string> Nouns, string[] DestinationTerms);
+    private readonly record struct Vocabulary(HashSet<string> Nouns, string[] DestinationTerms, HashSet<string> Verbs);
 }

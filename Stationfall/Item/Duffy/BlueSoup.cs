@@ -10,6 +10,9 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public class BlueSoup : ItemBase, ICanBeExamined, ICanBeEaten, ITurnBasedActor
 {
+    private static readonly VerbFamily TouchTasteVerbs = new("touch", "taste", "feel", "reach in", "reach into");
+    private static readonly VerbFamily PourVerbs = new("pour", "empty", "pour out", "dump", "spill");
+
     /// <summary>
     ///     Millichrons between one degree of cooling and the next.
     /// </summary>
@@ -102,10 +105,10 @@ public class BlueSoup : ItemBase, ICanBeExamined, ICanBeEaten, ITurnBasedActor
         {
             // Touching or tasting it reports the temperature - which is the only reason the
             // temperature exists (ship.zil SOUP-F).
-            if (action.MatchVerb(["touch", "taste", "feel", "reach in", "reach into"]))
+            if (action.MatchVerb(TouchTasteVerbs))
                 return new PositiveInteractionResult(ExaminationDescription);
 
-            if (action.MatchVerb(["pour", "empty", "pour out", "dump", "spill"]))
+            if (action.MatchVerb(PourVerbs))
                 return new PositiveInteractionResult(SpillIt());
         }
 

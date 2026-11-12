@@ -4,6 +4,8 @@ namespace Planetfall.Item.Feinstein;
 
 public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
 {
+    private static readonly VerbFamily PressVerbs = new("press", "push", "use");
+
     private readonly string[] _messages =
     [
         "11,344 July 22 -- Transferred from S.P.S. Trilobyte to S.P.S. Feinstein for the third of my four tours of duty. I\'m truly going to miss my commander,\nEnsign First Class Lim. He was a friend in every respect -- someone you could always go to with a problem, someone I could really look up to. We would\nsometimes talk long into the night. He would tell me about his home world of Ash-Down V, and I would talk about growing up on Gallium. I\'d get pretty\nhomesick sometimes, even though Gallium is not exactly one of the garden spots of the universe. I just hope my new commander is half as nice as Lim.\n\nThis new ship seems pretty swell. I\'m in a cabin with only five other ensigns, and I\'ve got one-and-a-half cubic meters of locker space! ",
@@ -56,7 +58,7 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["press", "push", "use"], ["button", "more", "more button"]))
+        if (action.Match(PressVerbs, ["button", "more", "more button"]))
         {
             if (IsAtLastMessage)
             {

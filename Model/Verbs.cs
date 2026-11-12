@@ -1,7 +1,12 @@
 ﻿namespace Model;
 
 /// <summary>
-/// This is your verb thesaurus. Enjoy responsibly. 
+///     This is your verb thesaurus. Enjoy responsibly.
+///     <para>
+///         These are the families more than one object answers. A verb only one item or room answers
+///         belongs on that item or room, as its own <see cref="VerbFamily" /> field - not here. Either
+///         way the vocabulary harvest finds it; see <see cref="VerbFamily" /> for the rules.
+///     </para>
 /// </summary>
 public static class Verbs
 {
@@ -11,63 +16,63 @@ public static class Verbs
     ///     "carry" is a canonical original synonym (Planetfall syntax.zil:334
     ///     &lt;SYNONYM TAKE GET HOLD CARRY&gt;).
     /// </summary>
-    public static readonly string[] TakeVerbs = ["take", "get", "grab", "pick up", "hold", "acquire", "snatch", "carry"];
+    public static readonly VerbFamily TakeVerbs = new("take", "get", "grab", "pick up", "hold", "acquire", "snatch", "carry");
 
     /// <summary>
     ///     The "put it down" family. A short list today (the engine only acts on "drop"), but centralized
     ///     so adding a synonym updates the processor and pronoun scoping together rather than drifting.
     /// </summary>
-    public static readonly string[] DropVerbs = ["drop"];
+    public static readonly VerbFamily DropVerbs = new("drop");
 
-    public static readonly string[] DrinkVerbs = ["swallow", "sip", "drink", "consume", "gulp", "guzzle", "slurp"];
+    public static readonly VerbFamily DrinkVerbs = new("swallow", "sip", "drink", "consume", "gulp", "guzzle", "slurp");
 
     /// <summary>
     ///     The "go for a swim" family (ZIL: <c>SYNONYM SWIM BATHE WADE</c>). Used by the river-bank
     ///     locations (Shore, Sandy Beach) that expose the local-global river/water objects.
     /// </summary>
-    public static readonly string[] SwimVerbs = ["swim", "bathe", "wade"];
-    public static readonly string[] FixVerbs = ["fix", "repair", "seal", "patch", "stop", "block", "mend", "plug"];
-    public static readonly string[] ApplyVerbs = ["use", "apply", "stick", "put", "place", "spread", "smear", "press"];
-    public static readonly string[] PushVerbs = ["push", "press", "activate", "toggle", "click", "flip", "switch", "depress"];
-    public static readonly string[] TypeVerbs = ["type", "punch", "key", "press"];
+    public static readonly VerbFamily SwimVerbs = new("swim", "bathe", "wade");
+    public static readonly VerbFamily FixVerbs = new("fix", "repair", "seal", "patch", "stop", "block", "mend", "plug");
+    public static readonly VerbFamily ApplyVerbs = new("use", "apply", "stick", "put", "place", "spread", "smear", "press");
+    public static readonly VerbFamily PushVerbs = new("push", "press", "activate", "toggle", "click", "flip", "switch", "depress");
+    public static readonly VerbFamily TypeVerbs = new("type", "punch", "key", "press");
 
-    public static readonly string[] MoveVerbs =
-        ["move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape", "march", "wander", "venture",
-            "jog", "trek", "hike"];
+    public static readonly VerbFamily MoveVerbs =
+        new("move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape", "march", "wander", "venture",
+            "jog", "trek", "hike");
 
-    public static readonly string[] KillVerbs =
-        ["kill", "attack", "defeat", "destroy", "murder", "stab", "punch", "fight", "slay", "strike", "hit", "beat",
-            "assault"];
-    public static readonly string[] BreakVerbs =
-    [
+    public static readonly VerbFamily KillVerbs =
+        new("kill", "attack", "defeat", "destroy", "murder", "stab", "punch", "fight", "slay", "strike", "hit", "beat",
+            "assault");
+    public static readonly VerbFamily BreakVerbs =
+    new(
         "break", "smash", "shatter", "mung", "vandalize", "destroy", "crack", "bust", "demolish", "wreck",
         "crush", "pulverize", "splinter", "ruin", "deface", "mangle", "trash", "obliterate", "annihilate"
-    ];
-    public static readonly string[] CloseVerbs = ["close", "shut", "bar", "lower", "cover", "latch", "fasten"];
-    public static readonly string[] OpenVerbs = ["open", "lift", "pry", "unbar", "raise", "uncover", "unlatch", "unseal"];
-    public static readonly string[] GiveVerbs =
-        ["give", "offer", "transfer", "present", "provide", "hand", "donate", "deliver", "pass", "feed"];
+    );
+    public static readonly VerbFamily CloseVerbs = new("close", "shut", "bar", "lower", "cover", "latch", "fasten");
+    public static readonly VerbFamily OpenVerbs = new("open", "lift", "pry", "unbar", "raise", "uncover", "unlatch", "unseal");
+    public static readonly VerbFamily GiveVerbs =
+        new("give", "offer", "transfer", "present", "provide", "hand", "donate", "deliver", "pass", "feed");
 
     /// <summary>
     ///     The "show it to someone" family. Distinct from <see cref="GiveVerbs" /> — showing keeps the
     ///     object in your hand (the ZIL syntax is <c>SHOW OBJECT (HAVE) TO OBJECT</c>), whereas giving
     ///     transfers it. Deliberately excludes "present" (a give synonym) so the two verbs don't collide.
     /// </summary>
-    public static readonly string[] ShowVerbs = ["show", "display"];
-    public static readonly string[] ThrowVerbs =
-        ["throw", "toss", "launch", "hurl", "fling", "heave", "chuck", "lob", "pitch", "cast", "sling"];
+    public static readonly VerbFamily ShowVerbs = new("show", "display");
+    public static readonly VerbFamily ThrowVerbs =
+        new("throw", "toss", "launch", "hurl", "fling", "heave", "chuck", "lob", "pitch", "cast", "sling");
 
-    public static readonly string[] LookVerbs = ["look", "peek", "peer", "check", "observe", "glance"];
+    public static readonly VerbFamily LookVerbs = new("look", "peek", "peer", "check", "observe", "glance");
 
-    public static readonly string[] TouchVerbs =
-        ["touch", "rub", "feel", "press", "stroke", "pat", "tap", "poke", "brush", "caress", "prod", "nudge"];
+    public static readonly VerbFamily TouchVerbs =
+        new("touch", "rub", "feel", "press", "stroke", "pat", "tap", "poke", "brush", "caress", "prod", "nudge");
 
     /// <summary>
     ///     The "squeeze" family. Used by the toothpaste Tube to extract its viscous material, mirroring
     ///     the original's SQUEEZE handling in TUBE-FUNCTION (zork1/1actions.zil). Deliberately excludes
     ///     "press" (a push/button synonym) so squeezing the tube never collides with pressing a button.
     /// </summary>
-    public static readonly string[] SqueezeVerbs = ["squeeze", "squish", "compress"];
+    public static readonly VerbFamily SqueezeVerbs = new("squeeze", "squish", "compress");
 
     /// <summary>
     ///     The "look at / examine" family. Distinct from <see cref="LookVerbs" /> (which is about
@@ -76,19 +81,19 @@ public static class Verbs
     ///     with a noun match — the bare "look" room-description command is handled earlier by the
     ///     global command factory and never reaches here.
     /// </summary>
-    public static readonly string[] ExamineVerbs =
-        ["examine", "look at", "look", "look into", "inspect", "x", "view", "study", "peek", "peer"];
+    public static readonly VerbFamily ExamineVerbs =
+        new("examine", "look at", "look", "look into", "inspect", "x", "view", "study", "peek", "peer");
 
-    public static readonly string[] SayVerbs =
-    [
+    public static readonly VerbFamily SayVerbs =
+    new(
         "say", "yell", "shout", "utter", "scream", "mumble", "whisper", "speak", "declare", "state", "announce", "tell",
         "holler", "exclaim", "proclaim", "chant", "recite"
-    ];
+    );
 
     /// <summary>
     ///     The "jump / leap" family — a player flinging themselves into the air. Used both for fatal
     ///     leaps (e.g. Canyon View and the Dome Room in Zork, the rift in Planetfall) and survivable
     ///     ones (e.g. Up A Tree). Centralized here so every location recognizes the same synonyms.
     /// </summary>
-    public static readonly string[] JumpVerbs = ["jump", "leap"];
+    public static readonly VerbFamily JumpVerbs = new("jump", "leap");
 }

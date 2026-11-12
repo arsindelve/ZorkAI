@@ -8,6 +8,8 @@ namespace EscapeRoom.Item;
 
 public class WelcomeDesk : OpenAndCloseContainerBase, ICanBeExamined
 {
+    private static readonly VerbFamily SearchVerbs = new("search", "look in", "look inside");
+
     public override string? CannotBeTakenDescription => "The desk is too heavy to move. ";
 
     public override string[] NounsForMatching => ["desk", "welcome desk", "drawer", "desk drawer", "welcome drawer"];
@@ -39,7 +41,7 @@ public class WelcomeDesk : OpenAndCloseContainerBase, ICanBeExamined
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["search", "look in", "look inside"], NounsForMatching))
+        if (action.Match(SearchVerbs, NounsForMatching))
             return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ExaminationDescription));
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

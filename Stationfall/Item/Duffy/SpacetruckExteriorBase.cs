@@ -11,6 +11,12 @@ namespace Stationfall.Item.Duffy;
 /// </summary>
 public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
 {
+    private static readonly VerbFamily OpenUnsealVerbs = new("open", "unseal");
+    private static readonly VerbFamily CloseShutVerbs = new("close", "shut");
+    private static readonly VerbFamily SearchVerbs = new("search", "look in", "look inside");
+    private static readonly VerbFamily LaunchVerbs = new("launch", "start", "drive", "fly", "turn on");
+    private static readonly VerbFamily EnterVerbs = new("enter", "board", "get in", "climb in");
+
     public override string[] NounsForMatching => ["spacetruck", "truck", "spacecraft", "rig"];
 
     public override string CannotBeTakenDescription => "It's a twelve-meter spacecraft. ";
@@ -55,23 +61,23 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
             // Acting on the hatch directly rather than forwarding the intent: the intent names the
             // truck, which the hatch does not answer to, so forwarding it just fell through to the
             // narrator - the very gap the sweep caught.
-            if (action.MatchVerb(["open", "unseal"]))
+            if (action.MatchVerb(OpenUnsealVerbs))
                 return new PositiveInteractionResult(OperateHatch(true, context));
 
-            if (action.MatchVerb(["close", "shut"]))
+            if (action.MatchVerb(CloseShutVerbs))
                 return new PositiveInteractionResult(OperateHatch(false, context));
 
-            if (action.MatchVerb(["search", "look in", "look inside"]))
+            if (action.MatchVerb(SearchVerbs))
                 return new PositiveInteractionResult(
                     Repository.GetItem<SpacetruckHatch>().IsOpen
                         ? "Through the open hatch you can see two seats and an empty cargo section. "
                         : "The hatch is closed, and the viewport shows you nothing but your own " +
                           "reflection. ");
 
-            if (action.MatchVerb(["launch", "start", "drive", "fly", "turn on"]))
+            if (action.MatchVerb(LaunchVerbs))
                 return new PositiveInteractionResult("You're not even in it! ");
 
-            if (action.MatchVerb(["enter", "board", "get in", "climb in"]))
+            if (action.MatchVerb(EnterVerbs))
                 return new PositiveInteractionResult(
                     Repository.GetItem<SpacetruckHatch>().IsOpen
                         ? "You'll have to go in. "

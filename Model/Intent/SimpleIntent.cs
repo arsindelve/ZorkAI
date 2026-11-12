@@ -29,9 +29,13 @@ public record SimpleIntent : IntentBase
         return nouns.Any(s => s.Equals($"{Adjective} {Noun}", StringComparison.InvariantCultureIgnoreCase));
     }
 
-    public bool MatchVerb(string[] verbs)
+    /// <summary>
+    ///     Verbs are matched only against a declared <see cref="VerbFamily" />, never a loose list of
+    ///     strings: that is what guarantees every verb a handler answers is in the game's vocabulary.
+    /// </summary>
+    public bool MatchVerb(VerbFamily verbs)
     {
-        return verbs.Any(s => s.Equals(Verb, StringComparison.InvariantCultureIgnoreCase));
+        return verbs.Matches(Verb);
     }
 
     public override string ToString()
@@ -39,7 +43,7 @@ public record SimpleIntent : IntentBase
         return $"Verb: {Verb}, Noun: {Noun}";
     }
 
-    public bool Match(string[] verbs, string[] nounsForMatching)
+    public bool Match(VerbFamily verbs, string[] nounsForMatching)
     {
         return MatchNoun(nounsForMatching) && MatchVerb(verbs);
     }
@@ -57,7 +61,7 @@ public record SimpleIntent : IntentBase
     ///     "verb PREPOSITION noun" command reliably. (Mirrors the raw-input pattern already used in
     ///     ZorkOne's BehindHouse "through window" handling.)
     /// </summary>
-    public bool MatchInInput(string[] verbs, string preposition, string[] nouns)
+    public bool MatchInInput(VerbFamily verbs, string preposition, string[] nouns)
     {
         if (string.IsNullOrWhiteSpace(OriginalInput))
             return false;

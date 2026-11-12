@@ -6,6 +6,8 @@ namespace Planetfall.Location.Feinstein;
 
 internal class DeckNine : LocationBase, ITurnBasedActor
 {
+    private static readonly VerbFamily CleanVerbs = new("clean", "scrub", "wash");
+
     public override string Name => "Deck Nine";
 
     // "deck 9" so naming the deck works whether the player (or the AI parser) writes the number out or
@@ -112,7 +114,7 @@ internal class DeckNine : LocationBase, ITurnBasedActor
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["clean", "scrub", "wash"], ["floor", "deck"]))
+        if (action.Match(CleanVerbs, ["floor", "deck"]))
             return new PositiveInteractionResult("The floor is a bit shinier now. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
