@@ -416,15 +416,19 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   `action.MatchVerb(RingVerb)`, or `RingVerb.Contains(verb)` on an already-normalised verb.
 - **Don't borrow a family with a different word set to save a line.** It silently widens or narrows what
   the object answers. Declare a new one; merging near-duplicates is a deliberate change of its own.
-  Moving a family into `Verbs.cs` is such a change too: the grammar then trusts its words on every noun.
-- Each game's vocabulary is its own: a verb only the ZorkOne rug declares is unknown to Planetfall's parser.
-- **Known is not answered - declare a family on the class that owns the noun.** The deterministic parser
-  trusts a verb from `Verbs.cs` on any noun, but a family declared on an item or
-  room only alongside that item's or room's own nouns (`NounsForMatching`, `SceneryNouns`). "yank" is the
-  admin corridor's verb for the key; aimed at a lever it reaches nothing, so the parser hands it to the AI,
-  which makes it "pull". A family on a helper class that is neither an item nor a room is harvested but
-  tied to no noun, so the grammar never resolves it. If a room's handler matches a noun, that noun belongs
-  in the room's `SceneryNouns`.
+- Each game's vocabulary is its own, although every grouping is declared in the one file: a grouping is
+  in a game's vocabulary only if the engine or that game's code matches on it. One that only Planetfall's
+  classes use is unknown to Zork's parser. A grouping nothing matches on is in no vocabulary at all, and
+  `VerbFamilyDeclarationTests.EveryGroupingInTheThesaurus_IsUsedByTheEngineOrSomeGame` fails on it.
+- **Known is not answered - who MATCHES on a grouping is who answers it.** The deterministic parser
+  resolves a verb on a noun by itself only where something will answer: an engine processor that matches on
+  the grouping answers for any noun; a game class that matches on it answers only for its own nouns
+  (`NounsForMatching`, `SceneryNouns`). "yank" is the admin corridor's verb for the key; aimed at a lever it
+  reaches nothing, so the parser hands it to the AI, which makes it "pull". Where a grouping is declared
+  says nothing - `VerbFamilyUsage` (GameEngine) reads the compiled code to find which class reads which
+  grouping. Two consequences: a helper class that is neither an item nor a room owns no nouns, so the
+  grammar never resolves what only it matches on; and a room whose handler matches a noun must own that
+  noun - put it in the room's `SceneryNouns`.
 - Multi-word phrases ("pour out") are fine in a family, but the deterministic parser acts only on single
   words plus its small `MultiWordVerbCanon` rewrite table ("turn on" → "activate"). Other phrases still
   reach handlers through the AI parser.

@@ -127,10 +127,6 @@ public static partial class ParserCorpus
             At("CyclopsRoom", "give the lunch to the cyclops", Act("give", "lunch", "to", "cyclops")),
             At("WestOfHouse", "unlock the grating with the key", Act("unlock", "grating", "with", "key")),
             At("SandyCave", "dig sand with shovel", Act("dig", "sand", "with", "shovel")),
-            // No Zork I object declares "pour"; it is in the shared thesaurus (Verbs.EmptyVerbs), so the
-            // grammar vouches for it on any noun.
-            At("Kitchen", "pour the water into the bottle",
-                Act("pour", "water", "into", "bottle").OrPreposition("in")),
 
             // ---------------------------------------------------------------- the grammar: getting in, and going places
             At("DamBase", "enter the boat", Board("boat")),
@@ -268,6 +264,11 @@ public static partial class ParserCorpus
             At("Dam", "let's turn the bolt with the wrench", Act("turn", "bolt", "with", "wrench").AiOnly()),
             At("Dam", "go ahead and loosen the bolt using the wrench",
                 Act("loosen", "bolt", "using", "wrench").AnyVerb().OrPreposition("with").AiOnly()),
+
+            // Nothing in Zork I answers "pour" - only Planetfall's and Stationfall's containers do - so
+            // the grammar does not vouch for it here, although the word is in the shared thesaurus.
+            At("Kitchen", "pour the water into the bottle",
+                Act("pour", "water", "into", "bottle").OrPreposition("in").AiOnly()),
 
             // ---------------------------------------------------------------- the AI: more than one command, or none
             At("WestOfHouse", "open the mailbox take the leaflet read it", SeveralCommands()),

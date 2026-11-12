@@ -480,75 +480,95 @@ public static class Repository
         return owners;
     }
 
-    private static readonly ConcurrentDictionary<string, (VerbFamily Family, Type DeclaredOn)[]> VerbsByGame = new();
+    private static readonly ConcurrentDictionary<string, (VerbFamily Family, Type? Owner)[]> VerbsByGame = new();
 
     /// <summary>
-    ///     Every verb family the game answers: the engine-wide thesaurus (<see cref="Verbs" />), which
-    ///     includes what the engine's own processors answer, and every family declared by one of the
-    ///     game's items or locations. This is the verb counterpart of <see cref="GetNouns" />, and it is complete
-    ///     for the same reason: a handler can only match a verb through a <see cref="VerbFamily" />, and a
-    ///     family can only be created in a static field, so there is nothing a handler answers that this
-    ///     cannot see. (See <see cref="VerbFamily" />; <c>VerbFamilyDeclarationTests</c> enforces the rule.)
+    ///     Every verb family the game answers: each grouping from the shared thesaurus (<see cref="Verbs" />)
+    ///     that the engine or one of the game's own classes matches on, and every single verb an item or
+    ///     location declares for itself. This is the verb counterpart of <see cref="GetNouns" />, and it is
+    ///     complete for the same reason: a handler can only match a verb through a <see cref="VerbFamily" />,
+    ///     and a family can only be created in a static field, so there is nothing a handler answers that
+    ///     this cannot see. (See <see cref="VerbFamily" />; <c>VerbFamilyDeclarationTests</c> enforces the rule.)
     /// </summary>
     /// <remarks>
-    ///     Cached per game. Unlike nouns, families are immutable statics, so nothing about a running game
-    ///     can change the answer.
+    ///     Each game's list is its own: a grouping only Stationfall's objects use is not in Zork's
+    ///     vocabulary, although both are declared in the same file. Cached per game - families are
+    ///     immutable statics, so nothing about a running game can change the answer.
     /// </remarks>
     public static VerbFamily[] GetVerbs(string gameName)
     {
-        // The same closed generic base is reached once per subclass, each with its own copy of the field,
-        // so collapse families that hold exactly the same words.
-        return GetVerbDeclarations(gameName)
-            .Select(declaration => declaration.Family)
+        return GetVerbOwners(gameName)
+            .Select(owned => owned.Family)
             .DistinctBy(family => string.Join('\n', family), StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }
 
     /// <summary>
-    ///     Every verb family with the type that declares it. Who declares a family is who answers it:
-    ///     <see cref="Verbs" /> and the engine's processors answer for any object, an item or a room only
-    ///     for itself. A parser needs that distinction - see <see cref="DeterministicParser" />.
+    ///     Every verb family with who answers it. An <c>Owner</c> of <c>null</c> is the engine: one of its
+    ///     processors matches on the family, so it is answered for any object. Otherwise the owner is the
+    ///     game class whose code matches on it (see <see cref="VerbFamilyUsage" />) - one entry per class,
+    ///     so a grouping three objects share appears three times. A parser needs exactly this to tell a verb
+    ///     it knows from a verb the object in front of it answers - see <see cref="DeterministicParser" />.
     /// </summary>
-    public static IReadOnlyList<(VerbFamily Family, Type DeclaredOn)> GetVerbDeclarations(string gameName)
+    public static IReadOnlyList<(VerbFamily Family, Type? Owner)> GetVerbOwners(string gameName)
     {
         return VerbsByGame.GetOrAdd(gameName, HarvestVerbs);
     }
 
-    private static (VerbFamily Family, Type DeclaredOn)[] HarvestVerbs(string gameName)
+    private static (VerbFamily Family, Type? Owner)[] HarvestVerbs(string gameName)
     {
-        var families = new List<(VerbFamily Family, Type DeclaredOn)>();
+        var owned = new HashSet<(VerbFamily, Type?)>();
+        var thesaurus = typeof(VerbFamily).Assembly;
+        var engine = typeof(Repository).Assembly;
 
         foreach (var assembly in VocabularyAssemblies(gameName))
-        foreach (var type in LoadableTypes(assembly))
-            // Walk the base types too. A generic base such as SlotBase<TCard, TSlot> has no statics of its
-            // own to read - only its closed forms do - and the closed form is only ever reachable as the
-            // base type of a concrete subclass.
-            for (var current = type; current is not null; current = current.BaseType)
-            {
-                if (current.ContainsGenericParameters)
-                    continue;
+        {
+            // The thesaurus only declares. A grouping is answered by whoever reads it, never by the file
+            // it is written in - which is also what keeps another game's groupings out of this game.
+            if (assembly == thesaurus)
+                continue;
 
-                foreach (var field in current.GetFields(BindingFlags.Static | BindingFlags.Public |
-                                                        BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+            foreach (var (field, usedBy) in VerbFamilyUsage.In(assembly))
+                if (ValueOf(field) is { } family)
+                    owned.Add((family, assembly == engine ? null : usedBy));
+
+            // A single verb a class declares for itself belongs to that class even on the one path the
+            // scan above cannot read: a generic base such as SlotBase<TCard, TSlot> has no statics of its
+            // own - only its closed forms do - and a closed form is only reachable as a subclass's base.
+            foreach (var type in LoadableTypes(assembly))
+                for (var current = type; current is not null; current = current.BaseType)
                 {
-                    if (field.FieldType != typeof(VerbFamily))
+                    if (current.ContainsGenericParameters)
                         continue;
 
-                    try
-                    {
-                        if (field.GetValue(null) is VerbFamily family)
-                            families.Add((family, current));
-                    }
-                    catch
-                    {
-                        // A type whose static initialiser fails contributes no verbs; the AI parser still
-                        // covers them, and that failure is not this method's to report.
-                    }
+                    foreach (var field in current.GetFields(BindingFlags.Static | BindingFlags.Public |
+                                                            BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                        if (field.FieldType == typeof(VerbFamily) && ValueOf(field) is { } family)
+                            owned.Add((family, assembly == engine
+                                ? null
+                                : current.IsGenericType ? current.GetGenericTypeDefinition() : current));
                 }
-            }
+        }
 
-        // A base type's fields are reached once per subclass; keep each (field value, declaring type) once.
-        return families.Distinct().ToArray();
+        return owned.ToArray();
+    }
+
+    private static VerbFamily? ValueOf(FieldInfo field)
+    {
+        // A static on an open generic type cannot be read; its closed forms are picked up as base types.
+        if (field.DeclaringType is null or { ContainsGenericParameters: true })
+            return null;
+
+        try
+        {
+            return field.GetValue(null) as VerbFamily;
+        }
+        catch
+        {
+            // A type whose static initialiser fails contributes no verbs; the AI parser still covers
+            // them, and that failure is not this method's to report.
+            return null;
+        }
     }
 
     /// <summary>

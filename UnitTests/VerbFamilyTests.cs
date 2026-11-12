@@ -83,8 +83,30 @@ public class GetVerbsTests
 
         families.Should().Contain(Verbs.TakeVerbs).And.Contain(Verbs.ExamineVerbs);
         families.Should().Contain(Verbs.SmellVerbs).And.Contain(Verbs.DoffVerbs).And.Contain(Verbs.PutVerbs);
-        // The narrow sets are in a nested class; the harvest has to look there too.
-        families.Should().Contain(Verbs.Exactly.Open);
+    }
+
+    [Test]
+    public void AGroupingIsInAGamesVocabulary_OnlyIfThatGameOrTheEngineUsesIt()
+    {
+        // Every grouping is declared in one file for all games. What puts one in a game's vocabulary is
+        // that game's code matching on it.
+        Repository.GetVerbs("Planetfall").Should().Contain(Verbs.SetVerbs, "the laser and the conference room door use it");
+        Repository.GetVerbs("ZorkOne").Should().NotContain(Verbs.SetVerbs, "nothing in Zork I sets a dial");
+
+        Repository.GetVerbs("ZorkOne").Should().Contain(Verbs.WaveVerbs, "the rainbow rooms use it");
+        Repository.GetVerbs("Planetfall").Should().NotContain(Verbs.WaveVerbs);
+    }
+
+    [Test]
+    public void AGroupingTheEngineUses_IsAnsweredForAnyObject_AndOneAGameClassUsesIsAnsweredByThatClass()
+    {
+        var owners = Repository.GetVerbOwners("ZorkOne");
+
+        owners.Where(owned => ReferenceEquals(owned.Family, Verbs.TakeVerbs)).Select(owned => owned.Owner)
+            .Should().Contain((Type?)null, "the take processor matches on it for every item");
+
+        owners.Where(owned => ReferenceEquals(owned.Family, Verbs.WaveVerbs)).Select(owned => owned.Owner!.Name)
+            .Should().BeEquivalentTo("OnTheRainbow", "EndOfRainbow");
     }
 
     [Test]
@@ -161,20 +183,18 @@ public class VerbFamilyDeclarationTests
             "methods build one inline instead");
     }
 
-    [Test]
-    public void EveryDeclaredFamily_IsInTheHarvestOfTheGameThatDeclaresIt()
-    {
-        var shared = new[] { "Model", "GameEngine", "StellarPatrol" };
+    private static readonly string[] Games = ["ZorkOne", "Planetfall", "Stationfall", "EscapeRoom"];
 
-        foreach (var game in new[] { "ZorkOne", "Planetfall", "Stationfall", "EscapeRoom" })
+    [Test]
+    public void AFamilyAGameClassDeclares_IsInThatGamesVocabulary()
+    {
+        foreach (var game in Games)
         {
             var harvested = Repository.GetVerbs(game)
                 .Select(family => string.Join('|', family))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            var declared = shared.Append(game)
-                .Select(Assembly.Load)
-                .SelectMany(assembly => assembly.GetTypes())
+            var declared = Assembly.Load(game).GetTypes()
                 .Where(type => !type.ContainsGenericParameters)
                 .SelectMany(type => type.GetFields(Everything))
                 .Where(field => field.IsStatic && field.FieldType == typeof(VerbFamily))
@@ -182,8 +202,27 @@ public class VerbFamilyDeclarationTests
                     Words: string.Join('|', (VerbFamily)field.GetValue(null)!)));
 
             declared.Where(family => !harvested.Contains(family.Words)).Select(family => family.Field)
-                .Should().BeEmpty($"every family {game} declares must reach its vocabulary");
+                .Should().BeEquivalentTo(Array.Empty<string>(), $"every family {game} declares must reach its vocabulary");
         }
+    }
+
+    /// <summary>
+    ///     A grouping nothing matches on is vocabulary no game has: it looks like a supported verb to
+    ///     anyone reading <see cref="Verbs" />, and no parser will ever be told about it.
+    /// </summary>
+    [Test]
+    public void EveryGroupingInTheThesaurus_IsUsedByTheEngineOrSomeGame()
+    {
+        var used = Games.SelectMany(Repository.GetVerbs).ToHashSet();
+
+        var unused = typeof(Verbs).GetNestedTypes().Append(typeof(Verbs))
+            .SelectMany(type => type.GetFields(Everything))
+            .Where(field => field.IsStatic && field.FieldType == typeof(VerbFamily))
+            .Where(field => !used.Contains((VerbFamily)field.GetValue(null)!))
+            .Select(field => $"{field.DeclaringType!.Name}.{field.Name}");
+
+        unused.Should().BeEquivalentTo(Array.Empty<string>(),
+            "a grouping in Verbs.cs that no handler matches on is dead vocabulary");
     }
 
     /// <summary>

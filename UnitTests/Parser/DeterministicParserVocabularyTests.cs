@@ -73,7 +73,7 @@ public class DeterministicParserVocabularyTests(string game)
                                              DirectionParser.ParseDirection(candidate) == Direction.Unknown);
         var failures = new List<string>();
 
-        foreach (var verb in SingleWords(declaration => IsEngineLevel(declaration.DeclaredOn)))
+        foreach (var verb in SingleWords(owned => owned.Owner is null))
             if (!IsUnderstood(verb, noun, _parser.Parse($"{verb} {noun}")))
                 failures.Add($"{verb} {noun}");
 
@@ -87,13 +87,12 @@ public class DeterministicParserVocabularyTests(string game)
         var owners = Repository.GetNounOwners(game);
         var failures = new List<string>();
 
-        foreach (var (family, declaredOn) in Repository.GetVerbDeclarations(game)
-                     .Where(declaration => !IsEngineLevel(declaration.DeclaredOn)))
-        foreach (var noun in owners.Where(owner => declaredOn.IsAssignableFrom(owner.Owner))
+        foreach (var (family, answeredBy) in Repository.GetVerbOwners(game).Where(owned => owned.Owner is not null))
+        foreach (var noun in owners.Where(owner => VerbFamilyUsage.IsOrDerivesFrom(owner.Owner, answeredBy!))
                      .SelectMany(owner => owner.Nouns).Select(noun => noun.ToLowerInvariant()).Distinct())
         foreach (var verb in family.Where(word => !word.Contains(' ')))
             if (!IsUnderstood(verb, noun, _parser.Parse($"{verb} {noun}")))
-                failures.Add($"{verb} {noun} ({declaredOn.Name})");
+                failures.Add($"{verb} {noun} ({answeredBy!.Name})");
 
         failures.Should().BeEquivalentTo(Array.Empty<string>(),
             "a verb an item or room declares must resolve when aimed at that item's or room's own nouns");
@@ -103,19 +102,19 @@ public class DeterministicParserVocabularyTests(string game)
     public void AVerbOnlyOneObjectDeclares_IsLeftToTheAiOnEveryOtherNoun()
     {
         var owners = Repository.GetNounOwners(game);
-        var shared = SingleWords(declaration => IsEngineLevel(declaration.DeclaredOn))
+        var shared = SingleWords(owned => owned.Owner is null)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var failures = new List<string>();
 
-        foreach (var group in Repository.GetVerbDeclarations(game)
-                     .Where(declaration => !IsEngineLevel(declaration.DeclaredOn))
-                     .SelectMany(declaration => declaration.Family.Where(word => !word.Contains(' '))
-                         .Select(verb => (Verb: verb.ToLowerInvariant(), declaration.DeclaredOn)))
+        foreach (var group in Repository.GetVerbOwners(game)
+                     .Where(owned => owned.Owner is not null)
+                     .SelectMany(owned => owned.Family.Where(word => !word.Contains(' '))
+                         .Select(verb => (Verb: verb.ToLowerInvariant(), AnsweredBy: owned.Owner!)))
                      .Where(pair => !shared.Contains(pair.Verb))
                      .GroupBy(pair => pair.Verb))
         {
             var itsNouns = owners
-                .Where(owner => group.Any(pair => pair.DeclaredOn.IsAssignableFrom(owner.Owner)))
+                .Where(owner => group.Any(pair => VerbFamilyUsage.IsOrDerivesFrom(owner.Owner, pair.AnsweredBy)))
                 .SelectMany(owner => owner.Nouns).Select(noun => noun.ToLowerInvariant()).ToHashSet();
 
             foreach (var noun in _nouns.Where(noun => !itsNouns.Contains(noun)))
@@ -128,15 +127,10 @@ public class DeterministicParserVocabularyTests(string game)
             "the grammar must hand it to the AI, which can reduce it to a verb that object does answer");
     }
 
-    private static bool IsEngineLevel(Type type)
+    private IEnumerable<string> SingleWords(Func<(VerbFamily Family, Type? Owner), bool> which)
     {
-        return type.Assembly == typeof(Verbs).Assembly || type.Assembly == typeof(DeterministicParser).Assembly;
-    }
-
-    private IEnumerable<string> SingleWords(Func<(VerbFamily Family, Type DeclaredOn), bool> which)
-    {
-        return Repository.GetVerbDeclarations(game).Where(which)
-            .SelectMany(declaration => declaration.Family)
+        return Repository.GetVerbOwners(game).Where(which)
+            .SelectMany(owned => owned.Family)
             .Where(word => !word.Contains(' '))
             .Select(word => word.ToLowerInvariant())
             .Distinct();

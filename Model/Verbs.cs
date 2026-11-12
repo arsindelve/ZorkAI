@@ -10,8 +10,8 @@
 ///     <para>
 ///         The moment a second class answers the same words, the family moves here and both use it from
 ///         here: the same words are never declared twice (<c>VerbFamilyDeclarationTests</c> fails if they
-///         are). Being here also means the deterministic parser trusts the verb on any noun, not only on
-///         the nouns of the objects that happen to use it.
+///         are). Being here says nothing about who answers a grouping: that is whoever matches on it,
+///         which is how each game ends up with its own vocabulary out of this one file.
 ///     </para>
 /// </summary>
 public static class Verbs
@@ -40,7 +40,6 @@ public static class Verbs
     public static readonly VerbFamily FixVerbs = new("fix", "repair", "seal", "patch", "stop", "block", "mend", "plug");
     public static readonly VerbFamily ApplyVerbs = new("use", "apply", "stick", "put", "place", "spread", "smear", "press");
     public static readonly VerbFamily PushVerbs = new("push", "press", "activate", "toggle", "click", "flip", "switch", "depress");
-    public static readonly VerbFamily TypeVerbs = new("type", "punch", "key", "press");
 
     public static readonly VerbFamily MoveVerbs =
         new("move", "go", "walk", "run", "travel", "proceed", "head", "stroll", "escape", "march", "wander", "venture",
@@ -136,7 +135,7 @@ public static class Verbs
     public static readonly VerbFamily TurnWithToolVerbs = new("turn", "use", "apply");
 
     /// <summary>Entering something on a keyboard or keypad, where a player also says "press" and "push".</summary>
-    public static readonly VerbFamily KeyInVerbs = new([..TypeVerbs, "push"]);
+    public static readonly VerbFamily KeyInVerbs = new("type", "punch", "key", "press", "push");
 
     // ------------------------------------------------------------------------------------------------
     // What the engine's own processors answer, for every object in every game. The processor reads the

@@ -114,36 +114,37 @@ public class DeterministicParser
             .ToArray();
 
         // The verbs are harvested exactly as the nouns are: every word of every VerbFamily the engine or
-        // this game declares (Repository.GetVerbDeclarations). There is no verb list in this class to fall
+        // this game answers (Repository.GetVerbOwners). There is no verb list in this class to fall
         // behind - a handler cannot answer a verb that is not in a family. Single words only: a multi-word
         // phrase reaches the grammar through MultiWordVerbCanon or not at all.
         //
-        // But a verb being KNOWN is not the same as its being ANSWERED, and who declares a family says
-        // which it is. The thesaurus (Verbs.cs) answers for any object in any game, so its verbs
-        // are trusted everywhere. A family on one item or room is answered by that item or room alone: the
-        // admin corridor lists "yank" and "fetch" for fishing out the key, and neither does anything to a
-        // lever or a canteen, where the AI would have made them "pull" and "take". So an object's own verbs
-        // are trusted only alongside that object's own nouns. Anything else is declined, exactly as it was
-        // before the verb was harvested at all.
-        Assembly[] engine = [typeof(Verbs).Assembly, typeof(DeterministicParser).Assembly];
+        // But a verb being KNOWN is not the same as its being ANSWERED, and who matches on a family says
+        // which it is. A family an engine processor matches on is answered for any object, so its verbs
+        // are trusted everywhere. A family a game class matches on is answered by that class alone: the
+        // admin corridor matches "yank" and "fetch" for fishing out the key, and neither does anything to a
+        // lever or a canteen, where the AI would have made them "pull" and "take". So those verbs are
+        // trusted only alongside that class's own nouns, and anything else is declined.
+        //
+        // Where a family is DECLARED says nothing here. Every grouping is declared in Verbs.cs, for all
+        // games at once; what ties "raise" to the basket is that the basket's handler reads RaiseVerbs.
         var sharedVerbs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var ownVerbs = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var (family, declaredOn) in Repository.GetVerbDeclarations(gameName))
+        foreach (var (family, owner) in Repository.GetVerbOwners(gameName))
         {
             var words = family.Where(word => !word.Contains(' ')).ToArray();
 
-            if (engine.Contains(declaredOn.Assembly))
+            if (owner is null)
             {
                 sharedVerbs.UnionWith(words);
                 continue;
             }
 
-            // The declaring type and everything derived from it: a family on an abstract base (every
-            // access-card slot, every shuttle control cabin) is answered by each concrete subclass.
+            // The owning class and everything derived from it: a handler on an abstract base (every
+            // access-card slot, every shuttle control cabin) answers for each concrete subclass.
             var itsNouns = nounOwners
-                .Where(owner => declaredOn.IsAssignableFrom(owner.Owner))
-                .SelectMany(owner => owner.Nouns)
+                .Where(nounOwner => VerbFamilyUsage.IsOrDerivesFrom(nounOwner.Owner, owner))
+                .SelectMany(nounOwner => nounOwner.Nouns)
                 .Select(noun => noun.ToLowerInvariant())
                 .ToArray();
 
