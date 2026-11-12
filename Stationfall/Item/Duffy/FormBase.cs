@@ -24,7 +24,7 @@ public abstract class FormBase : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
         IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.MatchNounAndAdjective(NounsForMatching) &&
-            action.MatchVerb(Verbs.DestroyFormVerbs))
+            action.MatchVerb(Verbs.DestroyPaperVerbs))
             return new PositiveInteractionResult(
                 "Destroying a Patrol form is a violation of the Uniform Code of Paperwork, and you " +
                 "have no intention of explaining yourself at a hearing. ");

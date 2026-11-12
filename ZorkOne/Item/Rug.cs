@@ -24,7 +24,7 @@ public class Rug : ItemBase
         if (!action.MatchNoun(NounsForMatching))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
-        if (action.MatchVerb(Verbs.SlideAsideVerbs))
+        if (action.MatchVerb(Verbs.MoveAsideVerbs))
             return MoveRug();
 
         if (action.MatchVerb(SitVerb) && action.OriginalInput != null &&

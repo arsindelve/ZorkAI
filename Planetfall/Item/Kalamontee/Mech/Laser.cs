@@ -299,7 +299,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
             return Task.FromResult<InteractionResult?>(ThrowOffStrip(context));
 
         // Handle "shoot X with laser" - laser is NounTwo, target is NounOne
-        if (action.MatchVerb(Verbs.ShootAtVerbs) &&
+        if (action.MatchVerb(Verbs.FireVerbs) &&
             action.MatchPreposition(["with"]) &&
             action.MatchNounTwo(NounsForMatching))
         {
@@ -315,7 +315,7 @@ public class Laser : ContainerBase, ICanBeTakenAndDropped, ICanBeExamined, ITurn
         }
 
         // Handle "shoot laser at X" - laser is NounOne, target is NounTwo
-        if (action.MatchVerb(Verbs.ShootAtVerbs) &&
+        if (action.MatchVerb(Verbs.FireVerbs) &&
             action.MatchPreposition(["at"]) &&
             action.MatchNounOne(NounsForMatching))
         {

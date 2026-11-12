@@ -107,8 +107,11 @@ public class PutProcessorTests : EngineTestsBase
         result.InteractionMessage.Should().Contain("closed");
     }
 
-    [Test]
-    public void PutProcessor_MailBoxOneItemSuccess()
+    // Verbs.PutVerbs: "move the leaflet inside the mailbox" is putting it there.
+    [TestCase("put")]
+    [TestCase("place")]
+    [TestCase("move")]
+    public void PutProcessor_MailBoxOneItemSuccess(string verb)
     {
         var target = new PutProcessor();
         var leaflet = Repository.GetItem<Leaflet>();
@@ -120,7 +123,7 @@ public class PutProcessorTests : EngineTestsBase
         // Act
         var result = target.Process(new MultiNounIntent
         {
-            Verb = "put",
+            Verb = verb,
             NounOne = "leaflet",
             NounTwo = "mailbox",
             Preposition = "inside",

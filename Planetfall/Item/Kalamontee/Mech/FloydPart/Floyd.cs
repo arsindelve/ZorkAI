@@ -312,7 +312,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
         // Floyd can be "opened" but in no other way behaves like a typical open/close container. For him,
         // "open" is a synonym for "search"
-        if (action.Match(Verbs.OpenOrSearchVerbs, NounsForMatching)) return _inventoryManager.SearchFloyd(context);
+        if (action.Match(Verbs.SearchVerbs, NounsForMatching) || action.Match(Verbs.OpenItemVerbs, NounsForMatching))
+            return _inventoryManager.SearchFloyd(context);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }

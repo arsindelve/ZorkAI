@@ -43,7 +43,7 @@ internal static class RainbowInteraction
     private static bool IsCrossingRainbow(SimpleIntent action)
     {
         return action.MatchVerb(Verbs.CrossVerbs) ||
-               action.MatchVerb(Verbs.WalkOnVerbs) && IsAdverbOrOriginalInput(action, "through");
+               action.MatchVerb(Verbs.MoveVerbs) && IsAdverbOrOriginalInput(action, "through");
     }
 
     private static bool IsAdverbOrOriginalInput(SimpleIntent action, string preposition)

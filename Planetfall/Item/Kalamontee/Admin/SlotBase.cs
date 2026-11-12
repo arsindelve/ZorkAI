@@ -31,14 +31,14 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (action.Match<TAccessCard, TAccessSlot>(Verbs.InsertCardVerbs, ["in", "into"]))
+        if (action.Match<TAccessCard, TAccessSlot>(Verbs.InsertVerbs, ["in", "into"]))
             return new PositiveInteractionResult(
                 "The slot is shallow, so you can't put anything in it. It may be possible to slide " +
                 "something through the slot, though. ");
 
         string[] prepositions = ["across", "through", "on", "in"];
 
-        if (action.Match<TAccessCard, TAccessSlot>(Verbs.SwipeCardVerbs, prepositions))
+        if (action.Match<TAccessCard, TAccessSlot>(Verbs.SlideThroughVerbs, prepositions))
         {
             // Possession must be container-aware, exactly like the wrong-card branch below (which uses
             // HasMatchingNoun). context.HasItem<T>() is top-level-only, so a card in the Patrol uniform
@@ -82,7 +82,7 @@ internal abstract class SlotBase<TAccessCard, TAccessSlot> : ItemBase, ICanBeExa
         // not the possession bug above; fixing it here is not safe by inspection, because the obvious
         // scope-aware replacements resolve through CurrentLocation, which for an inventory item can be
         // stale (Floyd's Init re-seeds the lower elevator card singleton and steals its CurrentLocation).
-        if (action.MatchVerb(Verbs.SwipeCardVerbs) && action.MatchPreposition(prepositions) && nounOne is AccessCard)
+        if (action.MatchVerb(Verbs.SlideThroughVerbs) && action.MatchPreposition(prepositions) && nounOne is AccessCard)
         {
             if (!context.HasMatchingNoun(action.NounOne).HasItem)
                 return new NoNounMatchInteractionResult();

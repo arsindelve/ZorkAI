@@ -107,8 +107,13 @@ public static class Verbs
     /// </summary>
     public static readonly VerbFamily JumpVerbs = new("jump", "leap");
 
-    /// <summary>Going through what a container or a vehicle holds, as distinct from looking at it.</summary>
-    public static readonly VerbFamily SearchVerbs = new("search", "look in", "look inside");
+    /// <summary>
+    ///     Going through what a thing holds, as distinct from looking at it. An object where a glance or
+    ///     opening it shows the contents too matches <see cref="ExamineVerbs" /> or
+    ///     <see cref="OpenItemVerbs" /> as well.
+    /// </summary>
+    public static readonly VerbFamily SearchVerbs =
+        new("search", "look in", "look inside", "look into", "reach in", "reach into", "check");
 
     /// <summary>"look through the window", in every phrasing: the glance family and the examine family.</summary>
     public static readonly VerbFamily LookThroughVerbs = new([..LookVerbs, ..ExamineVerbs]);
@@ -116,13 +121,38 @@ public static class Verbs
     public static readonly VerbFamily WaveVerbs = new("wave", "swing", "twirl");
 
     /// <summary>Tipping a container's contents out, with or without somewhere to tip them.</summary>
-    public static readonly VerbFamily EmptyVerbs = new("empty", "dump", "pour");
+    public static readonly VerbFamily EmptyVerbs = new("empty", "dump", "pour", "pour out", "spill", "tip out");
 
     /// <summary>
-    ///     Putting one thing against, across or under another. Narrower than <see cref="ApplyVerbs" /> on
-    ///     purpose: no "use", no "press".
+    ///     Putting a thing into a slot or a narrow container. Not <see cref="PutVerbs" />: "push" and
+    ///     "slide" are kept out on purpose. The access-card slots refuse a card put IN them and accept
+    ///     one slid THROUGH (<see cref="SlideThroughVerbs" />); with "push" in here, "push card in slot"
+    ///     would get the refusal and the puzzle could not be solved that way.
     /// </summary>
-    public static readonly VerbFamily PlaceVerbs = new("place", "put", "move");
+    public static readonly VerbFamily InsertVerbs = new("insert", "put", "place", "feed", "stick", "drop", "put in");
+
+    /// <summary>Passing a card or a form through a slot: the way the slots actually work.</summary>
+    public static readonly VerbFamily SlideThroughVerbs =
+        new("slide", "swipe", "scan", "pass", "glide", "draw", "push", "use");
+
+    /// <summary>Destroying paperwork, in the engine's words for destroying anything and the ones only paper gets.</summary>
+    public static readonly VerbFamily DestroyPaperVerbs =
+        new([..BreakVerbs, "crumple", "tear", "rip", "shred", "burn", "eat"]);
+
+    /// <summary>Cleaning a surface.</summary>
+    public static readonly VerbFamily CleanVerbs = new("clean", "scrub", "wash", "wipe", "mop");
+
+    /// <summary>Cleaning a mess off something, which is also removing it.</summary>
+    public static readonly VerbFamily CleanOffVerbs = new([..CleanVerbs, "remove"]);
+
+    /// <summary>
+    ///     Tasting a thing. "eat" is not in here: for the soup, eating it is a different action, and an
+    ///     object where they are the same matches <see cref="EatOrDrinkVerbs" /> as well.
+    /// </summary>
+    public static readonly VerbFamily TasteVerbs = new("taste", "lick");
+
+    /// <summary>Shifting a thing aside to see what is under it: the rug, the pile of leaves.</summary>
+    public static readonly VerbFamily MoveAsideVerbs = new("move", "slide", "pull", "rearrange", "shift");
 
     /// <summary>
     ///     Taking something off or out of what holds it: the padlock off the door, the battery out of
@@ -195,22 +225,9 @@ public static class Verbs
 
     public static readonly VerbFamily ChooseVerbs = new("pick", "choose", "select", "requisition", "hire");
 
-    public static readonly VerbFamily CleanOffVerbs = new("clean", "scrub", "remove");
-
-    public static readonly VerbFamily CleanVerbs = new("clean", "scrub", "wash");
-
     public static readonly VerbFamily CrossVerbs = new("cross", "through", "traverse");
 
     public static readonly VerbFamily CutVerbs = new("cut", "chop", "slash", "destroy");
-
-    public static readonly VerbFamily DestroyBoxVerbs =
-        new("destroy", "tear", "rip", "shred", "burn", "break", "crumple");
-
-    public static readonly VerbFamily DestroyBoxedFormsVerbs =
-        new("crumple", "tear", "rip", "destroy", "break", "smash", "burn", "eat");
-
-    public static readonly VerbFamily DestroyFormVerbs =
-        new("crumple", "destroy", "tear", "rip", "shred", "burn", "eat", "break");
 
     // The classic skeleton curse fires for any of these verbs applied to the bones
     // (zork1/1actions.zil:931 — SKELETON: <VERB? TAKE RUB MOVE PUSH RAISE LOWER ATTACK KICK KISS>).
@@ -226,59 +243,33 @@ public static class Verbs
             "push", "depress", "shove", "move", "raise", "lift", "lower", "kick", "kiss"
         ]);
 
-    public static readonly VerbFamily EmptyKitVerbs = new("empty", "dump", "pour out", "tip out");
-
-    public static readonly VerbFamily ExamineOrLookInVerbs = new("examine", "look in");
-
     public static readonly VerbFamily ExtendVerbs =
         new("extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen");
 
-    public static readonly VerbFamily FastenUniformVerbs = new("open", "close", "shut", "unfasten", "fasten");
+    /// <summary>Doing up or undoing a garment.</summary>
+    public static readonly VerbFamily FastenVerbs = new("open", "close", "shut", "unfasten", "fasten");
 
+    /// <summary>Firing a weapon, at something or at nothing.</summary>
     public static readonly VerbFamily FireVerbs = new("shoot", "fire", "activate", "discharge");
 
-    public static readonly VerbFamily ForceDoorVerbs =
-        new("open", "unlock", "unseal", "force", "pull", "push", "pry");
+    /// <summary>Trying a door that will not open, including by rattling it.</summary>
+    public static readonly VerbFamily ForceDoorVerbs = new([..OpenItemVerbs, "unlock", "pull", "push"]);
 
+    /// <summary>Getting a delicate thing open by force, which is also breaking it.</summary>
     public static readonly VerbFamily ForceOpenVerbs =
-        new("open", "pry", "break", "jimmie", "crack", "force", "bust", "pop", "split");
-
-    /// <summary>
-    ///     Trying to use a robot bin as storage. Provisional: it belongs with the other "put a thing
-    ///     into a slot or a container" groupings once those are settled.
-    /// </summary>
-    public static readonly VerbFamily PutInBinVerbs = new("put", "put in");
+        new([..OpenItemVerbs, "break", "jimmie", "crack", "bust", "pop", "split"]);
 
     public static readonly VerbFamily GiveOrThrowVerbs = new([..GiveVerbs, ..ThrowVerbs]);
 
     public static readonly VerbFamily GrabOrAttackVerbs = new([..KillVerbs, ..TakeVerbs]);
 
-    public static readonly VerbFamily HandleFormsVerbs =
-        new("touch", "feel", "examine", "look at", "inspect", "read");
-
     public static readonly VerbFamily InflateVerbs = new("inflate", "blow up", "blow");
-
-    public static readonly VerbFamily InflateWithPumpVerbs = new("inflate", "blow", "blow up", "use");
-
-    // Putting a card IN the slot is refused; sliding it THROUGH is how the slot works.
-    public static readonly VerbFamily InsertCardVerbs = new("insert", "put", "place");
-
-    public static readonly VerbFamily InsertFormVerbs =
-        new("put", "insert", "place", "slide", "feed", "push", "stick", "drop");
 
     public static readonly VerbFamily KnockVerbs = new("knock", "knock on");
 
     public static readonly VerbFamily LaunchVerbs = new("launch", "start", "drive", "fly", "turn on");
 
     public static readonly VerbFamily ListenVerbs = new("listen", "listen to", "hear");
-
-    public static readonly VerbFamily LookInBinVerbs =
-        new("look in", "look inside", "search", "examine", "inspect", "look at");
-
-    public static readonly VerbFamily LookInPoolBinVerbs =
-        new("look in", "look into", "examine", "look", "search", "inspect", "check");
-
-    public static readonly VerbFamily LookInThermosVerbs = new("look in", "look inside", "reach in", "reach into");
 
     public static readonly VerbFamily LowerIntoVerbs =
         new("put", "place", "hold", "lower", "dangle", "dip", "stick", "insert", "set", "lay", "rest", "slide", "slip",
@@ -291,21 +282,6 @@ public static class Verbs
     // Floyd's V-OIL flavor interaction: both his single-noun handler and the multi-noun "oil floyd
     // with oil can" branch match on this.
     public static readonly VerbFamily OilVerbs = new("oil", "lubricate");
-
-    public static readonly VerbFamily OpenBoxVerbs =
-        new("open", "look in", "look inside", "search", "empty", "unseal");
-
-    public static readonly VerbFamily OpenHatchVerbs = new("open", "unseal");
-
-    public static readonly VerbFamily OpenOrSearchVerbs = new("open", "search");
-
-    public static readonly VerbFamily PlaceUnderSpoutVerbs = new("put", "place", "move", "shove", "jam", "push");
-
-    public static readonly VerbFamily PourOutSoupVerbs = new("pour", "empty", "pour out", "dump", "spill");
-
-    public static readonly VerbFamily PourOutThermosVerbs = new("pour", "empty", "pour out", "dump");
-
-    public static readonly VerbFamily PutInThermosVerbs = new("put", "place", "insert", "drop");
 
     public static readonly VerbFamily RetractVerbs = new("retract", "collapse", "shorten", "close", "contract");
 
@@ -322,36 +298,21 @@ public static class Verbs
 
     public static readonly VerbFamily RingBellVerbs = new("ring", "activate", "shake");
 
-    public static readonly VerbFamily RummageVerbs = new("move", "search");
-
     public static readonly VerbFamily ShakeVerbs = new("shake", "agitate", "rattle");
 
-    public static readonly VerbFamily ShootAtVerbs = new("shoot", "fire");
-
     public static readonly VerbFamily SitDownVerbs = new("sit", "rest", "get");
-
-    public static readonly VerbFamily SlideAsideVerbs = new("move", "slide", "pull", "rearrange");
 
     // Breaking the mirror permanently disables the touch-to-teleport. Reuse the shared attack and break
     // synonym sets so the verb coverage stays consistent with the rest of the engine, plus "kick". Throw is
     // intentionally excluded: "throw the mirror" makes no sense for a wall-sized fixture. Built once, not per call.
     public static readonly VerbFamily SmashVerbs = new([..KillVerbs, ..BreakVerbs, "kick"]);
 
-    public static readonly VerbFamily SwipeCardVerbs =
-        new("slide", "swipe", "scan", "pass", "glide", "draw", "push", "use");
-
-    public static readonly VerbFamily TasteVerbs = new("taste", "eat");
-
     public static readonly VerbFamily ThrowOrDropVerbs = new([..ThrowVerbs, ..DropVerbs]);
 
     public static readonly VerbFamily TieVerbs = new("tie", "attach");
 
-    public static readonly VerbFamily TouchOrTasteVerbs = new("touch", "taste", "feel", "reach in", "reach into");
-
     /// <summary>Using a thing, by itself or on something: "use the key on the padlock", "use the button".</summary>
     public static readonly VerbFamily UseVerbs = new("use", "apply");
-
-    public static readonly VerbFamily WalkOnVerbs = new("go", "walk", "move");
 
     public static readonly VerbFamily WindUpVerbs = new("wind", "wind up", "crank", "twist", "turn");
     // ------------------------------------------------------------------------------------------------
@@ -360,10 +321,10 @@ public static class Verbs
     // ------------------------------------------------------------------------------------------------
 
     /// <summary>
-    ///     "put X in/on Y" (<c>PutProcessor</c>). Not <see cref="PlaceVerbs" /> or <see cref="ApplyVerbs" />:
-    ///     this is the set that moves an object into or onto a container.
+    ///     Putting a thing somewhere: in or on a container (<c>PutProcessor</c>), under a spout, across
+    ///     a rift. Not <see cref="InsertVerbs" />, which is for slots and leaves "push" out.
     /// </summary>
-    public static readonly VerbFamily PutVerbs = new("put", "place", "jam", "shove", "push");
+    public static readonly VerbFamily PutVerbs = new("put", "place", "move", "jam", "shove", "push");
 
     /// <summary>
     ///     Reading what something says. <c>ReadInteractionProcessor</c> answers it for every readable

@@ -61,7 +61,7 @@ internal class AdminCorridor : RiftLocationBase
         var nounOne = ladder.NounsForMatching;
         string[] prepositions = ["across", "over"];
 
-        var match = action.Match(Verbs.PlaceVerbs, nounOne, RiftNouns, prepositions);
+        var match = action.Match(Verbs.PutVerbs, nounOne, RiftNouns, prepositions);
 
         // Also support "use ladder on rift"
         match |= action.Match(Verbs.UseVerbs, nounOne, RiftNouns, ["on"]);

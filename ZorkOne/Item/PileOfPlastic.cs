@@ -154,7 +154,8 @@ public class PileOfPlastic : ContainerBase, ICanBeTakenAndDropped, ISubLocation,
         if (!action.MatchNounTwo<AirPump>())
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (!Verbs.InflateWithPumpVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+        // "inflate the plastic with the pump", or "use the pump on the plastic".
+        if (!action.MatchVerb(Verbs.InflateVerbs) && !action.MatchVerb(Verbs.UseVerbs))
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))

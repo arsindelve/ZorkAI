@@ -773,8 +773,8 @@ public class Button : ItemBase, ICanBeExamined
 {
     public override string[] NounsForMatching => ["button", "red button", "big button"];
 
-    // Declared in Model/Verbs.cs, like every grouping of two or more verbs:
-    //     public static readonly VerbFamily PressButtonVerbs = new("push", "press", "hit", ...);
+    // Verbs.PushVerbs is the grouping every button answers (push, press, click, hit ...). It is
+    // declared in Model/Verbs.cs, like every grouping of two or more verbs.
 
     public override string? CannotBeTakenDescription => "The button is attached to the wall.";
 
@@ -791,7 +791,7 @@ public class Button : ItemBase, ICanBeExamined
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(Verbs.PressButtonVerbs, NounsForMatching))
+        if (action.Match(Verbs.PushVerbs, NounsForMatching))
         {
             // Do something when button is pressed
             if (context is YourGameContext gameContext)

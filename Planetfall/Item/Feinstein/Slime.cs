@@ -16,7 +16,7 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Must check both verb AND noun to avoid intercepting commands like "remove battery"
-        if (action.Match(Verbs.TasteVerbs, NounsForMatching))
+        if (action.Match(Verbs.TasteVerbs, NounsForMatching) || action.Match(Verbs.EatOrDrinkVerbs, NounsForMatching))
             return new PositiveInteractionResult("It tastes like slime. Aren't you glad you didn't step in it? ");
 
         if (action.Match(Verbs.CleanOffVerbs, NounsForMatching))

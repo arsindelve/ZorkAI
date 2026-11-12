@@ -55,7 +55,7 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
             // Acting on the hatch directly rather than forwarding the intent: the intent names the
             // truck, which the hatch does not answer to, so forwarding it just fell through to the
             // narrator - the very gap the sweep caught.
-            if (action.MatchVerb(Verbs.OpenHatchVerbs))
+            if (action.MatchVerb(Verbs.OpenItemVerbs))
                 return new PositiveInteractionResult(OperateHatch(true, context));
 
             if (action.MatchVerb(Verbs.CloseItemVerbs))

@@ -76,7 +76,7 @@ public abstract class FormSlotBase : ContainerBase, ICanBeExamined
 
     private bool IsInsertIntoThisSlot(MultiNounIntent action)
     {
-        return action.MatchVerb(Verbs.InsertFormVerbs)
+        return (action.MatchVerb(Verbs.InsertVerbs) || action.MatchVerb(Verbs.SlideThroughVerbs))
                && action.MatchNounTwo(NounsForMatching)
                && (action.MatchPreposition(Prepositions) || string.IsNullOrWhiteSpace(action.Preposition));
     }

@@ -194,6 +194,66 @@ public class DuffyContentTests : EngineTestsBase
         }
     }
 
+    /// <summary>
+    ///     Objects that share a usage share a verb grouping, so each answers every word of it. Each case
+    ///     runs an established wording and another word from the same grouping on fresh games and
+    ///     requires the same reply.
+    /// </summary>
+    [TestFixture]
+    public class SharedGroupings : DuffyContentTests
+    {
+        private async Task<string?> ReplyTo(string[] route, string command)
+        {
+            ThroughTheProductionGrammar();
+
+            foreach (var step in route)
+                await _target.GetResponse(step);
+
+            return await _target.GetResponse(command);
+        }
+
+        private static readonly string[] InTheTruckWithTheKitOpen = ["east", "east", "open hatch", "in", "open kit"];
+        private static readonly string[] WithTheThermosOpen = [..InTheTruckWithTheKitOpen, "open thermos"];
+        private static readonly string[] AtThePallets = ["south"];
+        private static readonly string[] AtTheCargoBay = ["east", "east"];
+
+        // Verbs.EmptyVerbs
+        [TestCase("kit", "empty kit", "spill kit")]
+        [TestCase("kit", "empty thermos", "spill thermos")]
+        [TestCase("thermos", "empty soup", "dump soup")]
+        // Verbs.TouchVerbs, Verbs.TasteVerbs, Verbs.SearchVerbs: all report the soup's temperature
+        [TestCase("thermos", "touch soup", "rub soup")]
+        [TestCase("thermos", "touch soup", "lick soup")]
+        [TestCase("thermos", "touch soup", "check soup")]
+        // Verbs.InsertVerbs
+        [TestCase("kit", "put radio in thermos", "stick radio in thermos")]
+        // Verbs.OpenItemVerbs, Verbs.SearchVerbs, Verbs.DestroyPaperVerbs
+        [TestCase("pallets", "open pallets", "force pallets")]
+        [TestCase("pallets", "open pallets", "check pallets")]
+        [TestCase("pallets", "destroy pallets", "wreck pallets")]
+        [TestCase("start", "crumple assignment", "deface assignment")]
+        [TestCase("start", "crumple assignment", "smash assignment")]
+        [TestCase("cargo bay", "open spacetruck", "force spacetruck")]
+        public async Task AnotherWordForTheSameAction_GetsTheSameReply(string where, string established,
+            string inOtherWords)
+        {
+            var route = where switch
+            {
+                "kit" => InTheTruckWithTheKitOpen,
+                "thermos" => WithTheThermosOpen,
+                "pallets" => AtThePallets,
+                "cargo bay" => AtTheCargoBay,
+                _ => []
+            };
+
+            var expected = await ReplyTo(route, established);
+            var actual = await ReplyTo(route, inOtherWords);
+
+            expected.Should().NotBeNullOrWhiteSpace($"\"{established}\" is the wording the handler already answers");
+            actual.Should().Be(expected, $"\"{inOtherWords}\" is the same action as \"{established}\"");
+        }
+    }
+
     [TestFixture]
     public class TheGoo : DuffyContentTests
     {

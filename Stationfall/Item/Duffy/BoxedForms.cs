@@ -28,11 +28,11 @@ public class BoxedForms : ItemBase, ICanBeExamined
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(Verbs.HandleFormsVerbs))
+        if (action.MatchVerb(Verbs.TouchVerbs) || action.MatchVerb(Verbs.ReadVerbs))
             return new PositiveInteractionResult(ExaminationDescription);
 
         // Damaging Patrol paperwork is, of course, a violation of an Act.
-        if (action.MatchVerb(Verbs.DestroyBoxedFormsVerbs))
+        if (action.MatchVerb(Verbs.DestroyPaperVerbs))
             return new PositiveInteractionResult(
                 "Willful destruction of Patrol forms is a violation of the Uniform Code of Paperwork, " +
                 "Section Nine, and you have no wish to explain yourself at a hearing. ");

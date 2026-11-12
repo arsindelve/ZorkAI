@@ -382,10 +382,10 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   stands for, and matched from there:
   ```csharp
   // Model/Verbs.cs
-  public static readonly VerbFamily SlideAsideVerbs = new("move", "slide", "pull", "rearrange");
+  public static readonly VerbFamily MoveAsideVerbs = new("move", "slide", "pull", "rearrange", "shift");
 
   // the rug's handler
-  if (action.Match(Verbs.SlideAsideVerbs, NounsForMatching)) ...
+  if (action.Match(Verbs.MoveAsideVerbs, NounsForMatching)) ...
   ```
   - It does not matter who answers it - one object, several, an engine processor, the parser. Two words
     or more go in `Verbs.cs`; `VerbFamilyDeclarationTests.ACollectionOfVerbsIsDeclaredInVerbsCs` fails on a

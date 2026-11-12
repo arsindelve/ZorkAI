@@ -41,11 +41,11 @@ public abstract class RobotBin : ItemBase, ICanBeExamined
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(Verbs.LookInBinVerbs))
+        if (action.MatchVerb(Verbs.SearchVerbs) || action.MatchVerb(Verbs.ExamineVerbs))
             return new PositiveInteractionResult(ExaminationDescription);
 
         // The original refuses to let you climb in or use a bin as storage, in as many words.
-        if (action.MatchVerb(Verbs.BoardVerbs) || action.MatchVerb(Verbs.PutInBinVerbs))
+        if (action.MatchVerb(Verbs.BoardVerbs) || action.MatchVerb(Verbs.InsertVerbs))
             return new PositiveInteractionResult("The bin is only for robots. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
