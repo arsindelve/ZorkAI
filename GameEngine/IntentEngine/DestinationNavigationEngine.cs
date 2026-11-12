@@ -2,6 +2,7 @@ using Model.AIGeneration;
 using Model.AIGeneration.Requests;
 using Model.Intent;
 using Model.Interface;
+using Model.Movement;
 
 namespace GameEngine.IntentEngine;
 
@@ -20,10 +21,30 @@ internal class DestinationNavigationEngine : IIntentEngine
         if (intent is not GoToDestinationIntent goTo)
             throw new ArgumentException("Cast error");
 
-        // Move (one match) or disambiguate (two+); null means no adjacent room matched, so we give the
-        // "go to"-flavoured refusal.
-        return await DestinationNavigation.TryNavigate(goTo.Destination, context, generationClient)
-               ?? (null, await CantGetThere(generationClient, context, goTo.Destination));
+        // Move (one match) or disambiguate (two+); null means no adjacent room matched.
+        var navigated = await DestinationNavigation.TryNavigate(goTo.Destination, context, generationClient);
+        if (navigated is not null)
+            return navigated.Value;
+
+        // No room of that name - but the "place" may be a direction. A model files "go to the aft" and
+        // "head to starboard" as a trip to somewhere CALLED aft, and that used to be refused as an
+        // unknown place. Rooms are tried first, so a room that really is named for a direction still
+        // wins; only when none is does the word mean the way to walk. The move engine then gives the
+        // move, or its own refusal for a way that has no exit.
+        var direction = DirectionParser.ParseDirection(WithoutArticle(goTo.Destination));
+        if (direction != Direction.Unknown)
+            return await new MoveEngine().Process(
+                new MoveIntent { Direction = direction, Message = goTo.Message }, context, generationClient);
+
+        return (null, await CantGetThere(generationClient, context, goTo.Destination));
+    }
+
+    private static string WithoutArticle(string destination)
+    {
+        var words = destination.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return words.Length > 1 && words[0].ToLowerInvariant() is "the" or "a" or "an"
+            ? string.Join(' ', words.Skip(1))
+            : destination.Trim();
     }
 
     private static async Task<string> CantGetThere(

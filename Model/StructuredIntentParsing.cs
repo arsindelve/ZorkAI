@@ -100,8 +100,10 @@ public static class StructuredIntentParsing
             "multiple"  the player ran SEVERAL SEPARATE COMMANDS together on one line, each with its own
                         verb ("open the mailbox take the leaflet read it", "take the lamp and then go north").
                         This is NOT one action on several objects ("take the sword and the shield" is a
-                        "take"), and NOT one action described in steps ("stand up and get out of the boat" is
-                        a "disembark"). Leave every other field null or empty.
+                        "take"), NOT one action described in steps ("stand up and get out of the boat" is
+                        a "disembark"), and NOT one action whose object is named first and then referred to
+                        as "it" ("the sword, drop it" is a "drop" of the sword). Count the verbs: a sentence
+                        with ONE verb is never "multiple". Leave every other field null or empty.
             "act"       anything else
 
         IMPORTANT: "move" is only for TRAVEL by a movement verb (go/walk/run/head/enter/climb...). A
@@ -131,6 +133,7 @@ public static class StructuredIntentParsing
         "type 1" -> {"intent":"act","verb":"type","nouns":["1"],"preposition":null,"direction":null,"adjective":null}
         "drop the sword" -> {"intent":"drop","verb":"drop","nouns":["sword"],"preposition":null,"direction":null,"adjective":null}
         "take the sword" -> {"intent":"take","verb":"take","nouns":["sword"],"preposition":null,"direction":null,"adjective":null}
+        "the sandwich, eat it" -> {"intent":"act","verb":"eat","nouns":["sandwich"],"preposition":null,"direction":null,"adjective":null}
         "look under the rug" -> {"intent":"act","verb":"look","nouns":["rug"],"preposition":"under","direction":null,"adjective":null}
         "turn on lamp" -> {"intent":"act","verb":"activate","nouns":["lamp"],"preposition":null,"direction":null,"adjective":null}
         "press the up button" -> {"intent":"act","verb":"press","nouns":["up button"],"preposition":null,"direction":null,"adjective":null}

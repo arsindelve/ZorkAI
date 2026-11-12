@@ -285,28 +285,51 @@ public class IntentParserTests
         [Test]
         public void Should_InitializeWithDefaultParser_When_UsingGameSpecificConstructor()
         {
-            // Arrange
-            Environment.SetEnvironmentVariable("OPENAI_API_KEY", "test-key");
+            WithAnOpenAiKey(() =>
+            {
+                // Act
+                var parser = new IntentParser(_mockGameSpecificCommandFactory.Object);
 
-            // Act
-            var parser = new IntentParser(_mockGameSpecificCommandFactory.Object);
-
-            // Assert
-            parser.Should().NotBeNull();
+                // Assert
+                parser.Should().NotBeNull();
+            });
         }
 
         [Test]
         public void Should_InitializeWithDefaultParser_And_Logger_When_UsingGameSpecificConstructor()
         {
-            // Arrange
-            Environment.SetEnvironmentVariable("OPENAI_API_KEY", "test-key");
-            var mockLogger = Mock.Of<ILogger>();
+            WithAnOpenAiKey(() =>
+            {
+                // Arrange
+                var mockLogger = Mock.Of<ILogger>();
 
-            // Act
-            var parser = new IntentParser(_mockGameSpecificCommandFactory.Object, mockLogger);
+                // Act
+                var parser = new IntentParser(_mockGameSpecificCommandFactory.Object, mockLogger);
 
-            // Assert
-            parser.Should().NotBeNull();
+                // Assert
+                parser.Should().NotBeNull();
+            });
+        }
+
+        /// <summary>
+        ///     The default parser is the OpenAI one, which will not construct without a key. The variable it
+        ///     reads is OPEN_AI_KEY. These tests used to set OPENAI_API_KEY, which nothing reads, and passed
+        ///     only when some earlier test in the run had happened to leave OPEN_AI_KEY set - so they failed
+        ///     whenever they were run on their own.
+        /// </summary>
+        private static void WithAnOpenAiKey(Action test)
+        {
+            var original = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
+            Environment.SetEnvironmentVariable("OPEN_AI_KEY", "sk-not-a-real-key");
+
+            try
+            {
+                test();
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("OPEN_AI_KEY", original);
+            }
         }
     }
 

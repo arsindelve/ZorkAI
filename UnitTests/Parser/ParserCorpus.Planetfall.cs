@@ -124,14 +124,21 @@ public static partial class ParserCorpus
             At("EscapePod", "enter the web", Board("web").OrNoun("webbing", "safety web")),
             At("DormA", "enter the bed", Board("bed")),
             // A door is boarded by the grammar; a model may equally call it a move inward that names the
-            // door (issues #551, #580). The engine walks through it either way.
-            At("ElevatorLobby", "enter the blue door", Board("blue door").OrFromAi(Move("in", "blue door"))),
+            // door (issues #551, #580), or - having read that the blue door is the lobby's way north -
+            // simply a move north. The engine walks through the door every way.
+            At("ElevatorLobby", "enter the blue door",
+                Board("blue door").OrFromAi(Move("in", "blue door")).OrFromAi(Move("north"))),
             At("MessCorridor", "go to the mess hall", GoTo("mess hall")),
             At("MessHall", "go to the kitchen", GoTo("kitchen")),
             At("RecCorridor", "walk to the rec area", GoTo("rec area")),
             At("MechCorridor", "go to mech corridor north", GoTo("mech corridor north")),
             At("ProjectCorridor", "go to the office", GoTo("office")),
-            At("DeckNine", "go to the aft", Move("aft").AlsoByGrammar()),
+            // A model files "go to the <ship direction>" as a trip to a place called "aft". The engine
+            // walks aft either way: a destination no room is named for, that is itself a direction, is a
+            // move (DestinationNavigationEngine).
+            At("DeckNine", "go to the aft",
+                Move("aft").AlsoByGrammar().OrFromAi(GoTo("aft"))
+                    .WhenTheModelSays(new ModelAnswer("goto", "go", ["aft"]))),
 
             // ---------------------------------------------------------------- the AI: numbers are not nouns
             At("RecArea", "set the dial to 419", Act("set", "dial", "to", "419").AiOnly()),
@@ -179,12 +186,14 @@ public static partial class ParserCorpus
                 Board("door").OrFromAi(Move("in", "door"))
                     .WhenTheModelSays(new ModelAnswer("move", "enter", [], Direction: "enter"))),
             At("ElevatorLobby", "exit the blue door",
-                Disembark("blue door").OrFromAi(Move("out", "blue door"))),
+                Disembark("blue door").OrFromAi(Move("out", "blue door")).OrFromAi(Move("north"))),
 
             // ---------------------------------------------------------------- the AI: asking, not commanding
             At("Brig", "what am I carrying?", Inventory()),
             At("Brig", "what is this place?", Look()),
-            At("Brig", "blorp the fleeb", Nothing())
+            // Nonsense. A model may say so, or may dutifully report a verb and a noun; the game has no
+            // fleeb either way, and the narrator says as much.
+            At("Brig", "blorp the fleeb", Nothing().OrFromAi(Act("blorp", "fleeb")))
         ];
     }
 

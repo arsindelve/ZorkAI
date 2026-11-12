@@ -48,7 +48,14 @@ public sealed class IntentExpectation
             problems.Add(problem);
         }
 
-        Assert.Fail($"\"{input}\" resolved by {layer}: {string.Join(" Nor is it the alternative: ", problems)}");
+        // What the parser was handed (the model's answer, rendered as tags) is the first thing anyone
+        // reading a failure against a live model wants to see.
+        var raw = string.IsNullOrWhiteSpace(actual?.Message)
+            ? string.Empty
+            : $" The parser was handed: {actual.Message.ReplaceLineEndings(" ").Trim()}";
+
+        Assert.Fail(
+            $"\"{input}\" resolved by {layer}: {string.Join(" Nor is it the alternative: ", problems)}{raw}");
     }
 
     /// <summary>What is wrong with <paramref name="actual" />, or null when it is what this expects.</summary>
@@ -106,6 +113,9 @@ public sealed class IntentExpectation
             SimpleIntent simple => $"verb '{simple.Verb}', noun '{simple.Noun}'",
             MultiNounIntent multi => $"'{multi.Verb}' '{multi.NounOne}' '{multi.Preposition}' '{multi.NounTwo}'",
             MoveIntent move => $"{move.Direction}",
+            GoToDestinationIntent goTo => $"destination '{goTo.Destination}'",
+            EnterSubLocationIntent board => $"noun '{board.Noun}'",
+            ExitSubLocationIntent disembark => $"noun '{disembark.NounOne}'",
             _ => intent.GetType().Name
         };
     }
@@ -197,7 +207,7 @@ public sealed class Meaning
     private bool _anyDirection;
     private ModelAnswer? _scripted;
     private IntentExpectation? _expectedFromAi;
-    private Meaning? _aiAlternative;
+    private readonly List<Meaning> _aiAlternatives = [];
 
     private Meaning(string kind, string? verb, string[] nouns, string? preposition = null, string? direction = null)
     {
@@ -340,12 +350,13 @@ public sealed class Meaning
     }
 
     /// <summary>
-    ///     A second parse the AI may give that the engine handles just as well: "enter the blue door" as
-    ///     a board, or as a move inward that names the door.
+    ///     Another parse the AI may give that the engine handles just as well: "enter the blue door" as
+    ///     a board, as a move inward that names the door, or as a move the way the door leads. Call it
+    ///     once for each such parse - and only for one the engine really does answer identically.
     /// </summary>
     public Meaning OrFromAi(Meaning alternative)
     {
-        _aiAlternative = alternative;
+        _aiAlternatives.Add(alternative);
         return this;
     }
 
@@ -358,7 +369,7 @@ public sealed class Meaning
             Input = input,
             ResolvedBy = _aiOnly ? ResolvedBy.Ai : ResolvedBy.Grammar,
             ModelAnswer = _scripted ?? new ModelAnswer(_kind, _verb, _nouns, _preposition ?? _adverb, _direction),
-            FromAi = _expectedFromAi ?? ExpectedFromAi(_aiAlternative?.ExpectedFromAi()),
+            FromAi = _expectedFromAi ?? ExpectedFromAi(),
             FromGrammar = _aiOnly ? null : ExpectedFromGrammar()
         };
     }
@@ -373,14 +384,21 @@ public sealed class Meaning
 
     private string[] NounTwos() => [_nouns[1], .._otherNounTwos];
 
-    private IntentExpectation ExpectedFromAi(IntentExpectation? alternative = null)
+    private IntentExpectation ExpectedFromAi()
     {
-        var expected = ExpectedFromAiAlone();
-        return alternative is null ? expected : WithAlternative(expected, alternative);
+        // The alternatives hang off the expectation as a chain, tried in the order they were given.
+        IntentExpectation? next = null;
+        foreach (var alternative in Enumerable.Reverse(_aiAlternatives))
+            next = WithAlternative(alternative.ExpectedFromAiAlone(), next);
+
+        return WithAlternative(ExpectedFromAiAlone(), next);
     }
 
-    private static IntentExpectation WithAlternative(IntentExpectation expected, IntentExpectation alternative)
+    private static IntentExpectation WithAlternative(IntentExpectation expected, IntentExpectation? alternative)
     {
+        if (alternative is null)
+            return expected;
+
         return new IntentExpectation
         {
             IntentType = expected.IntentType, Verbs = expected.Verbs, NounOne = expected.NounOne,
