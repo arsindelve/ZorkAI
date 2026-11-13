@@ -12,9 +12,14 @@ using SecretsManager;
 namespace UnitTests.Parser.Census;
 
 /// <summary>One freshly started game: how to send it a line of input, and its state.</summary>
+/// <param name="Context">The game the session began with.</param>
 /// <param name="Snapshot">The whole game state as the save-game serialiser writes it.</param>
+/// <param name="Now">
+///     The game as it stands. Not always the one the session began with: a death starts the game over,
+///     with a new context and new objects.
+/// </param>
 public sealed record CensusSession(Func<string?, Task<string?>> Respond, IContext Context, Func<bool> NarratorWasAsked,
-    Func<string> Snapshot);
+    Func<string> Snapshot, Func<IContext> Now);
 
 /// <summary>
 ///     How to start a hermetic, fresh copy of one game for a single probe: no AI, no AWS, no clock. Each
@@ -27,13 +32,14 @@ public sealed class CensusGame
 
     private CensusGame(string name, IGlobalCommandFactory commands,
         Func<IIntentParser, IAITakeAndAndDropParser, CensusSession> start, Action<IContext> light,
-        Action<IContext> settle)
+        Action<IContext> settle, Action<IContext> afterRestart)
     {
         Name = name;
         Commands = commands;
         _start = start;
         Light = light;
         Settle = settle;
+        AfterRestart = afterRestart;
     }
 
     /// <summary>The game's assembly name, which is also what the vocabulary harvest is keyed by.</summary>
@@ -51,6 +57,14 @@ public sealed class CensusGame
     /// </summary>
     public Action<IContext> Settle { get; }
 
+    /// <summary>
+    ///     Does for a game that has just started over what the boot does for a fresh one. A probe that
+    ///     kills the player ends in a restarted game, whose objects were made - and rolled their dice -
+    ///     in the middle of the turn. Every fatal verb has to end in the same restarted game, or each
+    ///     one looks like a different interaction.
+    /// </summary>
+    public Action<IContext> AfterRestart { get; }
+
     public CensusSession Start(IIntentParser parser, IAITakeAndAndDropParser takeAndDrop)
     {
         return _start(parser, takeAndDrop);
@@ -62,8 +76,9 @@ public sealed class CensusGame
     /// </param>
     /// <param name="light">How to light a dark room in this game.</param>
     /// <param name="settle">See <see cref="Settle" />. Nothing, for a game that rolls nothing at the start.</param>
+    /// <param name="afterRestart">See <see cref="AfterRestart" />. Nothing, likewise.</param>
     public static CensusGame For<TGame, TContext>(Action<TContext> boot, Action<IContext> light,
-        Action<IContext>? settle = null)
+        Action<IContext>? settle = null, Action<IContext>? afterRestart = null)
         where TGame : IInfocomGame, new()
         where TContext : class, IContext, new()
     {
@@ -87,7 +102,7 @@ public sealed class CensusGame
             engine.Context.LastResponse = null;
 
             return new CensusSession(engine.GetResponse, engine.Context, () => narrator.CompletenessLeaks.Count > 0,
-                engine.SaveGame);
-        }, light, settle ?? (_ => { }));
+                engine.SaveGame, () => engine.Context);
+        }, light, settle ?? (_ => { }), afterRestart ?? (_ => { }));
     }
 }

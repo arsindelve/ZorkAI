@@ -201,9 +201,16 @@ public sealed class InteractionCensus(CensusGame game)
     /// <summary>A verb no handler answers, so the turn it is used in changes nothing but the clock.</summary>
     public const string NothingVerb = "censusnoop";
 
-    private static string StateOf(CensusSession session)
+    private string StateOf(CensusSession session)
     {
-        return StateOf(session.Context, session.Snapshot);
+        var now = session.Now();
+
+        // A death started the game over. The record of what was typed is in the new game, not the one
+        // the probe began with, and the new game has to be put on the same footing as any other.
+        if (!ReferenceEquals(now, session.Context))
+            game.AfterRestart(now);
+
+        return StateOf(now, session.Snapshot);
     }
 
     /// <summary>

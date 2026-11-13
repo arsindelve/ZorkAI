@@ -48,6 +48,26 @@ public class InteractionSetTests
         again.Should().Be(once, "and so it does with every room and item loaded");
     }
 
+    /// <summary>
+    ///     A death starts the game over with new objects, which roll their dice again in the middle of
+    ///     the turn. Whichever word kills, the player ends in the same restarted game - or one fatal
+    ///     action reads as a different interaction for every verb that does it.
+    /// </summary>
+    [Test]
+    public async Task EveryFatalWord_EndsInTheSameRestartedGame()
+    {
+        var where = new CensusContext("BioLockEast", null);
+
+        var opened = await Census.Probe(where, "open", "door");
+        var pried = await Census.Probe(where, "pry", "door");
+
+        opened.Response.Should().Contain("Bio-Lab", "opening the bio-lock's inner door unprotected is fatal");
+        InteractionCensus.Fingerprint(pried.State).Should().Be(InteractionCensus.Fingerprint(opened.State));
+
+        var again = await Census.Probe(where, "open", "door");
+        InteractionCensus.Fingerprint(again.State).Should().Be(InteractionCensus.Fingerprint(opened.State));
+    }
+
     [Test]
     [Explicit("Rewrites interactions.planetfall.json from what the game answers today. Long on one core; to use " +
               "several, set INTERACTION_SET_PART to 1/4, 2/4 ... in as many shells, then run the merge below")]

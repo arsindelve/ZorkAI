@@ -23,7 +23,7 @@ public static class PlanetfallCensus
             // The watch first, then the game's own start-up, which the test bases skip: it dresses the
             // player and sets the hunger and sleep clocks from the time on the watch. Without it the
             // sleep clock stands at zero and every turn begins "You begin to feel weary".
-            Repository.GetItem<Chronometer>().CurrentTime = 4600;
+            Repository.GetItem<Chronometer>().CurrentTime = StartOfTheGame;
             context.Init();
         },
         light: context =>
@@ -40,5 +40,15 @@ public static class PlanetfallCensus
 
             // The one chooser that belongs to no object.
             SleepEngine.Chooser = InteractionCensus.PinnedDice;
+        },
+        afterRestart: restarted =>
+        {
+            // A death starts the game over with a new watch, set at random again, and clocks set from it.
+            var context = (PlanetfallContext)restarted;
+            Repository.GetItem<Chronometer>().CurrentTime = StartOfTheGame;
+            context.HungerNotifications.Initialize(StartOfTheGame);
+            context.SleepNotifications.Initialize(StartOfTheGame);
         });
+
+    private const int StartOfTheGame = 4600;
 }
