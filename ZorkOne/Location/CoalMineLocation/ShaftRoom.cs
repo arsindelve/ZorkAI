@@ -53,7 +53,7 @@ internal class ShaftRoom : DarkLocation, IThiefMayVisit
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         var basket = Repository.GetItem<Basket>();
-        if (action.Match(["raise"], basket.NounsForMatching))
+        if (action.Match(Verbs.RaiseVerbs, basket.NounsForMatching))
         {
             if (Items.Contains(basket))
                 return new PositiveInteractionResult("Too late for that. ");
@@ -62,7 +62,7 @@ internal class ShaftRoom : DarkLocation, IThiefMayVisit
             return new PositiveInteractionResult("The basket is raised to the top of the shaft. ");
         }
 
-        if (action.Match(["lower"], basket.NounsForMatching))
+        if (action.Match(Verbs.LowerVerbs, basket.NounsForMatching))
         {
             if (!Items.Contains(basket))
                 return new PositiveInteractionResult("Too late for that. ");

@@ -21,7 +21,7 @@ public abstract class FromitzBoardBase : ItemBase, ICanBeExamined, ICanBeTakenAn
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Redirect "remove" verb to the Take processor only when the board is inside the FromitzAccessPanel
-        if (!action.MatchVerb(["remove"]) ||
+        if (!action.MatchVerb(Verbs.RemoveVerbs) ||
             !action.MatchNoun(NounsForMatching) ||
             CurrentLocation is not FromitzAccessPanel)
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

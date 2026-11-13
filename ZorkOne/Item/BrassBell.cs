@@ -8,6 +8,8 @@ namespace ZorkOne.Item;
 
 public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnBasedActor
 {
+    private static readonly VerbFamily RingVerb = new("ring");
+
     [UsedImplicitly]
     public bool BellIsRedHot { get; set; }
 
@@ -69,7 +71,7 @@ public class BrassBell : ItemBase, ICanBeExamined, ICanBeTakenAndDropped, ITurnB
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Verb.ToLowerInvariant() != "ring")
+        if (!RingVerb.Contains(action.Verb.ToLowerInvariant()))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (!action.MatchNoun(NounsForMatching))

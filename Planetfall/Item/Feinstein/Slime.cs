@@ -16,13 +16,13 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Must check both verb AND noun to avoid intercepting commands like "remove battery"
-        if (action.Match(["taste", "eat"], NounsForMatching))
+        if (action.Match(Verbs.TasteVerbs, NounsForMatching) || action.Match(Verbs.EatOrDrinkVerbs, NounsForMatching))
             return new PositiveInteractionResult("It tastes like slime. Aren't you glad you didn't step in it? ");
 
-        if (action.Match(["clean", "scrub", "remove"], NounsForMatching))
+        if (action.Match(Verbs.CleanOffVerbs, NounsForMatching))
             return new PositiveInteractionResult("Whew. You've cleaned up maybe one ten-thousandth of the slime. ");
 
-        if (action.Match(["touch", "feel"], NounsForMatching))
+        if (action.Match(Verbs.TouchVerbs, NounsForMatching))
             return new PositiveInteractionResult(CannotBeTakenDescription);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
@@ -31,7 +31,7 @@ public class Slime : ItemBase, ICanBeExamined, ISmell
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (action.Match<Brush>(["clean", "scrub", "remove"], NounsForMatching, ["with", "using"]))
+        if (action.Match<Brush>(Verbs.CleanOffVerbs, NounsForMatching, ["with", "using"]))
             return new PositiveInteractionResult("Whew. You've cleaned up maybe one ten-thousandth of the slime. ");
 
         return await base.RespondToMultiNounInteraction(action, context);

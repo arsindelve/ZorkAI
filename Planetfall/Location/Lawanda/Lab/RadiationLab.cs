@@ -39,7 +39,7 @@ internal class RadiationLab : LocationBase, ITurnBasedActor
         // reaches the view, so gate it on the raw input (a look/examine verb + "through" + "crack")
         // rather than on a clean structured match. Order matters: the view must win over the "too small"
         // response when "through" is present.
-        if (action.MatchInInput(Verbs.LookVerbs.Concat(Verbs.ExamineVerbs).ToArray(), "through", ["crack"]))
+        if (action.MatchInInput(Verbs.LookThroughVerbs, "through", ["crack"]))
             return new PositiveInteractionResult(
                 "You see a dimly lit Bio Lab. Sinister shapes lurk about within. ");
 

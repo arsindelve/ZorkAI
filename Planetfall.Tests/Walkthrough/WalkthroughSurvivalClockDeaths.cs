@@ -24,7 +24,7 @@ namespace Planetfall.Tests.Walkthrough;
 ///     wherever you happen to be standing.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughFallAsleepOnTheCragAndDrown : WalkthroughTestBase
+public class WalkthroughFallAsleepOnTheCragAndDrown : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void ExhaustedOnTheCrag()
@@ -64,7 +64,7 @@ public sealed class WalkthroughFallAsleepOnTheCragAndDrown : WalkthroughTestBase
 ///     was a grue.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughFallAsleepInTheOpenAndBeEaten : WalkthroughTestBase
+public class WalkthroughFallAsleepInTheOpenAndBeEaten : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void ExhaustedInTheCourtyard()
@@ -103,7 +103,7 @@ public sealed class WalkthroughFallAsleepInTheOpenAndBeEaten : WalkthroughTestBa
 ///     kills you. This walkthrough reads all four and does nothing about any of them.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughStarveToDeath : WalkthroughTestBase
+public class WalkthroughStarveToDeath : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void InTheDorm()
@@ -146,7 +146,7 @@ public sealed class WalkthroughStarveToDeath : WalkthroughTestBase
 ///     day is the last one, and you die in your sleep rather than at any moment you could have acted on.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughSleepThroughTheDiseaseUntilItKillsYou : WalkthroughTestBase
+public class WalkthroughSleepThroughTheDiseaseUntilItKillsYou : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void EightDaysIll()

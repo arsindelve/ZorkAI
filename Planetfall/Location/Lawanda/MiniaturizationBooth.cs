@@ -68,7 +68,7 @@ internal class MiniaturizationBooth : LocationBase, ICardActivatedDevice
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.MatchVerb(Verbs.TypeVerbs.Union(["press", "push", "key"]).ToArray()))
+        if (action.MatchVerb(Verbs.KeyInVerbs))
         {
             // Issue #433: gate on the noun, not the verb alone. Without this, "push slot" / "press wall"
             // (a keypress verb on any noun) hit the keyboard logic instead of the actual noun, shadowing

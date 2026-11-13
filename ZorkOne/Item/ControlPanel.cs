@@ -7,6 +7,9 @@ namespace ZorkOne.Item;
 
 public class ControlPanel : ItemBase, ICanBeTakenAndDropped
 {
+    private static readonly VerbFamily TakeVerb = new("take");
+    private static readonly VerbFamily ExamineVerb = new("examine");
+
     public bool GreenBubbleGlowing { get; set; }
 
     public override string[] NounsForMatching => ["panel", "control", "control panel"];
@@ -37,12 +40,13 @@ public class ControlPanel : ItemBase, ICanBeTakenAndDropped
         if (!matchingNouns.Contains(noun))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
-        return verb switch
-        {
-            "take" => new PositiveInteractionResult("It is an integral part of the control panel. "),
-            "examine" => new PositiveInteractionResult($"There's nothing special about the {noun}. "),
-            _ => await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory)
-        };
+        if (TakeVerb.Contains(verb))
+            return new PositiveInteractionResult("It is an integral part of the control panel. ");
+
+        if (ExamineVerb.Contains(verb))
+            return new PositiveInteractionResult($"There's nothing special about the {noun}. ");
+
+        return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
 }
 

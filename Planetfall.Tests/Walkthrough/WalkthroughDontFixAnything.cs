@@ -1,7 +1,7 @@
 namespace Planetfall.Tests.Walkthrough;
 
 [TestFixture]
-public sealed class WalkthroughDontFixAnything : WalkthroughTestBase
+public class WalkthroughDontFixAnything : WalkthroughTestBase
 {
     [Test]
     [TestCase("wait", null, "Time passes")]

@@ -1,0 +1,5663 @@
+[
+  {
+    "Room": "Altar",
+    "Input": "go to the cave",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the cave"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "cave"
+        ]
+      }
+    ],
+    "Reply": "Cave This is a tiny cave with entrances west and north, and a dark, forbidding staircase leading down. A gust of wind blows out your candles! The flame is extin...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Altar",
+    "Input": "take book",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "book",
+          "black book",
+          "large black book"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "book",
+          "black book",
+          "large black book"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Altar",
+    "Input": "take candles",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "candles",
+          "candle",
+          "pair of candles"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "candles",
+          "candle",
+          "pair of candles"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "AragainFalls",
+    "Input": "cross the rainbow",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "cross",
+          "through",
+          "traverse"
+        ],
+        "Nouns": [
+          "rainbow"
+        ]
+      }
+    ],
+    "Reply": "End of Rainbow You are on a small, rocky beach on the continuation of the Frigid River past the Falls. The beach is narrow due to the presence of the White Clif...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "AtlantisRoom",
+    "Input": "drop torch",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "torch",
+          "ivory torch"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "torch",
+          "ivory torch"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Attic",
+    "Input": "take knife",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "knife",
+          "nasty knife",
+          "nasty"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "knife",
+          "nasty knife",
+          "nasty"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Attic",
+    "Input": "take rope",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "rope"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "rope"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BatRoom",
+    "Input": "go to the shaft room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the shaft room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "shaft room"
+        ]
+      }
+    ],
+    "Reply": "Shaft Room This is a large room, in the middle of which is a small shaft descending through the floor into darkness below. To the west and the north are exits f...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BatRoom",
+    "Input": "take jade",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "jade",
+          "jade figurine",
+          "figurine"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "jade",
+          "jade figurine",
+          "figurine"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BehindHouse",
+    "Input": "go to north of house",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "north of house"
+        ]
+      }
+    ],
+    "Reply": "North of House You are facing the north side of a white house. There is no door here, and all the windows are boarded up. To the north a narrow path winds throu...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BehindHouse",
+    "Input": "go to the galley",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "kitchen"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "galley"
+        ]
+      }
+    ],
+    "Reply": "Kitchen You are in the kitchen of the white house. A table seems to have been used recently for the preparation of food. A passage leads to the west and a dark ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BehindHouse",
+    "Input": "open window",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "window"
+        ]
+      }
+    ],
+    "Reply": "With great effort, you open the window far enough to allow entry.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CanyonBottom",
+    "Input": "go to end of rainbow",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "end of rainbow"
+        ]
+      }
+    ],
+    "Reply": "End of Rainbow You are on a small, rocky beach on the continuation of the Frigid River past the Falls. The beach is narrow due to the presence of the White Clif...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CanyonView",
+    "Input": "go to the clearing",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the clearing"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "clearing"
+        ]
+      }
+    ],
+    "Reply": "Clearing You are in a small clearing in a well marked forest path that extends to the east and west.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CanyonView",
+    "Input": "go to the rocky ledge",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the rocky ledge"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "rocky ledge"
+        ]
+      }
+    ],
+    "Reply": "Rocky Ledge You are on a ledge about halfway up the wall of the river canyon. You can see from here that the main flow from Aragain Falls twists along a passage...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CaveSouth",
+    "Input": "go to hell",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "hell"
+        ]
+      }
+    ],
+    "Reply": "Entrance to Hades You are outside a large gateway, on which is inscribed Abandon every hope all ye who enter here! The gate is open; through it you can see a de...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CaveSouth",
+    "Input": "go to the mirror room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the mirror room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "mirror room"
+        ]
+      }
+    ],
+    "Reply": "Mirror Room You are in a large square room with tall ceilings. On the south wall is an enormous mirror which fills the entire wall. There are exits on the other...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Cellar",
+    "Input": "go to east of chasm",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "east of chasm"
+        ]
+      }
+    ],
+    "Reply": "East of Chasm You are on the east edge of a chasm, the bottom of which cannot be seen. A narrow passage goes north, and the path you are on continues to the eas...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Cellar",
+    "Input": "go to the troll room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the troll room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "troll room"
+        ]
+      }
+    ],
+    "Reply": "The Troll Room This is a small room with passages to the east and south and a forbidding hole leading west. Bloodstains and deep scratches (perhaps made by an a...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Chasm",
+    "Input": "go to reservoir south",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "reservoir south"
+        ]
+      }
+    ],
+    "Reply": "Reservoir South You are in a long room on the south shore of a large lake, far too deep and wide for crossing. There is a path along the stream to the east or w...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Clearing",
+    "Input": "take leaves",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "leaves",
+          "pile",
+          "pile of leaves"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "leaves",
+          "pile",
+          "pile of leaves"
+        ]
+      }
+    ],
+    "Reply": "In disturbing the pile of leaves, a grating is revealed.",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "ClearingBehindHouse",
+    "Input": "go to canyon view",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "canyon view"
+        ]
+      }
+    ],
+    "Reply": "Canyon View You are at the top of the Great Canyon on its west wall. From here there is a marvelous view of the canyon and parts of the Frigid River upstream. A...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CoalMineFour",
+    "Input": "go to the ladder top",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the ladder top"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "ladder top"
+        ]
+      }
+    ],
+    "Reply": "Ladder Top This is a very small room. In the corner is a rickety wooden ladder, leading downward. It might be safe to descend. There is also a staircase leading...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ColdPassage",
+    "Input": "go to the granite wall",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the granite wall"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "granite wall"
+        ]
+      }
+    ],
+    "Reply": "Slide Room This is a small chamber, which appears to have been part of a coal mine. On the south wall of the chamber the letters \"Granite Wall\" are etched in th...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CyclopsRoom",
+    "Input": "go to the strange passage",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the strange passage"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "strange passage"
+        ]
+      }
+    ],
+    "Reply": "Strange Passage This is a long passage. To the west is one entrance. On the east there is an old wooden door, with a large opening in it (about cyclops sized).",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CyclopsRoom",
+    "Input": "go to the vault",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the vault"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "vault"
+        ]
+      }
+    ],
+    "Reply": "You hear a scream of anguish as you violate the robber's hideaway. Using passages unknown to you, he rushes to its defense. The thief gestures mysteriously, and...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Dam",
+    "Input": "drop wrench",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "wrench"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "wrench"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Dam",
+    "Input": "go to the dam base",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the dam base"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "dam base"
+        ]
+      }
+    ],
+    "Reply": "Dam Base You are at the base of Flood Control Dam #3, which looms above you and to the north. The river Frigid is flowing by here. Along the river are the White...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Dam",
+    "Input": "go to the lobby",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the lobby"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "lobby"
+        ]
+      }
+    ],
+    "Reply": "Dam Lobby This room appears to have been the waiting room for groups touring the dam. There are open doorways here to the north and east marked \"Private\", and t...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Dam",
+    "Input": "go to the ravine",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the ravine"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "ravine"
+        ]
+      }
+    ],
+    "Reply": "Deep Canyon You are on the south edge of a deep canyon. Passages lead off to the east, northwest and southwest. A stairway leads down. You can hear a loud roari...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Dam",
+    "Input": "turn bolt with wrench",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "turn",
+          "twist",
+          "rotate",
+          "use",
+          "apply"
+        ],
+        "Nouns": [
+          "bolt"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "wrench"
+        ]
+      }
+    ],
+    "Reply": "The sluice gates open and water pours through the dam.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DamBase",
+    "Input": "drop pump",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "pump",
+          "air pump",
+          "hand-held air pump"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "pump",
+          "air pump",
+          "hand-held air pump"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DamBase",
+    "Input": "get in the boat",
+    "Readings": [
+      {
+        "Kind": "board",
+        "Verbs": [
+          "board"
+        ],
+        "Nouns": [
+          "boat"
+        ]
+      }
+    ],
+    "Reply": "You are now in the magic boat.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DamBase",
+    "Input": "inflate plastic with pump",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "inflate",
+          "blow up",
+          "blow"
+        ],
+        "Nouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "pump",
+          "air pump",
+          "hand-held air pump"
+        ]
+      }
+    ],
+    "Reply": "The boat inflates and appears seaworthy. A tan label is lying inside the boat.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DamBase",
+    "Input": "put bar in boat",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "bar",
+          "platinum",
+          "platinum bar"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "DamBase",
+    "Input": "put trident in boat",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "trident",
+          "crystal trident",
+          "poseidon's trident",
+          "poseidon's own trident"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "DamLobby",
+    "Input": "go to the control room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the control room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "control room"
+        ]
+      }
+    ],
+    "Reply": "Maintenance Room This is what appears to have been the maintenance room for Flood Control Dam #3. Apparently, this room has been ransacked recently, for most of...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DamLobby",
+    "Input": "go to the dam",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the dam"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "dam"
+        ]
+      }
+    ],
+    "Reply": "Dam You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. There are paths to the north, south, and...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DamLobby",
+    "Input": "take matchbook",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "matchbook",
+          "matches",
+          "match"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "matchbook",
+          "matches",
+          "match"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "DamLobby",
+    "Input": "take matches",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "matches",
+          "matchbook",
+          "match"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "matches",
+          "matchbook",
+          "match"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DeadEnd",
+    "Input": "take coal",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "coal",
+          "pile of coal",
+          "pile",
+          "small pile of coal"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "coal",
+          "pile of coal",
+          "pile",
+          "small pile of coal"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DomeRoom",
+    "Input": "go to the torch room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the torch room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "torch room"
+        ]
+      }
+    ],
+    "Reply": "Torch Room This is a large room with a prominent doorway leading to a down staircase. To the west is a narrow twisting tunnel, covered with a thin layer of dust...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DomeRoom",
+    "Input": "tie rope to railing",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "tie",
+          "attach"
+        ],
+        "Nouns": [
+          "rope"
+        ],
+        "Preposition": "to",
+        "SecondNouns": [
+          "railing"
+        ]
+      }
+    ],
+    "Reply": "The rope drops over the side and comes within ten feet of the floor.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DraftyRoom",
+    "Input": "go to the machine room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the machine room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "machine room"
+        ]
+      }
+    ],
+    "Reply": "Machine Room This is a large, cold room whose sole exit is to the north. In one corner there is a machine which is reminiscent of a clothes dryer. On its face i...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DraftyRoom",
+    "Input": "put diamond in basket",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "diamond",
+          "huge diamond"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "basket",
+          "cage"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EastOfChasm",
+    "Input": "go to the art gallery",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the art gallery"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "art gallery"
+        ]
+      }
+    ],
+    "Reply": "Gallery This is an art gallery. Most of the paintings have been stolen by vandals with exceptional taste. The vandals left through either the north or west exit...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EastWestPassage",
+    "Input": "go to the abyss",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the abyss"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "abyss"
+        ]
+      }
+    ],
+    "Reply": "Chasm A chasm runs southwest to northeast and the path follows it. You are on the south side of the chasm, where a crack opens into a passage.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EastWestPassage",
+    "Input": "go to the crevasse",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the crevasse"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "crevasse"
+        ]
+      }
+    ],
+    "Reply": "Chasm A chasm runs southwest to northeast and the path follows it. You are on the south side of the chasm, where a crack opens into a passage.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EastWestPassage",
+    "Input": "go to the round room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the round room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "round room"
+        ]
+      }
+    ],
+    "Reply": "Round Room This is a circular stone room with passages in all directions. Several of them have unfortunately been blocked by cave-ins.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EgyptianRoom",
+    "Input": "go to the shrine",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the shrine"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "shrine"
+        ]
+      }
+    ],
+    "Reply": "Temple This is the north end of a large temple. On the east wall is an ancient inscription, probably a prayer in a long-forgotten language. Below the prayer is ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EgyptianRoom",
+    "Input": "take coffin",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "coffin",
+          "solid-gold coffin",
+          "solid gold coffin",
+          "gold coffin"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "coffin",
+          "solid-gold coffin",
+          "solid gold coffin",
+          "gold coffin"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EndOfRainbow",
+    "Input": "drop coffin",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "coffin",
+          "solid-gold coffin",
+          "solid gold coffin",
+          "gold coffin"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "coffin",
+          "solid-gold coffin",
+          "solid gold coffin",
+          "gold coffin"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EndOfRainbow",
+    "Input": "open coffin",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "coffin",
+          "solid-gold coffin",
+          "solid gold coffin",
+          "gold coffin"
+        ]
+      }
+    ],
+    "Reply": "The gold coffin opens. A sceptre, possibly that of ancient Egypt itself, is in the coffin. The sceptre is ornamented with colored enamel, and tapers to a sharp ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EndOfRainbow",
+    "Input": "take gold",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "gold",
+          "pot",
+          "pot of gold"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "gold",
+          "pot",
+          "pot of gold"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EndOfRainbow",
+    "Input": "take pot",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "pot",
+          "gold",
+          "pot of gold"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "pot",
+          "gold",
+          "pot of gold"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "EndOfRainbow",
+    "Input": "take sceptre",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "sceptre",
+          "scepter",
+          "ornamental sceptre",
+          "ornamental scepter"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "sceptre",
+          "scepter",
+          "ornamental sceptre",
+          "ornamental scepter"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EndOfRainbow",
+    "Input": "wave sceptre",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "wave",
+          "swing",
+          "twirl"
+        ],
+        "Nouns": [
+          "sceptre",
+          "scepter",
+          "ornamental sceptre",
+          "ornamental scepter"
+        ]
+      }
+    ],
+    "Reply": "Suddenly, the rainbow appears to become solid and, I venture, walkable (I think the giveaway was the stairs and bannister). A shimmering pot of gold appears at ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EngravingsCave",
+    "Input": "go to the dome room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the dome room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "dome room"
+        ]
+      }
+    ],
+    "Reply": "Dome Room You are at the periphery of a large dome, which forms the ceiling of another room below. Protecting you from a precipitous drop is a wooden railing wh...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EntranceToHades",
+    "Input": "drop book",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "book",
+          "black book",
+          "large black book"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "book",
+          "black book",
+          "large black book"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EntranceToHades",
+    "Input": "go to the underworld",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the underworld"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "underworld"
+        ]
+      }
+    ],
+    "Reply": "Land of the Dead You have entered the Land of the Living Dead. Thousands of lost souls can be heard weeping and moaning. In the corner are stacked the remains o...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EntranceToHades",
+    "Input": "light a match",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "light",
+          "strike",
+          "activate"
+        ],
+        "Nouns": [
+          "match",
+          "matches",
+          "matchbook"
+        ]
+      }
+    ],
+    "Reply": "One of the matches starts to burn.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EntranceToHades",
+    "Input": "light candles with match",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "light"
+        ],
+        "Nouns": [
+          "candles",
+          "candle",
+          "pair of candles"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "match",
+          "matches",
+          "matchbook"
+        ]
+      }
+    ],
+    "Reply": "The candles are lit. The flames flicker wildly and appear to dance. The earth beneath your feet trembles, and your legs nearly buckle beneath you. The spirits c...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EntranceToHades",
+    "Input": "read book",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "read"
+        ],
+        "Nouns": [
+          "book",
+          "black book",
+          "large black book"
+        ]
+      }
+    ],
+    "Reply": "Each word of the prayer reverberates through the hall in a deafening confusion. As the last word fades, a voice, loud and commanding, speaks: \"Begone, fiends!\" ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EntranceToHades",
+    "Input": "ring bell",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "ring",
+          "activate",
+          "shake"
+        ],
+        "Nouns": [
+          "bell",
+          "brass bell"
+        ]
+      }
+    ],
+    "Reply": "The bell suddenly becomes red hot and falls to the ground. The wraiths, as if paralyzed, stop their jeering and slowly turn to face you. On their ashen faces, t...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ForestOne",
+    "Input": "turn off lantern",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "turn",
+          "deactivate"
+        ],
+        "Nouns": [
+          "lamp",
+          "lantern",
+          "light",
+          "brass lantern"
+        ]
+      }
+    ],
+    "Reply": "The brass lantern is now off.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ForestPath",
+    "Input": "go to the treetop",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the treetop"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "treetop"
+        ]
+      }
+    ],
+    "Reply": "Up A Tree You are about 10 feet above the ground nestled among some large branches. The nearest branch above you is above your reach. Beside you on the branch i...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ForestPath",
+    "Input": "take bauble",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "bauble",
+          "brass bauble",
+          "brass"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "bauble",
+          "brass bauble",
+          "brass"
+        ]
+      }
+    ],
+    "Reply": "Taken. In the distance you hear the chirping of a song bird.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "FrigidRiverFour",
+    "Input": "take buoy",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "buoy",
+          "red buoy"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "buoy",
+          "red buoy"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Gallery",
+    "Input": "go to the art studio",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the art studio"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "art studio"
+        ]
+      }
+    ],
+    "Reply": "Studio This appears to have been an artist's studio. The walls and floors are splattered with paints of 69 different colors. Strangely enough, nothing of value ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Gallery",
+    "Input": "take painting",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "painting"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "painting"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "GasRoom",
+    "Input": "take bracelet",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "bracelet",
+          "sapphire bracelet",
+          "sapphire",
+          "sapphire-encrusted bracelet"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "bracelet",
+          "sapphire bracelet",
+          "sapphire",
+          "sapphire-encrusted bracelet"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "GratingRoom",
+    "Input": "open grate",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "grate",
+          "grating"
+        ]
+      }
+    ],
+    "Reply": "The grating opens to reveal trees above you. A pile of leaves falls onto your head and to the ground.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "GratingRoom",
+    "Input": "unlock grate",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "unlock"
+        ],
+        "Nouns": [
+          "grate",
+          "grating"
+        ]
+      }
+    ],
+    "Reply": "(with the skeleton key) The grate is unlocked.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "drop sack",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "sack",
+          "brown sack",
+          "bag",
+          "elongated brown sack"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "sack",
+          "brown sack",
+          "bag",
+          "elongated brown sack"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "go to the loft",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the loft"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "loft"
+        ]
+      }
+    ],
+    "Reply": "Attic This is the attic. The only exit is a stairway leading down. A large coil of rope is lying in the corner. On a table is a nasty-looking knife.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "go to the lounge",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the lounge"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "lounge"
+        ]
+      }
+    ],
+    "Reply": "Living Room You are in the living room. There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "go to the parlor",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the parlor"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "parlor"
+        ]
+      }
+    ],
+    "Reply": "Living Room You are in the living room. There is a doorway to the east, a wooden door with strange gothic lettering to the west, which appears to be nailed shut...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "open sack",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "sack",
+          "brown sack",
+          "bag",
+          "elongated brown sack"
+        ]
+      }
+    ],
+    "Reply": "Opening the brown sack reveals a lunch, and a clove of garlic.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "take garlic",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "garlic",
+          "clove of garlic",
+          "clove"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "garlic",
+          "clove of garlic",
+          "clove"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "take sack",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "sack",
+          "brown sack",
+          "bag",
+          "elongated brown sack"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "sack",
+          "brown sack",
+          "bag",
+          "elongated brown sack"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "LadderBottom",
+    "Input": "go to the dead end",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the dead end"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "dead end"
+        ]
+      }
+    ],
+    "Reply": "Dead End You have come to a dead end in the mine. There is a small pile of coal here.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LadderBottom",
+    "Input": "go to the timber room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the timber room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "timber room"
+        ]
+      }
+    ],
+    "Reply": "Timber Room This is a long and narrow passage, which is cluttered with broken timbers. A wide passage comes from the east and turns at the west end of the room ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LadderTop",
+    "Input": "go to the ladder bottom",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the ladder bottom"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "ladder bottom"
+        ]
+      }
+    ],
+    "Reply": "Ladder Bottom This is a rather wide room. On one side is the bottom of a narrow wooden ladder. To the west and the south are passages leaving the room.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LandOfTheDead",
+    "Input": "take skull",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "skull",
+          "crystal skull"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "skull",
+          "crystal skull"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "close case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "close",
+          "shut",
+          "bar",
+          "lower",
+          "cover",
+          "latch",
+          "fasten"
+        ],
+        "Nouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Closed.",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "drop boat",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "drop knife",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "knife",
+          "nasty knife",
+          "nasty"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "knife",
+          "nasty knife",
+          "nasty"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "drop lantern",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "lantern",
+          "lamp",
+          "light",
+          "brass lantern"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "lantern",
+          "lamp",
+          "light",
+          "brass lantern"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "drop leaves",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "leaves",
+          "pile",
+          "pile of leaves"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "leaves",
+          "pile",
+          "pile of leaves"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "go to the basement",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the basement"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "basement"
+        ]
+      }
+    ],
+    "Reply": "The trap door crashes shut, and you hear someone barring it. Cellar You are in a dark and damp cellar with a narrow passageway leading north, and a crawlway to ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "move rug",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "move",
+          "slide",
+          "pull",
+          "rearrange",
+          "shift"
+        ],
+        "Nouns": [
+          "rug",
+          "carpet"
+        ]
+      }
+    ],
+    "Reply": "With a great effort, the rug is moved to one side of the room. With the rug moved, the dusty cover of a closed trap door appears.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "open case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Opened.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "open trap door",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "trap door",
+          "door",
+          "trapdoor"
+        ]
+      }
+    ],
+    "Reply": "The door reluctantly opens to reveal a rickety staircase descending into darkness.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put bag in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "bag",
+          "bag of coins",
+          "coins",
+          "leather",
+          "leather bag",
+          "leather bag of coins"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put bar in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "bar",
+          "platinum",
+          "platinum bar"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put bauble in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "bauble",
+          "brass bauble",
+          "brass"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put bracelet in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "bracelet",
+          "sapphire bracelet",
+          "sapphire",
+          "sapphire-encrusted bracelet"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put canary in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "canary",
+          "bird",
+          "wind-up canary"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put chalice in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "chalice",
+          "silver chalice",
+          "silver"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put coffin in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "coffin",
+          "solid-gold coffin",
+          "solid gold coffin",
+          "gold coffin"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put coins in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "coins",
+          "bag",
+          "bag of coins",
+          "leather",
+          "leather bag",
+          "leather bag of coins"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put diamond in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "diamond",
+          "huge diamond"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put egg in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "egg",
+          "jewel-encrusted egg",
+          "jewel encrusted egg"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put emerald in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "emerald",
+          "large emerald"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put gold in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "gold",
+          "pot",
+          "pot of gold"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put jade in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "jade",
+          "jade figurine",
+          "figurine"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put jewels in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "jewels",
+          "trunk",
+          "trunk of jewels"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put leaflet in sack",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "leaflet",
+          "mail",
+          "booklet",
+          "pamphlet",
+          "advertisement"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "sack",
+          "brown sack",
+          "bag",
+          "elongated brown sack"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put painting in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "painting"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put scarab in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "scarab",
+          "jeweled scarab",
+          "beautiful jeweled scarab"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put sceptre in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "sceptre",
+          "scepter",
+          "ornamental sceptre",
+          "ornamental scepter"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put skull in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "skull",
+          "crystal skull"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put sword in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "sword",
+          "glamdring",
+          "orcrist",
+          "elvish"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put torch in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "torch",
+          "ivory torch"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done. An almost inaudible voice whispers in your ear, \"Look to your treasures for the final secret.\"",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "put trident in case",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "trident",
+          "crystal trident",
+          "poseidon's trident",
+          "poseidon's own trident"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "case",
+          "trophy case"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "take lamp",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "lamp",
+          "lantern",
+          "light",
+          "brass lantern"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "lamp",
+          "lantern",
+          "light",
+          "brass lantern"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "take lantern",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "lantern",
+          "lamp",
+          "light",
+          "brass lantern"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "lantern",
+          "lamp",
+          "light",
+          "brass lantern"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "take map",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "map",
+          "ancient map",
+          "parchment",
+          "ancient parchment"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "map",
+          "ancient map",
+          "parchment",
+          "ancient parchment"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "take sword",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "sword",
+          "glamdring",
+          "orcrist",
+          "elvish"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "sword",
+          "glamdring",
+          "orcrist",
+          "elvish"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LivingRoom",
+    "Input": "turn on lantern",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "turn",
+          "activate"
+        ],
+        "Nouns": [
+          "lamp",
+          "lantern",
+          "light",
+          "brass lantern"
+        ]
+      }
+    ],
+    "Reply": "The brass lantern is now on.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LoudRoom",
+    "Input": "take bar",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "bar",
+          "platinum",
+          "platinum bar"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "bar",
+          "platinum",
+          "platinum bar"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineRoom",
+    "Input": "close lid",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "close"
+        ],
+        "Nouns": [
+          "lid"
+        ]
+      }
+    ],
+    "Reply": "The lid closes.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineRoom",
+    "Input": "drop screwdriver",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "screwdriver"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "screwdriver"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineRoom",
+    "Input": "open lid",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "raise"
+        ],
+        "Nouns": [
+          "lid"
+        ]
+      }
+    ],
+    "Reply": "The lid opens.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineRoom",
+    "Input": "put coal in machine",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "coal",
+          "pile of coal",
+          "pile",
+          "small pile of coal"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "machine",
+          "dryer"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineRoom",
+    "Input": "take diamond",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "diamond",
+          "huge diamond"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "diamond",
+          "huge diamond"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineRoom",
+    "Input": "turn switch with screwdriver",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "turn",
+          "twist",
+          "rotate",
+          "use",
+          "apply"
+        ],
+        "Nouns": [
+          "switch"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "screwdriver"
+        ]
+      }
+    ],
+    "Reply": "The machine comes to life (figuratively) with a dazzling display of colored lights and bizarre noises. After a few moments, the excitement abates.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Input": "go to the waiting room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the waiting room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "waiting room"
+        ]
+      }
+    ],
+    "Reply": "Dam Lobby This room appears to have been the waiting room for groups touring the dam. There are open doorways here to the north and east marked \"Private\", and t...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Input": "press the yellow button",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "yellow button"
+        ]
+      }
+    ],
+    "Reply": "Click.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Input": "take screwdriver",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "screwdriver"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "screwdriver"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Input": "take wrench",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "wrench"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "wrench"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MazeEleven",
+    "Input": "go to the grating room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the grating room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "grating room"
+        ]
+      }
+    ],
+    "Reply": "Grating Room You are in a small room near the maze. There are twisty passages in the immediate vicinity. Above you is a grating locked with a skull-and-crossbon...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MazeFifteen",
+    "Input": "go to the cyclops room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the cyclops room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "cyclops room"
+        ]
+      }
+    ],
+    "Reply": "Cyclops Room This room has an exit on the northwest, and a staircase leading up. A cyclops, who looks prepared to eat horses (much less mere adventurers), block...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MazeFive",
+    "Input": "take bag",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "bag",
+          "bag of coins",
+          "coins",
+          "leather",
+          "leather bag",
+          "leather bag of coins"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "bag",
+          "bag of coins",
+          "coins",
+          "leather",
+          "leather bag",
+          "leather bag of coins"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "MazeFive",
+    "Input": "take coins",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "coins",
+          "bag",
+          "bag of coins",
+          "leather",
+          "leather bag",
+          "leather bag of coins"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "coins",
+          "bag",
+          "bag of coins",
+          "leather",
+          "leather bag",
+          "leather bag of coins"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MazeFive",
+    "Input": "take key",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "key"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "key"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MineEntrance",
+    "Input": "go to the squeaky room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the squeaky room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "squeaky room"
+        ]
+      }
+    ],
+    "Reply": "Squeaky Room You are in a small room. Strange squeaky sounds may be heard coming from the passage at the north end. You may also escape to the east.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MirrorRoomNorth",
+    "Input": "go to the cold passage",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the cold passage"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "cold passage"
+        ]
+      }
+    ],
+    "Reply": "Cold Passage This is a cold and damp corridor where a long east-west passageway turns into a southward path.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MirrorRoomSouth",
+    "Input": "rub mirror",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "rub",
+          "touch",
+          "feel",
+          "press",
+          "stroke",
+          "pat",
+          "tap",
+          "poke",
+          "brush",
+          "caress",
+          "prod",
+          "nudge"
+        ],
+        "Nouns": [
+          "mirror"
+        ]
+      }
+    ],
+    "Reply": "There is a rumble from deep within the earth and the room shakes.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "NorthOfHouse",
+    "Input": "go to the forest path",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the forest path"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "forest path"
+        ]
+      }
+    ],
+    "Reply": "Forest Path This is a path winding through a dimly lit forest. The path heads north-south here. One particularly large tree with some low branches stands at the...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Reservoir",
+    "Input": "go to reservoir north",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "reservoir north"
+        ]
+      }
+    ],
+    "Reply": "Reservoir North You are in a large cavernous room, the south of which was formerly a lake. However, with the water level lowered, there is merely a wide stream ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Reservoir",
+    "Input": "take trunk",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "trunk",
+          "jewels",
+          "trunk of jewels"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "trunk",
+          "jewels",
+          "trunk of jewels"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ReservoirNorth",
+    "Input": "go to the atlantis room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the atlantis room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "atlantis room"
+        ]
+      }
+    ],
+    "Reply": "Atlantis Room This is an ancient room, long under water. There is an exit to the south and a staircase leading up. On the shore lies Poseidon's own crystal trid...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ReservoirNorth",
+    "Input": "take pump",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "pump",
+          "air pump",
+          "hand-held air pump"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "pump",
+          "air pump",
+          "hand-held air pump"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ReservoirSouth",
+    "Input": "go to the flood control dam",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the flood control dam"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "flood control dam"
+        ]
+      }
+    ],
+    "Reply": "Dam You are standing on the top of the Flood Control Dam #3, which was quite a tourist attraction in times far distant. There are paths to the north, south, and...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ReservoirSouth",
+    "Input": "go to the lake",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the lake"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "lake"
+        ]
+      }
+    ],
+    "Reply": "Reservoir You are on what used to be a large lake, but which is now a large mud pile. There are \"shores\" to the north and south. Lying half buried in the mud is...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "RockyLedge",
+    "Input": "go to the canyon bottom",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the canyon bottom"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "canyon bottom"
+        ]
+      }
+    ],
+    "Reply": "Canyon Bottom You are beneath the walls of the river canyon which may be climbable here. The lesser part of the runoff of Aragain Falls flows by below. To the n...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "RoundRoom",
+    "Input": "go to engravings cave",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "engravings cave"
+        ]
+      }
+    ],
+    "Reply": "Engravings Cave You have entered a low cave with passages leading northwest and east. There are old engravings on the walls here.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "RoundRoom",
+    "Input": "go to the loud room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the loud room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "loud room"
+        ]
+      }
+    ],
+    "Reply": "Loud Room This is a large room with a ceiling which cannot be detected from the ground. There is a narrow passage from east to west and a stone stairway leading...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "drop buoy",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "buoy",
+          "red buoy"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "buoy",
+          "red buoy"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "drop garlic",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "garlic",
+          "clove of garlic",
+          "clove"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "garlic",
+          "clove of garlic",
+          "clove"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "go to the sandy cave",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the sandy cave"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "sandy cave"
+        ]
+      }
+    ],
+    "Reply": "Sandy Cave This is a sand-filled cave whose exit is to the southwest.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "go to the shore",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the shore"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "shore"
+        ]
+      }
+    ],
+    "Reply": "Shore You are on the east shore of the river. The water here seems somewhat treacherous. A path travels from north to south here, the south end quickly turning ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "leave boat",
+    "Readings": [
+      {
+        "Kind": "disembark",
+        "Verbs": [
+          "exit"
+        ],
+        "Nouns": [
+          "boat"
+        ]
+      }
+    ],
+    "Reply": "You are on your own feet again.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "open buoy",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "buoy",
+          "red buoy"
+        ]
+      }
+    ],
+    "Reply": "Opening the red buoy reveals a large emerald.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "put emerald in boat",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "emerald",
+          "large emerald"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "put scarab in boat",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "scarab",
+          "jeweled scarab",
+          "beautiful jeweled scarab"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "SandyBeach",
+    "Input": "take emerald",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "emerald",
+          "large emerald"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "emerald",
+          "large emerald"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyCave",
+    "Input": "dig in sand with shovel",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "dig"
+        ],
+        "Nouns": [
+          "sand"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "shovel"
+        ]
+      }
+    ],
+    "Reply": "You seem to be digging a hole here.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyCave",
+    "Input": "drop shovel",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "shovel"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "shovel"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyCave",
+    "Input": "go to the sandy beach",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the sandy beach"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "sandy beach"
+        ]
+      }
+    ],
+    "Reply": "Sandy Beach You are on a large sandy beach on the east shore of the river, which is flowing quickly by. A path runs beside the river to the south here, and a pa...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SandyCave",
+    "Input": "take scarab",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "scarab",
+          "jeweled scarab",
+          "beautiful jeweled scarab"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "scarab",
+          "jeweled scarab",
+          "beautiful jeweled scarab"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ShaftRoom",
+    "Input": "go to the smelly room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the smelly room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "smelly room"
+        ]
+      }
+    ],
+    "Reply": "Smelly Room This is a small nondescript room. However, from the direction of a small descending staircase a foul odor can be detected. To the south is a narrow ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ShaftRoom",
+    "Input": "lower basket",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "lower"
+        ],
+        "Nouns": [
+          "basket",
+          "cage"
+        ]
+      }
+    ],
+    "Reply": "The basket is lowered to the bottom of the shaft.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ShaftRoom",
+    "Input": "put coal in basket",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "coal",
+          "pile of coal",
+          "pile",
+          "small pile of coal"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "basket",
+          "cage"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ShaftRoom",
+    "Input": "put screwdriver in basket",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "screwdriver"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "basket",
+          "cage"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ShaftRoom",
+    "Input": "put torch in basket",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "torch",
+          "ivory torch"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "basket",
+          "cage"
+        ]
+      }
+    ],
+    "Reply": "Done.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ShaftRoom",
+    "Input": "raise basket",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "raise",
+          "lift",
+          "hoist"
+        ],
+        "Nouns": [
+          "basket"
+        ]
+      }
+    ],
+    "Reply": "The basket is raised to the top of the shaft.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Shore",
+    "Input": "go to the waterfall",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the waterfall"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "waterfall"
+        ]
+      }
+    ],
+    "Reply": "Aragain Falls You are at the top of Aragain Falls, an enormous waterfall with a drop of about 450 feet. The only path here is on the north end. A solid rainbow ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SlideRoom",
+    "Input": "go to the mine entrance",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the mine entrance"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "mine entrance"
+        ]
+      }
+    ],
+    "Reply": "Mine Entrance You are standing at the entrance of what might have been a coal mine. The shaft enters the west wall, and there is another exit on the south end o...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SmellyRoom",
+    "Input": "go to the gas room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the gas room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "gas room"
+        ]
+      }
+    ],
+    "Reply": "Gas Room This is a small room which smells strongly of coal gas. There is a short climb up some stairs and a narrow tunnel leading east. There is a sapphire-enc...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SouthOfHouse",
+    "Input": "go to the backyard",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the backyard"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "backyard"
+        ]
+      }
+    ],
+    "Reply": "Behind House You are behind the white house. A path leads into the forest to the east. In one corner of the house there is a small window which is slightly ajar...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SouthOfHouse",
+    "Input": "go to west of house",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "west of house"
+        ]
+      }
+    ],
+    "Reply": "West Of House You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here. A small leaflet is on the groun...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SqueakyRoom",
+    "Input": "go to the bat room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the bat room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "bat room"
+        ]
+      }
+    ],
+    "Reply": "Bat Room You are in a small room which has doors only to the east and south. In the corner of the room on the ceiling is a large vampire bat who is obviously de...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "StoneBarrow",
+    "Input": "go to the burial mound",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the burial mound"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "burial mound"
+        ]
+      }
+    ],
+    "Reply": "Inside the Barrow As you enter the barrow, the door closes inexorably behind you. Around you it is dark, but ahead is an enormous cavern, brightly lit. Through ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Temple",
+    "Input": "go to the altar",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the altar"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "altar"
+        ]
+      }
+    ],
+    "Reply": "Altar This is the south end of a large temple. In front of you is what appears to be an altar. In one corner is a small hole in the floor which leads into darkn...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Temple",
+    "Input": "go to the tomb",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the tomb"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "tomb"
+        ]
+      }
+    ],
+    "Reply": "Egyptian Room This is a room which looks like an Egyptian tomb. There is an ascending staircase to the west. The solid-gold coffin used for the burial of Ramses...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Temple",
+    "Input": "take bell",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "bell",
+          "brass bell"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "bell",
+          "brass bell"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TimberRoom",
+    "Input": "go to the drafty room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the drafty room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "drafty room"
+        ]
+      }
+    ],
+    "Reply": "Drafty Room This is a small drafty room in which is the bottom of a long shaft. To the south is a passageway and to the east a very narrow passage. In the shaft...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TorchRoom",
+    "Input": "go to the temple",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the temple"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "temple"
+        ]
+      }
+    ],
+    "Reply": "Temple This is the north end of a large temple. On the east wall is an ancient inscription, probably a prayer in a long-forgotten language. Below the prayer is ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TorchRoom",
+    "Input": "take torch",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "torch",
+          "ivory torch"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "torch",
+          "ivory torch"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TreasureRoom",
+    "Input": "give the egg to the thief",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "give",
+          "offer",
+          "transfer",
+          "present",
+          "provide",
+          "hand",
+          "donate",
+          "deliver",
+          "pass",
+          "feed"
+        ],
+        "Nouns": [
+          "egg",
+          "jewel-encrusted egg",
+          "jewel encrusted egg"
+        ],
+        "Preposition": "to",
+        "SecondNouns": [
+          "thief",
+          "suspicious-looking individual",
+          "individual",
+          "man",
+          "robber",
+          "gentleman",
+          "guy",
+          "dude",
+          "footpad",
+          "crook",
+          "criminal",
+          "gent",
+          "bandit"
+        ]
+      }
+    ],
+    "Reply": "The thief is taken aback by your unexpected generosity, but accepts the jewel-encrusted egg and stops to admire its beauty. The thief slowly regains his feet.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TreasureRoom",
+    "Input": "kill thief with knife",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "kill",
+          "attack",
+          "defeat",
+          "destroy",
+          "murder",
+          "stab",
+          "punch",
+          "fight",
+          "slay",
+          "strike",
+          "hit",
+          "beat",
+          "assault"
+        ],
+        "Nouns": [
+          "thief",
+          "suspicious-looking individual",
+          "individual",
+          "man",
+          "robber",
+          "gentleman",
+          "guy",
+          "dude",
+          "footpad",
+          "crook",
+          "criminal",
+          "gent",
+          "bandit"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "knife",
+          "nasty knife",
+          "nasty"
+        ]
+      }
+    ],
+    "Reply": "Almost as soon as the thief breathes his last breath, a cloud of sinister black fog envelops him, and when the fog lifts, the carcass has disappeared. As the th...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TreasureRoom",
+    "Input": "say temple",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "say",
+          "yell",
+          "shout",
+          "utter",
+          "scream",
+          "mumble",
+          "whisper",
+          "speak",
+          "declare",
+          "state",
+          "announce",
+          "tell",
+          "holler",
+          "exclaim",
+          "proclaim",
+          "chant",
+          "recite"
+        ],
+        "Nouns": [
+          "temple"
+        ]
+      }
+    ],
+    "Reply": "Temple This is the north end of a large temple. On the east wall is an ancient inscription, probably a prayer in a long-forgotten language. Below the prayer is ...",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "TreasureRoom",
+    "Input": "take canary",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "canary",
+          "bird",
+          "wind-up canary"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "canary",
+          "bird",
+          "wind-up canary"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TreasureRoom",
+    "Input": "take chalice",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "chalice",
+          "silver chalice",
+          "silver"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "chalice",
+          "silver chalice",
+          "silver"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TrollRoom",
+    "Input": "drop sword",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "sword",
+          "glamdring",
+          "orcrist",
+          "elvish"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "sword",
+          "glamdring",
+          "orcrist",
+          "elvish"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TrollRoom",
+    "Input": "go to east-west passage",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "east-west passage"
+        ]
+      }
+    ],
+    "Reply": "East-West Passage This is a narrow east-west passageway. There is a narrow stairway leading down at the north end of the room.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "TrollRoom",
+    "Input": "kill the troll with the sword",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "kill",
+          "attack",
+          "defeat",
+          "destroy",
+          "murder",
+          "stab",
+          "punch",
+          "fight",
+          "slay",
+          "strike",
+          "hit",
+          "beat",
+          "assault"
+        ],
+        "Nouns": [
+          "troll",
+          "monster",
+          "creature"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "sword",
+          "glamdring",
+          "orcrist",
+          "elvish"
+        ]
+      }
+    ],
+    "Reply": "Almost as soon as the troll breathes his last breath, a cloud of sinister black fog envelops him, and when the fog lifts, the carcass has disappeared. Your swor...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "UpATree",
+    "Input": "take egg",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "egg",
+          "jewel-encrusted egg",
+          "jewel encrusted egg"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "egg",
+          "jewel-encrusted egg",
+          "jewel encrusted egg"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "UpATree",
+    "Input": "wind canary",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "wind",
+          "wind up",
+          "crank",
+          "twist",
+          "turn"
+        ],
+        "Nouns": [
+          "canary",
+          "bird",
+          "wind-up canary"
+        ]
+      }
+    ],
+    "Reply": "The canary chirps, slightly off-key, an aria from a forgotten opera. From out of the greenery flies a lovely songbird. It perches on a limb just over your head ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Input": "drop leaflet",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "leaflet",
+          "mail",
+          "booklet",
+          "pamphlet",
+          "advertisement"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "leaflet",
+          "mail",
+          "booklet",
+          "pamphlet",
+          "advertisement"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Input": "go to south of house",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "south of house"
+        ]
+      }
+    ],
+    "Reply": "South of House You are facing the south side of a white house. There is no door here, and all the windows are boarded.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Input": "open mailbox",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "mailbox"
+        ]
+      }
+    ],
+    "Reply": "Opening the small mailbox reveals a leaflet.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Input": "read leaflet",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "read",
+          "inspect"
+        ],
+        "Nouns": [
+          "leaflet",
+          "mail",
+          "booklet",
+          "pamphlet",
+          "advertisement"
+        ]
+      }
+    ],
+    "Reply": "(Taken) \"WELCOME TO ZORK! ZORK is a game of adventure, danger, and low cunning. In it you will explore some of the most amazing territory ever seen by mortals. ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Input": "take leaflet",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "leaflet",
+          "mail",
+          "booklet",
+          "pamphlet",
+          "advertisement"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "leaflet",
+          "mail",
+          "booklet",
+          "pamphlet",
+          "advertisement"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughTestTwo"
+  },
+  {
+    "Room": "WhiteCliffsBeachSouth",
+    "Input": "deflate boat",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "deflate"
+        ],
+        "Nouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      }
+    ],
+    "Reply": "The boat deflates.",
+    "From": "WalkthroughTestThree"
+  },
+  {
+    "Room": "WhiteCliffsBeachSouth",
+    "Input": "take boat",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "boat",
+          "pile",
+          "pile of plastic",
+          "plastic",
+          "punctured boat",
+          "raft",
+          "magic boat"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughTestThree"
+  }
+]

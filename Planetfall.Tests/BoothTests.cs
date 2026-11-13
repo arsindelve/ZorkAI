@@ -12,6 +12,19 @@ namespace Planetfall.Tests;
 
 public class BoothTests : EngineTestsBase
 {
+    // Verbs.PushVerbs: hitting or punching a button is pressing it.
+    [TestCase("hit button")]
+    [TestCase("punch button")]
+    public async Task HittingAButton_IsPressingIt(string input)
+    {
+        var target = GetTarget();
+        StartHere<BoothThree>();
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("Which button do you mean");
+    }
+
     [Test]
     public async Task Disambiguation_One()
     {

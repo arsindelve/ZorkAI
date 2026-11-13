@@ -16,7 +16,7 @@ namespace Planetfall.Tests.Walkthrough;
 ///     been rusting unattended for several hundred years.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughSleepInTheInfirmaryBed : WalkthroughTestBase
+public class WalkthroughSleepInTheInfirmaryBed : WalkthroughTestBase
 {
     /// <summary>
     ///     Drop the player into Lawanda at the fork, a few rooms short of the infirmary, with Floyd

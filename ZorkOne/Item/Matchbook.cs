@@ -15,6 +15,8 @@ public class Matchbook
         ITurnBasedActor,
         IPluralNoun
 {
+    private static readonly VerbFamily LightVerb = new("light");
+
     public int TurnsRemainingLit { get; set; }
 
     public int MatchesUsed { get; set; }
@@ -133,7 +135,7 @@ public class Matchbook
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         if (action.MatchNounOne(NounsForMatching) && 
-            action.Verb.ToLowerInvariant() == "light" && 
+            LightVerb.Contains(action.Verb.ToLowerInvariant()) && 
             action.Preposition.ToLowerInvariant() == "with")
         {
             if (action.NounTwo.ToLowerInvariant() == "torch")

@@ -41,7 +41,7 @@ public class Thermos : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeE
 
             // Emptying the Thermos means emptying what is in it, which is worth doing deliberately:
             // the soup is gone for good, and the bottle matters later.
-            if (action.MatchVerb(["pour", "empty", "pour out", "dump"]) && Items.Contains(soup))
+            if (action.MatchVerb(Verbs.EmptyVerbs) && Items.Contains(soup))
             {
                 RemoveItem(soup);
                 soup.CurrentLocation = null;
@@ -51,7 +51,7 @@ public class Thermos : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeE
                     "smell of blueberries fills the place. ");
             }
 
-            if (action.MatchVerb(["look in", "look inside", "reach in", "reach into"]))
+            if (action.MatchVerb(Verbs.SearchVerbs))
                 return new PositiveInteractionResult(
                     Items.Contains(soup) ? soup.ExaminationDescription : "The Thermos is empty. ");
         }
@@ -68,7 +68,7 @@ public class Thermos : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeE
         IContext context)
     {
         var isPuttingSomethingIn =
-            action.MatchVerb(["put", "place", "insert", "drop"]) &&
+            action.MatchVerb(Verbs.InsertVerbs) &&
             action.MatchNounTwo(NounsForMatching) &&
             action.Preposition is "in" or "into" or "inside";
 

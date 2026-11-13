@@ -53,7 +53,7 @@ public class EndOfRainbow : LocationWithNoStartingItems
         if (rainbowResult is not null)
             return rainbowResult;
 
-        if (action.Match(["wave", "swing", "twirl"], GetItem<Sceptre>().NounsForMatching))
+        if (action.Match(Verbs.WaveVerbs, GetItem<Sceptre>().NounsForMatching))
         {
             if (!context.HasItem<Sceptre>() && GetItem<Sceptre>().CurrentLocation == GetLocation<EndOfRainbow>())
                 return new PositiveInteractionResult("You don't have the sceptre. ");

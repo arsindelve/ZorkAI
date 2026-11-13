@@ -112,8 +112,7 @@ public class Egg
 
         if (
             !action.MatchVerb(
-                ["open", "pry", "break", "jimmie", "crack", "force", "bust", "pop", "split"]
-            )
+                Verbs.ForceOpenVerbs)
         )
             return await base.RespondToMultiNounInteraction(action, context);
 

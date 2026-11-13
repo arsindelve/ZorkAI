@@ -18,11 +18,8 @@ public class DeterministicParserCoverageTests
         "floyd, go north", "floyd, take board", "floyd, are you okay", "ask floyd about the card", "lab door",
         "drop all",
 
-        // Verbs the parser does not know yet.
-        "pull lever", "collapse ladder", "deactivate floyd", "deactivate terminal", "lie down in bed",
-        "slide kitchen access card through slot", "slide upper access card through slot",
-        "slide lower access card through slot", "slide shuttle access card through slot",
-        "slide teleportation card through slot", "slide mini card through slot",
+        // A verb no handler declares (getting into bed is answered from the raw command, before parsing).
+        "lie down in bed",
 
         // Numerals and ordinals are not declared nouns.
         "press 2", "press 3", "type 0", "type 1", "type 6", "type 384", "type 385", "set laser to 1",
@@ -45,5 +42,26 @@ public class DeterministicParserCoverageTests
         declined.Should().BeEquivalentTo(KnownDeclined,
             "a command missing from this list has stopped parsing deterministically (a regression), and one " +
             "listed here that now parses should be removed from it");
+    }
+
+    // A different record, the same outcome: "galley" is a declared alias of the kitchen, and the golden
+    // parser models the AI renaming it. The by-room-name walkthrough replays it through the grammar.
+    private static readonly string[] KnownDisagreements =
+    [
+        "go to the galley: grammar [goto galley] vs golden [goto kitchen]"
+    ];
+
+    [Test]
+    public async Task WhereTheGrammarAndTheGoldenTestParserBothAnswer_TheyAgree()
+    {
+        Repository.Reset();
+        var commands = DeterministicParserCoverage.WalkthroughCommands(typeof(WalkthroughTestBase));
+
+        var disagreements = await DeterministicParserCoverage.Disagreements("Planetfall", commands,
+            new TestParser(new Planetfall.GlobalCommand.PlanetfallGlobalCommandFactory(), "Planetfall"));
+
+        disagreements.Should().BeEquivalentTo(KnownDisagreements,
+            "the walkthroughs prove the golden parser's reading of each command; the production grammar " +
+            "must read it the same way or decline it");
     }
 }

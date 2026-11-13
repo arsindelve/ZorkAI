@@ -31,10 +31,10 @@ public class FusedBedistor : BedistorBase, ICanBeTakenAndDropped
         if (CurrentLocation is not LargeMetalCube cube)
             return await base.RespondToMultiNounInteraction(action, context);
 
-        var match = action.Match<Pliers>(["take", "remove"], NounsForMatching, ["with", "using"]);
+        var match = action.Match<Pliers>(Verbs.RemoveVerbs, NounsForMatching, ["with", "using"]);
 
         // Also support "use pliers on bedistor"
-        match |= action.Match<FusedBedistor>(["use"], Repository.GetItem<Pliers>().NounsForMatching, ["on"]);
+        match |= action.Match<FusedBedistor>(Verbs.UseVerbs, Repository.GetItem<Pliers>().NounsForMatching, ["on"]);
 
         if (match)
         {

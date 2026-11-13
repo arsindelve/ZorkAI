@@ -1,0 +1,3373 @@
+[
+  {
+    "Room": "AdminCorridor",
+    "Input": "drop ladder",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "ladder",
+          "large aluminum ladder",
+          "aluminum ladder",
+          "extendable ladder",
+          "extendable aluminum ladder"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "ladder",
+          "large aluminum ladder",
+          "aluminum ladder",
+          "extendable ladder",
+          "extendable aluminum ladder"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "AdminCorridor",
+    "Input": "extend ladder",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "extend",
+          "expand",
+          "deploy",
+          "pull out",
+          "stretch",
+          "open",
+          "lengthen"
+        ],
+        "Nouns": [
+          "ladder",
+          "large aluminum ladder",
+          "aluminum ladder",
+          "extendable ladder",
+          "extendable aluminum ladder"
+        ]
+      }
+    ],
+    "Reply": "The ladder extends to a length of around eight meters.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "AdminCorridor",
+    "Input": "place ladder across rift",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "place",
+          "put",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "ladder",
+          "large aluminum ladder",
+          "aluminum ladder",
+          "extendable ladder",
+          "extendable aluminum ladder"
+        ],
+        "Preposition": "across",
+        "SecondNouns": [
+          "rift"
+        ]
+      }
+    ],
+    "Reply": "The ladder, far too short to reach the other edge of the rift, plunges into the rift and is lost forever.",
+    "From": "WalkthroughBridgeTheRiftWithACollapsedLadder"
+  },
+  {
+    "Room": "AdminCorridor",
+    "Input": "throw bedistor into rift",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "throw",
+          "toss",
+          "launch",
+          "hurl",
+          "fling",
+          "heave",
+          "chuck",
+          "lob",
+          "pitch",
+          "cast",
+          "sling"
+        ],
+        "Nouns": [
+          "bedistor",
+          "good ninety-ohm bedistor",
+          "ninety-ohm bedistor",
+          "good bedistor",
+          "good",
+          "ninety-ohm",
+          "90-ohm bedistor",
+          "90-ohm"
+        ],
+        "Preposition": "into",
+        "SecondNouns": [
+          "rift"
+        ]
+      }
+    ],
+    "Reply": "The good ninety-ohm bedistor sails gracefully into the rift.",
+    "From": "WalkthroughLoseTheGoodBedistorInTheRift"
+  },
+  {
+    "Room": "AdminCorridor",
+    "Input": "throw magnet into rift",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "throw",
+          "toss",
+          "launch",
+          "hurl",
+          "fling",
+          "heave",
+          "chuck",
+          "lob",
+          "pitch",
+          "cast",
+          "sling"
+        ],
+        "Nouns": [
+          "magnet",
+          "curved metal bar",
+          "metal bar",
+          "bar",
+          "metal bar, curved into a u-shape"
+        ],
+        "Preposition": "into",
+        "SecondNouns": [
+          "rift"
+        ]
+      }
+    ],
+    "Reply": "The metal bar, curved into a U-shape sails gracefully into the rift.",
+    "From": "WalkthroughThrowTheMagnetIntoTheRift"
+  },
+  {
+    "Room": "AdminCorridorNorth",
+    "Input": "collapse ladder",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "collapse",
+          "retract",
+          "shorten",
+          "close",
+          "contract"
+        ],
+        "Nouns": [
+          "ladder"
+        ]
+      }
+    ],
+    "Reply": "As the ladder shortens it plunges into the rift.",
+    "From": "WalkthroughCollapseTheLadderFromTheFarSideOfTheRift"
+  },
+  {
+    "Room": "AdminCorridorNorth",
+    "Input": "go to the small office",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the small office"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "small office"
+        ]
+      }
+    ],
+    "Reply": "Small Office You have entered a small office of some sort. A small desk faces the main doorway which lies to the east. Another exit leads west. Floyd follows yo...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "AdminCorridorSouth",
+    "Input": "drop magnet",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "magnet",
+          "curved metal bar",
+          "metal bar",
+          "bar",
+          "metal bar, curved into a u-shape"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "magnet",
+          "curved metal bar",
+          "metal bar",
+          "bar",
+          "metal bar, curved into a u-shape"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughCarryTheMagnetWithTheAccessCards"
+  },
+  {
+    "Room": "AdminCorridorSouth",
+    "Input": "examine crevice",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "examine",
+          "look at",
+          "look",
+          "look into",
+          "inspect",
+          "x",
+          "view",
+          "study",
+          "peek",
+          "peer"
+        ],
+        "Nouns": [
+          "crevice"
+        ]
+      }
+    ],
+    "Reply": "Lying at the bottom of the narrow crack, partly covered by layers of dust, is a shiny steel key!",
+    "From": "WalkthroughThrowTheMagnetIntoTheRift"
+  },
+  {
+    "Room": "AdminCorridorSouth",
+    "Input": "put magnet on crevice",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "use",
+          "apply",
+          "stick",
+          "place",
+          "move",
+          "push",
+          "hold",
+          "lower",
+          "dangle",
+          "dip",
+          "insert",
+          "set",
+          "lay",
+          "rest",
+          "slide",
+          "slip",
+          "feed",
+          "thread",
+          "hang",
+          "poke",
+          "wave",
+          "swing"
+        ],
+        "Nouns": [
+          "magnet",
+          "curved metal bar",
+          "metal bar",
+          "bar",
+          "metal bar, curved into a u-shape"
+        ],
+        "Preposition": "on",
+        "SecondNouns": [
+          "crevice"
+        ]
+      }
+    ],
+    "Reply": "With a spray of dust and a loud clank, a piece of metal leaps from the crevice and affixes itself to the magnet. It is a steel key! With a tug, you remove the k...",
+    "From": "WalkthroughBridgeTheRiftWithACollapsedLadder"
+  },
+  {
+    "Room": "AlfieControlEast",
+    "Input": "pull lever",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "pull"
+        ],
+        "Nouns": [
+          "lever"
+        ]
+      }
+    ],
+    "Reply": "The lever is now in the central position. The shuttle car continues to move. The display still reads 5.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "AlfieControlEast",
+    "Input": "push lever",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "push"
+        ],
+        "Nouns": [
+          "lever"
+        ]
+      }
+    ],
+    "Reply": "The lever is now in the upper position. The control cabin door slides shut and the shuttle car begins to move forward! The display changes to 5.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "AlfieControlEast",
+    "Input": "slide shuttle access card through slot",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "slide",
+          "push",
+          "swipe",
+          "scan",
+          "pass",
+          "glide",
+          "draw",
+          "use"
+        ],
+        "Nouns": [
+          "shuttle access card",
+          "shuttle",
+          "shuttle card",
+          "shuttle access"
+        ],
+        "Preposition": "through",
+        "SecondNouns": [
+          "slot",
+          "shuttle slot",
+          "shuttle control slot"
+        ]
+      }
+    ],
+    "Reply": "A recording of a deep male voice says \"Shuttle controls activated.\"",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Balcony",
+    "Input": "go to the staircase",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the staircase"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "staircase"
+        ]
+      }
+    ],
+    "Reply": "Winding Stair The middle of a long, steep stairway carved into the face of a cliff.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BioLabLocation",
+    "Input": "open lab door",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "lab door"
+        ]
+      }
+    ],
+    "Reply": "The door opens. The air is filled with mist, which is affecting the mutants. They appear to be stunned and confused, but are slowly recovering.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BioLockEast",
+    "Input": "close door",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "close",
+          "shut",
+          "bar",
+          "lower",
+          "cover",
+          "latch",
+          "fasten"
+        ],
+        "Nouns": [
+          "door",
+          "lab door"
+        ]
+      }
+    ],
+    "Reply": "The door closes. And not a moment too soon! You hear a pounding from the door as the monsters within vent their frustration at losing their prey. From within th...",
+    "From": "WalkthroughBioLock"
+  },
+  {
+    "Room": "BioLockEast",
+    "Input": "open door",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "door",
+          "lab door"
+        ]
+      }
+    ],
+    "Reply": "The door opens. Floyd, pausing only for the briefest moment, plunges into the Bio Lab. Immediately, he is set upon by hideous, mutated monsters! More are headin...",
+    "From": "WalkthroughBioLock"
+  },
+  {
+    "Room": "BioLockEast",
+    "Input": "take miniaturization card",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "miniaturization",
+          "miniaturization access card",
+          "miniaturization card",
+          "miniaturization access",
+          "mini card",
+          "mini access card"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "miniaturization",
+          "miniaturization access card",
+          "miniaturization card",
+          "miniaturization access",
+          "mini card",
+          "mini access card"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BoothThree",
+    "Input": "press 2",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "2"
+        ]
+      }
+    ],
+    "Reply": "Floyd gives a terrified squeal, and clutches at his guidance mechanism. You experience a strange feeling in the pit of your stomach.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BoothThree",
+    "Input": "slide teleportation card through slot",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "slide",
+          "push",
+          "swipe",
+          "scan",
+          "pass",
+          "glide",
+          "draw",
+          "use"
+        ],
+        "Nouns": [
+          "teleportation card",
+          "teleportation access card",
+          "teleportation",
+          "teleport access card",
+          "teleport",
+          "teleport card"
+        ],
+        "Preposition": "through",
+        "SecondNouns": [
+          "slot",
+          "teleportation slot",
+          "teleportation card slot"
+        ]
+      }
+    ],
+    "Reply": "Nothing happens for a moment. Then a light flashes \"Redee.\"",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "BoothTwo",
+    "Input": "press 3",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "3"
+        ]
+      }
+    ],
+    "Reply": "Floyd gives a terrified squeal, and clutches at his guidance mechanism. You experience a strange feeling in the pit of your stomach.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CommRoom",
+    "Input": "pour fluid into hole",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "pour",
+          "empty",
+          "dump",
+          "pour out",
+          "spill",
+          "tip out"
+        ],
+        "Nouns": [
+          "fluid"
+        ],
+        "Preposition": "into",
+        "SecondNouns": [
+          "hole"
+        ]
+      }
+    ],
+    "Reply": "The liquid disappears into the hole. The lights on the enunciator panel blink rapidly and all go off except one, a gray light.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ComputerRoom",
+    "Input": "read output",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "read",
+          "inspect"
+        ],
+        "Nouns": [
+          "output",
+          "computer output",
+          "printout"
+        ]
+      }
+    ],
+    "Reply": "(Taken) The printout is hundreds of pages long. It would take many chrons to read it all. The last page looks pretty interesting, though: \"Daalee Statis Reeport...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CorridorJunction",
+    "Input": "go to admin corridor south",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "admin corridor south"
+        ]
+      }
+    ],
+    "Reply": "Admin Corridor South This section of hallway seems to have suffered some minor structural damage. The walls are cracked, and a jagged crevice crosses the floor....",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CorridorJunction",
+    "Input": "go to mech corridor north",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "mech corridor north"
+        ]
+      }
+    ],
+    "Reply": "Mech Corridor North Entrances to rooms lie to the east and west from this north-south hall.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CorridorJunction",
+    "Input": "go to the elevator lobby",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the elevator lobby"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "elevator lobby"
+        ]
+      }
+    ],
+    "Reply": "Elevator Lobby This is a wide, brightly lit lobby. A blue metal door to the north is closed and a larger red metal door to the south is also closed. Beside the ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CourseControl",
+    "Input": "open cube",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "cube",
+          "large metal cube",
+          "metal cube",
+          "lid"
+        ]
+      }
+    ],
+    "Reply": "The lid swings open. The large metal cube contains: A fused ninety-ohm bedistor",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CourseControl",
+    "Input": "put good bedistor in cube",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "good bedistor",
+          "good ninety-ohm bedistor",
+          "good",
+          "ninety-ohm",
+          "90-ohm bedistor",
+          "90-ohm"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "cube",
+          "large metal cube",
+          "metal cube",
+          "lid"
+        ]
+      }
+    ],
+    "Reply": "Done. The warning lights go out and another light goes on.",
+    "From": "WalkthroughTouchTheLiveBedistor"
+  },
+  {
+    "Room": "CourseControl",
+    "Input": "put good in cube",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "good",
+          "good ninety-ohm bedistor",
+          "good bedistor",
+          "ninety-ohm",
+          "90-ohm bedistor",
+          "90-ohm"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "cube",
+          "large metal cube",
+          "metal cube",
+          "lid"
+        ]
+      }
+    ],
+    "Reply": "Done. The warning lights go out and another light goes on.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CourseControl",
+    "Input": "take fused with pliers",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "remove"
+        ],
+        "Nouns": [
+          "fused",
+          "fused ninety-ohm bedistor",
+          "fused bedistor"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "pliers",
+          "wide-nosed pliers"
+        ]
+      }
+    ],
+    "Reply": "With a tug, you manage to remove the fused bedistor.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Courtyard",
+    "Input": "go to the plain hall",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the plain hall"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "plain hall"
+        ]
+      }
+    ],
+    "Reply": "Plain Hall This is a featureless hall leading north and south. Although the hallway is old and dusty, the construction is of a much more modern style than the c...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Crag",
+    "Input": "go to the terrace",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the terrace"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "terrace"
+        ]
+      }
+    ],
+    "Reply": "Balcony This is an octagonal room, half carved into and half built out from the cliff wall. Through the shattered windows which ring the outer wall you can see ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "CryoElevatorLocation",
+    "Input": "press button",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "button",
+          "elevator button"
+        ]
+      }
+    ],
+    "Reply": "The elevator door closes just as the monsters reach it! You slump back against the wall, exhausted from the chase. The elevator begins to move downward.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "DormCorridor",
+    "Input": "go to the corridor junction",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the corridor junction"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "corridor junction"
+        ]
+      }
+    ],
+    "Reply": "You walk down the long, featureless hallway for a long time. Finally, you see an intersection ahead... Corridor Junction A north-south corridor intersects the m...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ElevatorLobby",
+    "Input": "drop lower",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "lower",
+          "lower elevator access card",
+          "lower card",
+          "lower elevator",
+          "lower elevator card",
+          "lower elevator access",
+          "lower access card"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "lower",
+          "lower elevator access card",
+          "lower card",
+          "lower elevator",
+          "lower elevator card",
+          "lower elevator access",
+          "lower access card"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ElevatorLobby",
+    "Input": "drop shuttle",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "shuttle",
+          "shuttle access card",
+          "shuttle card",
+          "shuttle access"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "shuttle",
+          "shuttle access card",
+          "shuttle card",
+          "shuttle access"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ElevatorLobby",
+    "Input": "drop upper",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "upper",
+          "upper elevator access card",
+          "upper card",
+          "upper elevator",
+          "upper elevator card",
+          "upper elevator access",
+          "upper access card"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "upper",
+          "upper elevator access card",
+          "upper card",
+          "upper elevator",
+          "upper elevator card",
+          "upper elevator access",
+          "upper access card"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ElevatorLobby",
+    "Input": "press blue button",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "blue button"
+        ]
+      }
+    ],
+    "Reply": "You hear a faint whirring noise from behind the blue door.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ElevatorLobby",
+    "Input": "press red button",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "red button"
+        ]
+      }
+    ],
+    "Reply": "The red door begins vibrating a bit.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Escalator",
+    "Input": "go to the fork",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the fork"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "fork"
+        ]
+      }
+    ],
+    "Reply": "Fork This is a hallway which forks to the northeast and southeast. To the west is the top of a long escalator. Floyd follows you.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "EscapePod",
+    "Input": "take kit",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "kit",
+          "survival kit",
+          "survival"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "kit",
+          "survival kit",
+          "survival"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughBridgeTheRiftWithACollapsedLadder"
+  },
+  {
+    "Room": "Fork",
+    "Input": "go to systems corridor west",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "systems corridor west"
+        ]
+      }
+    ],
+    "Reply": "Systems Corridor West The corridor bends here, leading east and southwest. A doorway opens to the northwest, and a narrow stairway leads down to the north. Floy...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Kitchen",
+    "Input": "take lower card",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "lower",
+          "lower elevator access card",
+          "elevator access card",
+          "elevator",
+          "lower card",
+          "lower elevator",
+          "lower elevator card",
+          "lower elevator access",
+          "lower access card"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "lower",
+          "lower elevator access card",
+          "elevator access card",
+          "elevator",
+          "lower card",
+          "lower elevator",
+          "lower elevator card",
+          "lower elevator access",
+          "lower access card"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LabOffice",
+    "Input": "read memo",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "read",
+          "inspect"
+        ],
+        "Nouns": [
+          "memo",
+          "note",
+          "paper"
+        ]
+      }
+    ],
+    "Reply": "(Taken) Memoo tuu awl lab pursunel: Duu tuu xe daanjuris naatshur uv xe biioo eksperiments, an eemurjensee sistum haz bin instawld. Xis sistum wud flud xe entii...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LabOffice",
+    "Input": "take mask",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "mask",
+          "gas mask"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "mask",
+          "gas mask"
+        ]
+      }
+    ],
+    "Reply": "Taken. A recorded announcement blares from the public address system. \"Revival procedure beginning. Cryo-chamber access from Project Control Office now open.\"",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LabOffice",
+    "Input": "wear gas mask",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "wear",
+          "don",
+          "put on",
+          "dress in",
+          "slip on"
+        ],
+        "Nouns": [
+          "gas mask",
+          "mask"
+        ]
+      }
+    ],
+    "Reply": "You are wearing the gas mask.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LabOffice",
+    "Input": "wear mask",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "wear",
+          "don",
+          "put on",
+          "dress in",
+          "slip on"
+        ],
+        "Nouns": [
+          "mask",
+          "gas mask"
+        ]
+      }
+    ],
+    "Reply": "You are wearing the gas mask.",
+    "From": "WalkthroughMutantChase"
+  },
+  {
+    "Room": "LabStorage",
+    "Input": "open pocket",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "pocket",
+          "lab pocket",
+          "lab uniform pocket"
+        ]
+      }
+    ],
+    "Reply": "You discover a teleportation access card and a piece of paper in the pocket of the uniform.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LabStorage",
+    "Input": "put battery in laser",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "battery",
+          "fresh",
+          "fresh battery",
+          "new battery"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "laser",
+          "portable laser",
+          "akmee portabul laazur",
+          "laazur",
+          "akmee laazur"
+        ]
+      }
+    ],
+    "Reply": "The battery is now resting in the depression, attached to the laser.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LabStorage",
+    "Input": "take fresh battery",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "fresh",
+          "battery",
+          "fresh battery",
+          "new battery"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "fresh",
+          "battery",
+          "fresh battery",
+          "new battery"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LabStorage",
+    "Input": "take teleportation",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "teleportation",
+          "teleportation access card",
+          "teleportation card",
+          "teleport access card",
+          "teleport",
+          "teleport card"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "teleportation",
+          "teleportation access card",
+          "teleportation card",
+          "teleport access card",
+          "teleport",
+          "teleport card"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LargeOffice",
+    "Input": "take shuttle card",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "shuttle",
+          "shuttle access card",
+          "shuttle card",
+          "shuttle access"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "shuttle",
+          "shuttle access card",
+          "shuttle card",
+          "shuttle access"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LawandaPlatform",
+    "Input": "go to the escalator",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the escalator"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "escalator"
+        ]
+      }
+    ],
+    "Reply": "Escalator You are in the middle of a long mechanical stairway. It is not running, and seems to be in disrepair. Floyd follows you.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "activate terminal",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "activate",
+          "turn on",
+          "switch on",
+          "start",
+          "enable"
+        ],
+        "Nouns": [
+          "terminal",
+          "computer terminal",
+          "computer",
+          "screen",
+          "keyboard",
+          "keypad",
+          "keys"
+        ]
+      }
+    ],
+    "Reply": "The screen gives off a green flash, and then some writing appears on the screen: 1. Histooree 2. Kulcur 3. Teknolojee 4. Jeeografee 5. Xe Prajekt 6. Inturlajik ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "deactivate terminal",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "deactivate",
+          "turn off",
+          "switch off",
+          "stop",
+          "silence",
+          "disable"
+        ],
+        "Nouns": [
+          "terminal",
+          "computer terminal",
+          "computer",
+          "screen",
+          "keyboard",
+          "keypad",
+          "keys"
+        ]
+      }
+    ],
+    "Reply": "The screen goes dark.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "go to project corridor east",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "project corridor east"
+        ]
+      }
+    ],
+    "Reply": "Project Corridor East The hallway ends here but continues back toward the west. Doorways lead north, south and east. Floyd follows you.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "key 4 on the terminal",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "key",
+          "type",
+          "punch",
+          "press",
+          "push"
+        ],
+        "Nouns": [
+          "4"
+        ],
+        "Preposition": "on",
+        "SecondNouns": [
+          "terminal",
+          "computer terminal",
+          "computer",
+          "screen",
+          "keyboard",
+          "keypad",
+          "keys"
+        ]
+      }
+    ],
+    "Reply": "The screen clears and a different menu appears: 0. Maan Menyuu 1. Planit Landmasiz 2. Undursee Reejunz 3. Spaas Kolooneez",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "press 0 on the terminal",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "punch",
+          "type",
+          "key"
+        ],
+        "Nouns": [
+          "0"
+        ],
+        "Preposition": "on",
+        "SecondNouns": [
+          "terminal",
+          "computer terminal",
+          "computer",
+          "screen",
+          "keyboard",
+          "keypad",
+          "keys"
+        ]
+      }
+    ],
+    "Reply": "The screen clears and a different menu appears: 1. Histooree 2. Kulcur 3. Teknolojee 4. Jeeografee 5. Xe Prajekt 6. Inturlajik Gaamz",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "type 0",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "type",
+          "punch",
+          "key",
+          "press",
+          "push"
+        ],
+        "Nouns": [
+          "0"
+        ]
+      }
+    ],
+    "Reply": "The screen clears and a different menu appears: 0. Maan Menyuu 1. Zoork 2. Dedliin and Witnis 3. Starkros and Suspendid",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "type 1",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "type",
+          "punch",
+          "key",
+          "press",
+          "push"
+        ],
+        "Nouns": [
+          "1"
+        ]
+      }
+    ],
+    "Reply": "The screen clears and some text appears: \"Xe Zoork triloojee, an adventshur klasik, taaks plaas in aa deeliitful but daanjuris undurgrownd seteeng.\" \"Foor moor ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LibraryLobby",
+    "Input": "type 6",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "type",
+          "punch",
+          "key",
+          "press",
+          "push"
+        ],
+        "Nouns": [
+          "6"
+        ]
+      }
+    ],
+    "Reply": "The screen clears and a different menu appears: 0. Maan Menyuu 1. Zoork 2. Dedliin and Witnis 3. Starkros and Suspendid",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LowerElevator",
+    "Input": "go to the waiting room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the waiting room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "waiting room"
+        ]
+      }
+    ],
+    "Reply": "Waiting Area This is a concrete platform sparsely furnished with benches. The platform continues to the east, and to the south is a metal door. Floyd follows yo...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "LowerElevator",
+    "Input": "slide lower access card through slot",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "slide",
+          "push",
+          "swipe",
+          "scan",
+          "pass",
+          "glide",
+          "draw",
+          "use"
+        ],
+        "Nouns": [
+          "lower access card",
+          "lower elevator access card",
+          "lower",
+          "lower card",
+          "lower elevator",
+          "lower elevator card",
+          "lower elevator access"
+        ],
+        "Preposition": "through",
+        "SecondNouns": [
+          "slot",
+          "lower elevator slot",
+          "lower elevator access slot",
+          "lower elevator card slot",
+          "lower slot"
+        ]
+      }
+    ],
+    "Reply": "A recorded voice chimes \"Elevator enabled.\"",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineShop",
+    "Input": "go to the robot shop",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the robot shop"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "robot shop"
+        ]
+      }
+    ],
+    "Reply": "Robot Shop This room, with exits west and northwest, is filled with robot-like devices of every conceivable description, all in various states of disassembly. O...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineShop",
+    "Input": "press black button",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "black button"
+        ]
+      }
+    ],
+    "Reply": "The flask fills with some black chemical fluid. The fluid gradually turns milky white.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineShop",
+    "Input": "press gray button",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "press",
+          "push",
+          "activate",
+          "toggle",
+          "click",
+          "flip",
+          "switch",
+          "depress",
+          "hit",
+          "punch"
+        ],
+        "Nouns": [
+          "gray button"
+        ]
+      }
+    ],
+    "Reply": "The flask fills with some gray chemical fluid. The fluid gradually turns milky white.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MachineShop",
+    "Input": "put flask under spout",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "flask",
+          "glass flask",
+          "large glass flask"
+        ],
+        "Preposition": "under",
+        "SecondNouns": [
+          "spout"
+        ]
+      }
+    ],
+    "Reply": "The glass flask is now sitting under the spout.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MainLab",
+    "Input": "open biolock door",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "biolock",
+          "biolock door"
+        ]
+      }
+    ],
+    "Reply": "The door opens.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MechCorridor",
+    "Input": "go to mech corridor south",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "mech corridor south"
+        ]
+      }
+    ],
+    "Reply": "Mech Corridor South The corridor ends here with doorways to the southwest, south, and southeast.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MechCorridor",
+    "Input": "go to reactor control",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "reactor control"
+        ]
+      }
+    ],
+    "Reply": "Reactor Control This room contains many dials and gauges for controlling a massive planetary power reactor which, according to a diagram on the wall, must be bu...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MechCorridorNorth",
+    "Input": "go to mech corridor",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "mech corridor"
+        ]
+      }
+    ],
+    "Reply": "Mech Corridor Entrances to rooms lie to the east and west from this north-south hall.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MechCorridorSouth",
+    "Input": "go to the toolroom",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the toolroom"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "toolroom"
+        ]
+      }
+    ],
+    "Reply": "Tool Room This is apparently a storage room for tools. Exits lead northeast and east. Sitting on the floor below the lowest shelf is a large glass flask. There ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MessCorridor",
+    "Input": "go to the cafeteria",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the cafeteria"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "cafeteria"
+        ]
+      }
+    ],
+    "Reply": "Mess Hall This is a large hall lined with tables and benches. An opening to the north leads back to the corridor. A door to the south is closed. Next to the doo...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MessCorridor",
+    "Input": "go to the dorm corridor",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the dorm corridor"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "dorm corridor"
+        ]
+      }
+    ],
+    "Reply": "Dorm Corridor This is a wide, east-west hallway with openings to the north and south. To the east, the corridor stretches off into the distance. That section of...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MessCorridor",
+    "Input": "go to the supply room",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the supply room"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "supply room"
+        ]
+      }
+    ],
+    "Reply": "Storage West This is a small room obviously intended as a storage area. On a small shelf is a large, unopened tin can. It has a plain white label which reads \"S...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MessCorridor",
+    "Input": "remove lock",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "remove",
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "lock",
+          "padlock"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughBridgeTheRiftWithACollapsedLadder"
+  },
+  {
+    "Room": "MessCorridor",
+    "Input": "unlock padlock with key",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "unlock",
+          "open"
+        ],
+        "Nouns": [
+          "padlock",
+          "lock"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "key",
+          "shiny object",
+          "steel key",
+          "shiny thing"
+        ]
+      }
+    ],
+    "Reply": "The padlock springs open.",
+    "From": "WalkthroughBridgeTheRiftWithACollapsedLadder"
+  },
+  {
+    "Room": "MessHall",
+    "Input": "go to the galley",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "kitchen"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "galley"
+        ]
+      }
+    ],
+    "Reply": "Kitchen This is the food production and dispensary area for the dining hall to the north. Of particular interest is a machine near the door. You should probably...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MessHall",
+    "Input": "slide kitchen access card through slot",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "slide",
+          "push",
+          "swipe",
+          "scan",
+          "pass",
+          "glide",
+          "draw",
+          "use"
+        ],
+        "Nouns": [
+          "kitchen access card",
+          "kitchen",
+          "kitchen card",
+          "kitchen access"
+        ],
+        "Preposition": "through",
+        "SecondNouns": [
+          "slot",
+          "kitchen slot",
+          "kitchen card slot"
+        ]
+      }
+    ],
+    "Reply": "The kitchen door quietly slides open. Floyd claps his hands with excitement. \"Those cards are really neat, huh? Floyd has one for himself--see?\" He reaches behi...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MessHall",
+    "Input": "take canteen",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "canteen",
+          "octagonally shaped canteen"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "canteen",
+          "octagonally shaped canteen"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MiddleOfStrip",
+    "Input": "set laser to 2",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "set",
+          "turn"
+        ],
+        "Nouns": [
+          "laser"
+        ]
+      },
+      {
+        "Kind": "act",
+        "Verbs": [
+          "set",
+          "turn"
+        ],
+        "Nouns": [
+          "laser"
+        ],
+        "Preposition": "to",
+        "SecondNouns": [
+          "2"
+        ]
+      }
+    ],
+    "Reply": "The dial is now set to 2. The microbe slithers closer. The cilia around its gullet glisten with mucus, giving the impression that the microbe is salivating.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MiddleOfStrip",
+    "Input": "shoot microbe with laser",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "shoot",
+          "fire",
+          "activate",
+          "discharge"
+        ],
+        "Nouns": [
+          "microbe",
+          "monster",
+          "bug",
+          "hungry microbe"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "laser",
+          "portable laser",
+          "akmee portabul laazur",
+          "laazur",
+          "akmee laazur"
+        ]
+      }
+    ],
+    "Reply": "The laser beam strikes the microbe. A pseudopod extends toward you. You jump back just in time to avoid being engulfed.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MiddleOfStrip",
+    "Input": "throw laser off strip",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "throw",
+          "toss",
+          "launch",
+          "hurl",
+          "fling",
+          "heave",
+          "chuck",
+          "lob",
+          "pitch",
+          "cast",
+          "sling",
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "laser",
+          "portable laser",
+          "akmee portabul laazur",
+          "laazur",
+          "akmee laazur"
+        ],
+        "Preposition": "off",
+        "SecondNouns": [
+          "strip"
+        ]
+      }
+    ],
+    "Reply": "As the laser flies over the edge of the strip, the hungry microbe lunges after it. Both the laser and the microbe plummet into the void. (Whew!)",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MiniaturizationBooth",
+    "Input": "slide mini card through slot",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "slide",
+          "push",
+          "swipe",
+          "scan",
+          "pass",
+          "glide",
+          "draw",
+          "use"
+        ],
+        "Nouns": [
+          "mini card",
+          "miniaturization access card",
+          "miniaturization card",
+          "miniaturization",
+          "miniaturization access",
+          "mini access card"
+        ],
+        "Preposition": "through",
+        "SecondNouns": [
+          "slot",
+          "miniaturization slot",
+          "miniaturization card slot"
+        ]
+      }
+    ],
+    "Reply": "A melodic high-pitched voice says \"Miniaturization and teleportation booth activated. Please type in damaged sector number.\"",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "MiniaturizationBooth",
+    "Input": "type 384",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "type",
+          "punch",
+          "key",
+          "press",
+          "push"
+        ],
+        "Nouns": [
+          "384"
+        ]
+      }
+    ],
+    "Reply": "You notice the walls of the booth sliding away in all directions, followed by a momentary queasiness in the pit of your stomach... Station 384 You are standing ...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Input": "drop fried",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "fried",
+          "fried board",
+          "fried fromitz board",
+          "fried fromitz"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "fried",
+          "fried board",
+          "fried fromitz board",
+          "fried fromitz"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Input": "open panel",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "panel",
+          "access panel",
+          "small access panel",
+          "fromitz access panel"
+        ]
+      }
+    ],
+    "Reply": "The panel swings open.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Input": "put shiny in panel",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "put",
+          "place",
+          "move",
+          "jam",
+          "shove",
+          "push"
+        ],
+        "Nouns": [
+          "shiny",
+          "shiny board",
+          "shiny fromitz board",
+          "shiny fromitz"
+        ],
+        "Preposition": "in",
+        "SecondNouns": [
+          "panel",
+          "access panel",
+          "small access panel",
+          "fromitz access panel"
+        ]
+      }
+    ],
+    "Reply": "The card clicks neatly into the socket. The warning lights stop flashing.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Input": "take second",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry",
+          "remove"
+        ],
+        "Nouns": [
+          "second",
+          "second fromitz board",
+          "second board",
+          "second fromitz"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "second",
+          "second fromitz board",
+          "second board",
+          "second fromitz"
+        ]
+      }
+    ],
+    "Reply": "The fromitz board slides out of the panel, producing an empty socket for another board",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ProjectCorridorEast",
+    "Input": "go to the main lab",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the main lab"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "main lab"
+        ]
+      }
+    ],
+    "Reply": "Main Lab This is the heart of the Project's vast laboratory complex. There are exits to the west and southwest, and heavy metal doors to the northeast and south...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "RadiationLockEast",
+    "Input": "open radiation-lock door",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "radiation-lock",
+          "radiation-lock door",
+          "door",
+          "radiation lock",
+          "radiation",
+          "radiation lock door",
+          "radiation door"
+        ]
+      }
+    ],
+    "Reply": "The door opens.",
+    "From": "WalkthroughStayInTheRadiationLab"
+  },
+  {
+    "Room": "ReactorControl",
+    "Input": "go to the reactor elevator",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the reactor elevator"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "reactor elevator"
+        ]
+      }
+    ],
+    "Reply": "Reactor Elevator This is an elevator with a door to the west, currently open. A control panel contains an Up button, a Down button, and a small slot.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "RecCorridor",
+    "Input": "go to the mess corridor",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the mess corridor"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "mess corridor"
+        ]
+      }
+    ],
+    "Reply": "Mess Corridor This is a wide, east-west hallway with a large portal to the south. A small door to the north is closed.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "RobotShop",
+    "Input": "activate floyd",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "activate",
+          "turn on",
+          "switch on",
+          "start",
+          "enable"
+        ],
+        "Nouns": [
+          "floyd",
+          "robot",
+          "b-19-7",
+          "multi-purpose robot"
+        ]
+      }
+    ],
+    "Reply": "Nothing happens.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SmallOffice",
+    "Input": "go to admin corridor north",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "admin corridor north"
+        ]
+      }
+    ],
+    "Reply": "Admin Corridor North The corridor ends here. Portals lead west, north, and east. Signs above these portals read, respectively, \"Administraativ Awfisiz,\" \"Tranzp...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SmallOffice",
+    "Input": "go to the large office",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the large office"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "large office"
+        ]
+      }
+    ],
+    "Reply": "Large Office This is a large, plush office. The far wall is one large picture window, scratched but unbroken, offering a view of this installation and the ocean...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SmallOffice",
+    "Input": "open desk",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "open",
+          "lift",
+          "pry",
+          "unbar",
+          "raise",
+          "uncover",
+          "unlatch",
+          "unseal"
+        ],
+        "Nouns": [
+          "desk",
+          "small desk"
+        ]
+      }
+    ],
+    "Reply": "Opening the small desk reveals a kitchen access card and a upper elevator access card.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SmallOffice",
+    "Input": "take kitchen card",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "kitchen",
+          "kitchen access card",
+          "kitchen card",
+          "kitchen access"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "kitchen",
+          "kitchen access card",
+          "kitchen card",
+          "kitchen access"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SmallOffice",
+    "Input": "take upper card",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "upper",
+          "upper elevator access card",
+          "elevator access card",
+          "elevator",
+          "upper card",
+          "upper elevator",
+          "upper elevator card",
+          "upper elevator access",
+          "upper access card"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "upper",
+          "upper elevator access card",
+          "elevator access card",
+          "elevator",
+          "upper card",
+          "upper elevator",
+          "upper elevator card",
+          "upper elevator access",
+          "upper access card"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "StorageWest",
+    "Input": "take ladder",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "ladder",
+          "large aluminum ladder",
+          "aluminum ladder",
+          "extendable ladder",
+          "extendable aluminum ladder"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "ladder",
+          "large aluminum ladder",
+          "aluminum ladder",
+          "extendable ladder",
+          "extendable aluminum ladder"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughBridgeTheRiftWithACollapsedLadder"
+  },
+  {
+    "Room": "StripNearRelay",
+    "Input": "set laser to 1",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "set",
+          "turn"
+        ],
+        "Nouns": [
+          "laser"
+        ],
+        "Preposition": "to",
+        "SecondNouns": [
+          "1"
+        ]
+      }
+    ],
+    "Reply": "The dial is now set to 1.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "StripNearRelay",
+    "Input": "shoot speck with laser",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "shoot",
+          "fire",
+          "activate",
+          "discharge"
+        ],
+        "Nouns": [
+          "speck",
+          "boulder",
+          "impurity",
+          "blue speck",
+          "blue boulder",
+          "blue impurity"
+        ],
+        "Preposition": "with",
+        "SecondNouns": [
+          "laser",
+          "portable laser",
+          "akmee portabul laazur",
+          "laazur",
+          "akmee laazur"
+        ]
+      }
+    ],
+    "Reply": "The speck is hit by the beam! It sizzles a little, but isn't destroyed yet.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SystemsCorridor",
+    "Input": "go to planetary defense",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "planetary defense"
+        ]
+      }
+    ],
+    "Reply": "Planetary Defense This room is filled with a dazzling array of lights and controls. One light, blinking quickly, catches your eye. It reads \"Surkit Boord Faalyu...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SystemsCorridor",
+    "Input": "go to systems corridor east",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "systems corridor east"
+        ]
+      }
+    ],
+    "Reply": "Systems Corridor East The hallway ends here with a large doorway leading east, and smaller doorways to the north and south. The northern doorway is labelled \"Pl...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SystemsCorridorEast",
+    "Input": "go to navigation",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "navigation"
+        ]
+      }
+    ],
+    "Reply": "Course Control This is a long room whose walls are covered with complicated controls and colored lights. Two of these lights are blinking. The first one reads \"...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SystemsCorridorEast",
+    "Input": "go to the foyer",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the foyer"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "foyer"
+        ]
+      }
+    ],
+    "Reply": "Library Lobby This is a carpeted room, thick with dust, with exits to the north and south. To the west, up a few steps, is a wide doorway. A small booth lies to...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "SystemsCorridorWest",
+    "Input": "go to systems corridor",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "systems corridor"
+        ]
+      }
+    ],
+    "Reply": "Systems Corridor This section of hallway has a doorway to the north labelled \"Planateree Deefens.\" The corridor continues east and west. Floyd follows you.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ToolRoom",
+    "Input": "drop battery",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "drop",
+          "put down"
+        ],
+        "Nouns": [
+          "battery",
+          "old battery"
+        ]
+      },
+      {
+        "Kind": "drop",
+        "Verbs": [
+          "drop"
+        ],
+        "Nouns": [
+          "battery",
+          "old battery"
+        ]
+      }
+    ],
+    "Reply": "Dropped",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ToolRoom",
+    "Input": "go to the workshop",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the workshop"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "workshop"
+        ]
+      }
+    ],
+    "Reply": "Machine Shop This room is probably some sort of machine shop filled with a variety of unusual machines. Doorways lead north, east, and west. Standing against th...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ToolRoom",
+    "Input": "remove battery",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "remove",
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "battery",
+          "old battery"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ToolRoom",
+    "Input": "take flask",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "flask",
+          "glass flask",
+          "large glass flask"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "flask",
+          "glass flask",
+          "large glass flask"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ToolRoom",
+    "Input": "take laser",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "laser",
+          "portable laser",
+          "akmee portabul laazur",
+          "laazur",
+          "akmee laazur"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "laser",
+          "portable laser",
+          "akmee portabul laazur",
+          "laazur",
+          "akmee laazur"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "ToolRoom",
+    "Input": "take magnet",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "magnet",
+          "curved metal bar",
+          "metal bar",
+          "bar",
+          "metal bar, curved into a u-shape"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "magnet",
+          "curved metal bar",
+          "metal bar",
+          "bar",
+          "metal bar, curved into a u-shape"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughBridgeTheRiftWithACollapsedLadder"
+  },
+  {
+    "Room": "ToolRoom",
+    "Input": "take pliers",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "take",
+          "get",
+          "grab",
+          "pick up",
+          "hold",
+          "acquire",
+          "snatch",
+          "carry"
+        ],
+        "Nouns": [
+          "pliers",
+          "wide-nosed pliers"
+        ]
+      },
+      {
+        "Kind": "take",
+        "Verbs": [
+          "take"
+        ],
+        "Nouns": [
+          "pliers",
+          "wide-nosed pliers"
+        ]
+      }
+    ],
+    "Reply": "Taken.",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "Underwater",
+    "Input": "go to the cliff",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the cliff"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "cliff"
+        ]
+      }
+    ],
+    "Reply": "Crag You have reached a cleft in the cliff wall where the island rises from the water. The edge of the cleft displays recently exposed rock where it collapsed u...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "UpperElevator",
+    "Input": "go to the tower core",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the tower core"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "tower core"
+        ]
+      }
+    ],
+    "Reply": "Tower Core This is a small, circular room. A sliding door leads north, and a spiral staircase heads upwards. Other exits lie to the northeast and southwest. Flo...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "UpperElevator",
+    "Input": "slide upper access card through slot",
+    "Readings": [
+      {
+        "Kind": "act",
+        "Verbs": [
+          "slide",
+          "push",
+          "swipe",
+          "scan",
+          "pass",
+          "glide",
+          "draw",
+          "use"
+        ],
+        "Nouns": [
+          "upper access card",
+          "upper elevator access card",
+          "upper",
+          "upper card",
+          "upper elevator",
+          "upper elevator card",
+          "upper elevator access"
+        ],
+        "Preposition": "through",
+        "SecondNouns": [
+          "slot",
+          "upper elevator slot",
+          "upper elevator access slot",
+          "upper elevator card slot",
+          "upper slot"
+        ]
+      }
+    ],
+    "Reply": "A recorded voice chimes \"Elevator enabled.\"",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "WaitingArea",
+    "Input": "go to kalamontee station",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "kalamontee station"
+        ]
+      }
+    ],
+    "Reply": "Kalamontee Platform This is a wide, flat strip of concrete which continues westward. A large transport of some sort lies to the south, its open door beckoning y...",
+    "From": "WalkthroughByLocationName"
+  },
+  {
+    "Room": "WindingStair",
+    "Input": "go to the ruins",
+    "Readings": [
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "the ruins"
+        ]
+      },
+      {
+        "Kind": "goto",
+        "Verbs": [
+          "go"
+        ],
+        "Nouns": [
+          "ruins"
+        ]
+      }
+    ],
+    "Reply": "Courtyard You are in the courtyard of an ancient stone edifice, vaguely reminiscent of the castles you saw during your leave on Ramos Two. It has decayed to the...",
+    "From": "WalkthroughByLocationName"
+  }
+]

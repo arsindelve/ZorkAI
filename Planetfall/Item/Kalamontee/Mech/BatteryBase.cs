@@ -14,7 +14,7 @@ public abstract class BatteryBase : ItemBase
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Redirect "remove" verb to the Take processor only when the battery is inside the Laser
-        if (!action.MatchVerb(["remove"]) ||
+        if (!action.MatchVerb(Verbs.RemoveVerbs) ||
             !action.MatchNoun(NounsForMatching) ||
             CurrentLocation is not Laser)
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

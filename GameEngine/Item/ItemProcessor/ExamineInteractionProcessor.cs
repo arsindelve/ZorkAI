@@ -15,13 +15,7 @@ public class ExamineInteractionProcessor : IVerbProcessor
     {
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case "examine":
-            case "x":
-            case "check":
-            case "look":
-            case "look at":
-            case "peek at":
-            case "look in":
+            case var verb when Verbs.ExamineItemVerbs.Contains(verb):
 
                 if (context is { HasLightSource: false, CurrentLocation: DarkLocation })
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see! "));

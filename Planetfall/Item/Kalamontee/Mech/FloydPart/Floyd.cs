@@ -289,8 +289,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["turn on", "activate", "start"], NounsForMatching)) return _powerManager.Activate(context);
-        if (action.Match(["turn off", "deactivate", "stop"], NounsForMatching)) return _powerManager.Deactivate(context);
+        if (action.Match(Verbs.TurnOnVerbs, NounsForMatching)) return _powerManager.Activate(context);
+        if (action.Match(Verbs.TurnOffVerbs, NounsForMatching)) return _powerManager.Deactivate(context);
         
         if (HasDied)
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
@@ -312,7 +312,8 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
 
         // Floyd can be "opened" but in no other way behaves like a typical open/close container. For him,
         // "open" is a synonym for "search"
-        if (action.Match(["open", "search"], NounsForMatching)) return _inventoryManager.SearchFloyd(context);
+        if (action.Match(Verbs.SearchVerbs, NounsForMatching) || action.Match(Verbs.OpenItemVerbs, NounsForMatching))
+            return _inventoryManager.SearchFloyd(context);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
@@ -403,7 +404,7 @@ public class Floyd : QuirkyCompanion, IAmANamedPerson, ICanHoldItems, ICanBeGive
         // in the uniform pocket satisfies the original's grammar too (issue #503).
         // MatchPreposition(["with"]) keeps us faithful to the WITH grammar — the parser passes through
         // whatever connector it extracts, so this rejects e.g. "oil floyd using/near oil can".
-        if (action.MatchVerb(FloydSocialResponses.OilVerbs) && action.MatchNounOne(NounsForMatching) &&
+        if (action.MatchVerb(Verbs.OilVerbs) && action.MatchNounOne(NounsForMatching) &&
             action.MatchPreposition(["with"]) &&
             Repository.GetItemInScope(action.NounTwo, context) is OilCan && context.IsCarrying<OilCan>())
             return new PositiveInteractionResult(FloydConstants.Oil);

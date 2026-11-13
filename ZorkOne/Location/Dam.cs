@@ -66,7 +66,7 @@ public class Dam : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Verb.ToLowerInvariant() == "turn" && action.Noun?.ToLowerInvariant() == "bolt")
+        if (Verbs.TurnByHandVerbs.Contains(action.Verb.ToLowerInvariant()) && action.Noun?.ToLowerInvariant() == "bolt")
             return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
@@ -75,7 +75,6 @@ public class Dam : LocationBase
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        string[] verbs = ["turn", "use", "apply"];
         string[] prepositions = ["with", "to", "on", "using"];
 
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("bolt") &&
@@ -86,7 +85,7 @@ public class Dam : LocationBase
             !action.NounTwo.ToLowerInvariant().Trim().Contains("wrench"))
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+        if (!Verbs.TurnWithToolVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))

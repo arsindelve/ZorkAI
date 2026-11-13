@@ -44,6 +44,9 @@ public class LivingRoomTests : EngineTestsBase
     // Regression: the bare wording must still work.
     [TestCase("read", "lettering")]
     [TestCase("examine", "engravings")]
+    // Verbs.ReadVerbs: looking at writing, or inspecting it, is reading it.
+    [TestCase("look", "engravings")]
+    [TestCase("inspect", "lettering")]
     public async Task ReadBareLettering_StillTranslates(string verb, string noun)
     {
         var message = await ReadLettering(verb, noun);

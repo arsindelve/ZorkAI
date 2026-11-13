@@ -56,7 +56,8 @@ public class Diary : ItemBase, ICanBeExamined, ICanBeRead, ICanBeTakenAndDropped
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["press", "push", "use"], ["button", "more", "more button"]))
+        string[] button = ["button", "more", "more button"];
+        if (action.Match(Verbs.PushVerbs, button) || action.Match(Verbs.UseVerbs, button))
         {
             if (IsAtLastMessage)
             {

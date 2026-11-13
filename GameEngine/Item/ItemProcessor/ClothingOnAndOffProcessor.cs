@@ -22,18 +22,10 @@ public class ClothingOnAndOffProcessor : IVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case "don":
-            case "wear":
-            case "put on":
-            case "dress in":
-            case "slip on":
+            case var verb when Verbs.DonVerbs.Contains(verb):
                 return Task.FromResult(PutOn(item));
 
-            case "take off":
-            case "doff":
-            case "remove":
-            case "discard":
-            case "slip off":
+            case var verb when Verbs.DoffVerbs.Contains(verb):
                 return Task.FromResult(TakeOff(item));
         }
 

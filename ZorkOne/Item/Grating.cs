@@ -61,7 +61,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (action.Match<SkeletonKey>(["unlock"], NounsForMatching,
+        if (action.Match<SkeletonKey>(Verbs.UnlockVerbs, NounsForMatching,
                 ["with", "using"]))
             if (context.CurrentLocation is GratingRoom)
             {
@@ -74,7 +74,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 return new PositiveInteractionResult("You can't reach the lock from here. ");
             }
 
-        if (action.Match<SkeletonKey>(["lock"], NounsForMatching, ["with", "using"]))
+        if (action.Match<SkeletonKey>(Verbs.LockVerbs, NounsForMatching, ["with", "using"]))
             if (context.CurrentLocation is GratingRoom)
             {
                 var message = "The grate is locked. ";
@@ -92,7 +92,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["lock"], NounsForMatching))
+        if (action.Match(Verbs.LockVerbs, NounsForMatching))
             if (context.CurrentLocation is Clearing)
             {
                 if (context.HasItem<SkeletonKey>())
@@ -104,7 +104,7 @@ public class Grating : ItemBase, IOpenAndClose, ICanBeExamined
                 return new PositiveInteractionResult("The grate is locked");
             }
 
-        if (action.Match(["unlock"], NounsForMatching))
+        if (action.Match(Verbs.UnlockVerbs, NounsForMatching))
             if (context.HasItem<SkeletonKey>())
             {
                 var message = "(with the skeleton key)";

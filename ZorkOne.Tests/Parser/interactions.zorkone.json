@@ -1,0 +1,2221 @@
+[
+  {
+    "Room": "Altar",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "black book",
+      "book",
+      "large black book"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Altar",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "candle",
+      "candles",
+      "pair of candles"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Altar",
+    "Verbs": [
+      "blow out",
+      "deactivate",
+      "disable",
+      "extinguish",
+      "silence",
+      "stop",
+      "switch off",
+      "turn off"
+    ],
+    "Nouns": [
+      "candle",
+      "candles",
+      "pair of candles"
+    ],
+    "Reply": "The flame is extinguished."
+  },
+  {
+    "Room": "AtlantisRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "crystal trident",
+      "poseidon's own trident",
+      "poseidon's trident",
+      "trident"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Attic",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "knife",
+      "nasty",
+      "nasty knife"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Attic",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "rope"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "BatRoom",
+    "Verbs": [
+      "acquire",
+      "assault",
+      "attack",
+      "beat",
+      "carry",
+      "defeat",
+      "destroy",
+      "fight",
+      "get",
+      "grab",
+      "hit",
+      "hold",
+      "kill",
+      "murder",
+      "pick up",
+      "punch",
+      "slay",
+      "snatch",
+      "stab",
+      "strike",
+      "take"
+    ],
+    "Nouns": [
+      "bat",
+      "vampire",
+      "vampire bat"
+    ],
+    "Reply": "Fweep! Fweep! Fweep! Fweep! The bat grabs you by the scruff of your neck and lifts you away.... Coal Mine This is a nondescript part of a coal mine."
+  },
+  {
+    "Room": "BatRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "figurine",
+      "jade",
+      "jade figurine"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "BehindHouse",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "window"
+    ],
+    "Reply": "With great effort, you open the window far enough to allow entry."
+  },
+  {
+    "Room": "Clearing",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "leaves",
+      "pile",
+      "pile of leaves"
+    ],
+    "Reply": "In disturbing the pile of leaves, a grating is revealed."
+  },
+  {
+    "Room": "Clearing",
+    "Verbs": [
+      "check",
+      "look into",
+      "move",
+      "pull",
+      "reach in",
+      "reach into",
+      "rearrange",
+      "search",
+      "shift",
+      "slide"
+    ],
+    "Nouns": [
+      "leaves",
+      "pile",
+      "pile of leaves"
+    ],
+    "Reply": "In disturbing the pile of leaves, a grating is revealed."
+  },
+  {
+    "Room": "CyclopsRoom",
+    "Verbs": [
+      "assault",
+      "attack",
+      "beat",
+      "defeat",
+      "destroy",
+      "fight",
+      "hit",
+      "kill",
+      "murder",
+      "punch",
+      "slay",
+      "stab",
+      "strike"
+    ],
+    "Nouns": [
+      "beast",
+      "cyclops",
+      "giant",
+      "monster"
+    ],
+    "Reply": "The cyclops shrugs but otherwise ignores your pitiful attempt."
+  },
+  {
+    "Room": "DamBase",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "boat",
+      "magic boat",
+      "pile",
+      "pile of plastic",
+      "plastic",
+      "punctured boat",
+      "raft"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "DamLobby",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "book",
+      "books",
+      "guide book",
+      "guide books",
+      "guidebook",
+      "guidebooks"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "DamLobby",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "match",
+      "matchbook",
+      "matches"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "DamLobby",
+    "Verbs": [
+      "activate",
+      "enable",
+      "light",
+      "start",
+      "strike",
+      "switch on",
+      "turn on"
+    ],
+    "Nouns": [
+      "match",
+      "matchbook",
+      "matches"
+    ],
+    "Reply": "One of the matches starts to burn."
+  },
+  {
+    "Room": "DeadEnd",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "coal",
+      "pile",
+      "pile of coal",
+      "small pile of coal"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "EgyptianRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "coffin",
+      "gold coffin",
+      "solid gold coffin",
+      "solid-gold coffin"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "EgyptianRoom",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "coffin",
+      "gold coffin",
+      "solid gold coffin",
+      "solid-gold coffin"
+    ],
+    "Reply": "The gold coffin opens. A sceptre, possibly that of ancient Egypt itself, is in the coffin. The sceptre is ornamented with colored enamel, and tapers to a sharp ..."
+  },
+  {
+    "Room": "FrigidRiverFour",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "buoy",
+      "red buoy"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "FrigidRiverFour",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "buoy",
+      "red buoy"
+    ],
+    "Reply": "Opening the red buoy reveals a large emerald."
+  },
+  {
+    "Room": "Gallery",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "painting"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "GasRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bracelet",
+      "sapphire",
+      "sapphire bracelet",
+      "sapphire-encrusted bracelet"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Kitchen",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bag",
+      "brown sack",
+      "elongated brown sack",
+      "sack"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Kitchen",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "bag",
+      "brown sack",
+      "elongated brown sack",
+      "sack"
+    ],
+    "Reply": "Opening the brown sack reveals a lunch, and a clove of garlic."
+  },
+  {
+    "Room": "Kitchen",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bottle",
+      "glass bottle"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Kitchen",
+    "Verbs": [
+      "annihilate",
+      "break",
+      "bust",
+      "cast",
+      "chuck",
+      "crack",
+      "crush",
+      "deface",
+      "demolish",
+      "destroy",
+      "fling",
+      "heave",
+      "hurl",
+      "launch",
+      "lob",
+      "mangle",
+      "mung",
+      "obliterate",
+      "pitch",
+      "pulverize",
+      "ruin",
+      "shatter",
+      "sling",
+      "smash",
+      "splinter",
+      "throw",
+      "toss",
+      "trash",
+      "vandalize",
+      "wreck"
+    ],
+    "Nouns": [
+      "bottle",
+      "glass bottle"
+    ],
+    "Reply": "A brilliant maneuver destroys the bottle. The water spills to the floor and evaporates."
+  },
+  {
+    "Room": "Kitchen",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "bottle",
+      "glass bottle"
+    ],
+    "Reply": "Opened."
+  },
+  {
+    "Room": "LandOfTheDead",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "crystal skull",
+      "skull"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "LivingRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "brass lantern",
+      "lamp",
+      "lantern",
+      "light"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "LivingRoom",
+    "Verbs": [
+      "activate",
+      "enable",
+      "light",
+      "start",
+      "strike",
+      "switch on",
+      "turn on"
+    ],
+    "Nouns": [
+      "brass lantern",
+      "lamp",
+      "lantern",
+      "light"
+    ],
+    "Reply": "The brass lantern is now on."
+  },
+  {
+    "Room": "LivingRoom",
+    "Verbs": [
+      "move",
+      "pull",
+      "rearrange",
+      "shift",
+      "slide"
+    ],
+    "Nouns": [
+      "carpet",
+      "rug"
+    ],
+    "Reply": "With a great effort, the rug is moved to one side of the room. With the rug moved, the dusty cover of a closed trap door appears."
+  },
+  {
+    "Room": "LivingRoom",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "case",
+      "trophy case"
+    ],
+    "Reply": "Opened."
+  },
+  {
+    "Room": "LivingRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "elvish",
+      "glamdring",
+      "orcrist",
+      "sword"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MachineRoom",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "dryer",
+      "machine"
+    ],
+    "Reply": "The lid opens."
+  },
+  {
+    "Room": "MachineRoom",
+    "Verbs": [
+      "lift",
+      "open",
+      "raise"
+    ],
+    "Nouns": [
+      "lid"
+    ],
+    "Reply": "The lid opens."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "activate",
+      "click",
+      "depress",
+      "flip",
+      "hit",
+      "press",
+      "punch",
+      "push",
+      "switch",
+      "toggle"
+    ],
+    "Nouns": [
+      "blue button"
+    ],
+    "Reply": "There is a rumbling sound and a stream of water appears to burst from the east wall of the room (apparently, a leak has occurred in a pipe). The water level her..."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "chest",
+      "chests",
+      "group of chests",
+      "group of tool chests",
+      "tool chest",
+      "tool chests"
+    ],
+    "Reply": "The chests are so rusty and corroded that they crumble when you touch them."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "activate",
+      "click",
+      "depress",
+      "flip",
+      "hit",
+      "press",
+      "punch",
+      "push",
+      "switch",
+      "toggle"
+    ],
+    "Nouns": [
+      "red button"
+    ],
+    "Reply": "The lights within the room come on."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "screwdriver"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "toothpaste",
+      "toothpaste tube",
+      "tube",
+      "tube of toothpaste"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "toothpaste",
+      "toothpaste tube",
+      "tube",
+      "tube of toothpaste"
+    ],
+    "Reply": "Opening the tube reveals a viscous material."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "wrench"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Verbs": [
+      "activate",
+      "click",
+      "depress",
+      "flip",
+      "hit",
+      "press",
+      "punch",
+      "push",
+      "switch",
+      "toggle"
+    ],
+    "Nouns": [
+      "yellow button"
+    ],
+    "Reply": "Click."
+  },
+  {
+    "Room": "MazeFive",
+    "Verbs": [
+      "acquire",
+      "assault",
+      "attack",
+      "beat",
+      "brush",
+      "caress",
+      "carry",
+      "defeat",
+      "depress",
+      "destroy",
+      "feel",
+      "fight",
+      "get",
+      "grab",
+      "hit",
+      "hold",
+      "kick",
+      "kill",
+      "kiss",
+      "lift",
+      "lower",
+      "move",
+      "murder",
+      "nudge",
+      "pat",
+      "pick up",
+      "poke",
+      "press",
+      "prod",
+      "punch",
+      "push",
+      "raise",
+      "rub",
+      "shove",
+      "slay",
+      "snatch",
+      "stab",
+      "strike",
+      "stroke",
+      "take",
+      "tap",
+      "touch"
+    ],
+    "Nouns": [
+      "adventurer",
+      "body",
+      "bones",
+      "luckless adventurer",
+      "remains",
+      "skeleton"
+    ],
+    "Reply": "A ghost appears in the room and is appalled at your desecration of the remains of a fellow adventurer. He casts a curse on your valuables and banishes them to t..."
+  },
+  {
+    "Room": "MazeFive",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bag",
+      "bag of coins",
+      "coins",
+      "leather",
+      "leather bag",
+      "leather bag of coins"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MazeFive",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "burned-out",
+      "burned-out lantern",
+      "useless",
+      "useless lantern"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MazeFive",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "burned-out lantern",
+      "useless lantern"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MazeFive",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "key",
+      "skeleton key"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MazeFive",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "knife",
+      "rusty",
+      "rusty knife"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MirrorRoomNorth",
+    "Verbs": [
+      "annihilate",
+      "assault",
+      "attack",
+      "beat",
+      "break",
+      "bust",
+      "crack",
+      "crush",
+      "deface",
+      "defeat",
+      "demolish",
+      "destroy",
+      "fight",
+      "hit",
+      "kick",
+      "kill",
+      "mangle",
+      "mung",
+      "murder",
+      "obliterate",
+      "pulverize",
+      "punch",
+      "ruin",
+      "shatter",
+      "slay",
+      "smash",
+      "splinter",
+      "stab",
+      "strike",
+      "trash",
+      "vandalize",
+      "wreck"
+    ],
+    "Nouns": [
+      "mirror"
+    ],
+    "Reply": "You have broken the mirror. I hope you have a seven years' supply of good luck handy."
+  },
+  {
+    "Room": "MirrorRoomNorth",
+    "Verbs": [
+      "brush",
+      "caress",
+      "feel",
+      "nudge",
+      "pat",
+      "poke",
+      "press",
+      "prod",
+      "rub",
+      "stroke",
+      "tap",
+      "touch"
+    ],
+    "Nouns": [
+      "mirror"
+    ],
+    "Reply": "There is a rumble from deep within the earth and the room shakes."
+  },
+  {
+    "Room": "Reservoir",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "jewels",
+      "trunk",
+      "trunk of jewels"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "ReservoirNorth",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "air pump",
+      "hand-held air pump",
+      "pump"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "SandyBeach",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "shovel"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "ShaftRoom",
+    "Verbs": [
+      "lower"
+    ],
+    "Nouns": [
+      "basket",
+      "cage"
+    ],
+    "Reply": "The basket is lowered to the bottom of the shaft."
+  },
+  {
+    "Room": "Studio",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "manual",
+      "owner manual",
+      "owner's manual",
+      "paper",
+      "piece",
+      "piece of paper",
+      "zork manual",
+      "zork owner's manual"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Temple",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bell",
+      "brass bell"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "TimberRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "broken timber",
+      "timber"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "TorchRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "ivory torch",
+      "torch"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "UpATree",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bird nest",
+      "bird's nest",
+      "nest"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "UpATree",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "egg",
+      "jewel encrusted egg",
+      "jewel-encrusted egg"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "WestOfHouse",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "mailbox"
+    ],
+    "Reply": "Opening the small mailbox reveals a leaflet."
+  },
+  {
+    "Room": "Altar",
+    "Holding": "BlackBook",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "black book",
+      "book",
+      "large black book"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Altar",
+    "Holding": "Candles",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "candle",
+      "candles",
+      "pair of candles"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "AtlantisRoom",
+    "Holding": "Trident",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "crystal trident",
+      "poseidon's own trident",
+      "poseidon's trident",
+      "trident"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Attic",
+    "Holding": "NastyKnife",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "knife",
+      "nasty",
+      "nasty knife"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Attic",
+    "Holding": "Rope",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "rope"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "BatRoom",
+    "Holding": "JadeFigurine",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "figurine",
+      "jade",
+      "jade figurine"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Clearing",
+    "Holding": "PileOfLeaves",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "leaves",
+      "pile",
+      "pile of leaves"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Dam",
+    "Holding": "ControlPanel",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "control",
+      "control panel",
+      "panel"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DamBase",
+    "Holding": "PileOfPlastic",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "boat",
+      "magic boat",
+      "pile",
+      "pile of plastic",
+      "plastic",
+      "punctured boat",
+      "raft"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DamLobby",
+    "Holding": "Guidebook",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "book",
+      "books",
+      "guide book",
+      "guide books",
+      "guidebook",
+      "guidebooks"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DamLobby",
+    "Holding": "Matchbook",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "match",
+      "matchbook",
+      "matches"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeadEnd",
+    "Holding": "Coal",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "coal",
+      "pile",
+      "pile of coal",
+      "small pile of coal"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "EgyptianRoom",
+    "Holding": "Coffin",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "coffin",
+      "gold coffin",
+      "solid gold coffin",
+      "solid-gold coffin"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "EgyptianRoom",
+    "Holding": "Sceptre",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "ornamental scepter",
+      "ornamental sceptre",
+      "scepter",
+      "sceptre"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "FrigidRiverFour",
+    "Holding": "Buoy",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "buoy",
+      "red buoy"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "FrigidRiverFour",
+    "Holding": "Emerald",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "emerald",
+      "large emerald"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Gallery",
+    "Holding": "Painting",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "painting"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "GasRoom",
+    "Holding": "SapphireBracelet",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bracelet",
+      "sapphire",
+      "sapphire bracelet",
+      "sapphire-encrusted bracelet"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Kitchen",
+    "Holding": "Bottle",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bottle",
+      "glass bottle"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Kitchen",
+    "Holding": "BrownSack",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bag",
+      "brown sack",
+      "elongated brown sack",
+      "sack"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Kitchen",
+    "Holding": "Garlic",
+    "Verbs": [
+      "chew",
+      "consume",
+      "devour",
+      "drink",
+      "eat",
+      "gobble",
+      "sip",
+      "snack on",
+      "swallow"
+    ],
+    "Nouns": [
+      "clove",
+      "clove of garlic",
+      "garlic"
+    ],
+    "Reply": "What the heck! You won't make friends this way, but nobody around here is too friendly anyhow. Gulp!"
+  },
+  {
+    "Room": "Kitchen",
+    "Holding": "Garlic",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "clove",
+      "clove of garlic",
+      "garlic"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Kitchen",
+    "Holding": "Lunch",
+    "Verbs": [
+      "chew",
+      "consume",
+      "devour",
+      "drink",
+      "eat",
+      "gobble",
+      "sip",
+      "snack on",
+      "swallow"
+    ],
+    "Nouns": [
+      "lunch",
+      "sandwich"
+    ],
+    "Reply": "Thank you very much. It really hit the spot."
+  },
+  {
+    "Room": "Kitchen",
+    "Holding": "Lunch",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "lunch",
+      "sandwich"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Kitchen",
+    "Holding": "Water",
+    "Verbs": [
+      "chew",
+      "consume",
+      "devour",
+      "drink",
+      "eat",
+      "gobble",
+      "sip",
+      "snack on",
+      "swallow"
+    ],
+    "Nouns": [
+      "quantity of water",
+      "water"
+    ],
+    "Reply": "Thank you very much. I was rather thirsty (from all this talking, probably)."
+  },
+  {
+    "Room": "LandOfTheDead",
+    "Holding": "CrystalSkull",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "crystal skull",
+      "skull"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LivingRoom",
+    "Holding": "Lantern",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "brass lantern",
+      "lamp",
+      "lantern",
+      "light"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LivingRoom",
+    "Holding": "Sword",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "elvish",
+      "glamdring",
+      "orcrist",
+      "sword"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MachineRoom",
+    "Holding": "Machine",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "dryer",
+      "machine"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Holding": "Screwdriver",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "screwdriver"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Holding": "ToolChests",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "chest",
+      "chests",
+      "group of chests",
+      "group of tool chests",
+      "tool chest",
+      "tool chests"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Holding": "Tube",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "toothpaste",
+      "toothpaste tube",
+      "tube",
+      "tube of toothpaste"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Holding": "ViscousMaterial",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "gunk",
+      "material",
+      "viscous",
+      "viscous material"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MaintenanceRoom",
+    "Holding": "Wrench",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "wrench"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MazeFive",
+    "Holding": "BagOfCoins",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bag",
+      "bag of coins",
+      "coins",
+      "leather",
+      "leather bag",
+      "leather bag of coins"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MazeFive",
+    "Holding": "BurnedOutLantern",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "burned-out",
+      "burned-out lantern",
+      "useless",
+      "useless lantern"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MazeFive",
+    "Holding": "RustyKnife",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "knife",
+      "rusty",
+      "rusty knife"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MazeFive",
+    "Holding": "SkeletonKey",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "key",
+      "skeleton key"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Reservoir",
+    "Holding": "TrunkOfJewels",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "jewels",
+      "trunk",
+      "trunk of jewels"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ReservoirNorth",
+    "Holding": "AirPump",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "air pump",
+      "hand-held air pump",
+      "pump"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "SandyBeach",
+    "Holding": "Shovel",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "shovel"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ShaftRoom",
+    "Holding": "Basket",
+    "Verbs": [
+      "hoist",
+      "lift",
+      "raise"
+    ],
+    "Nouns": [
+      "basket",
+      "cage"
+    ],
+    "Reply": "The basket is raised to the top of the shaft."
+  },
+  {
+    "Room": "Studio",
+    "Holding": "Manual",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "manual",
+      "owner manual",
+      "owner's manual",
+      "paper",
+      "piece",
+      "piece of paper",
+      "zork manual",
+      "zork owner's manual"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Temple",
+    "Holding": "BrassBell",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bell",
+      "brass bell"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "TimberRoom",
+    "Holding": "Timber",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "broken timber",
+      "timber"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "TorchRoom",
+    "Holding": "Torch",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "ivory torch",
+      "torch"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "TreasureRoom",
+    "Holding": "SilverChalice",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "chalice",
+      "silver",
+      "silver chalice"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "TreasureRoom",
+    "Holding": "Stiletto",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "stiletto"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "TrollRoom",
+    "Holding": "BloodyAxe",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "axe",
+      "bloody axe"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "UpATree",
+    "Holding": "Canary",
+    "Verbs": [
+      "crank",
+      "turn",
+      "twist",
+      "wind",
+      "wind up"
+    ],
+    "Nouns": [
+      "bird",
+      "canary",
+      "wind-up canary"
+    ],
+    "Reply": "The canary chirps, slightly off-key, an aria from a forgotten opera. From out of the greenery flies a lovely songbird. It perches on a limb just over your head ..."
+  },
+  {
+    "Room": "UpATree",
+    "Holding": "Canary",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bird",
+      "canary",
+      "wind-up canary"
+    ],
+    "Reply": "The canary falls to the ground."
+  },
+  {
+    "Room": "UpATree",
+    "Holding": "Egg",
+    "Verbs": [
+      "cast",
+      "chuck",
+      "fling",
+      "heave",
+      "hurl",
+      "launch",
+      "lob",
+      "pitch",
+      "sling",
+      "throw",
+      "toss"
+    ],
+    "Nouns": [
+      "egg",
+      "jewel encrusted egg",
+      "jewel-encrusted egg"
+    ],
+    "Reply": "Your rather indelicate handling of the egg has caused it some damage, although you have succeeded in opening it."
+  },
+  {
+    "Room": "UpATree",
+    "Holding": "Egg",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "egg",
+      "jewel encrusted egg",
+      "jewel-encrusted egg"
+    ],
+    "Reply": "The egg falls to the ground and springs open, seriously damaged. There is a golden clockwork canary nestled in the egg. It seems to have recently had a bad expe..."
+  },
+  {
+    "Room": "UpATree",
+    "Holding": "Nest",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bird nest",
+      "bird's nest",
+      "nest"
+    ],
+    "Reply": "The nest falls to the ground, and the egg spills out of it, seriously damaged."
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Bauble",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bauble",
+      "brass",
+      "brass bauble"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Diamond",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "diamond",
+      "huge diamond"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Label",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "label",
+      "tan label"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Leaflet",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "advertisement",
+      "booklet",
+      "leaflet",
+      "mail",
+      "pamphlet"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Map",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "ancient map",
+      "ancient parchment",
+      "map",
+      "parchment"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "PotOfGold",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "gold",
+      "pot",
+      "pot of gold"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Scarab",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "beautiful jeweled scarab",
+      "jeweled scarab",
+      "scarab"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Slag",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "check",
+      "examine",
+      "get",
+      "grab",
+      "hold",
+      "look",
+      "peek at",
+      "pick up",
+      "snatch",
+      "take",
+      "x"
+    ],
+    "Nouns": [
+      "slag",
+      "small piece of vitreous slag",
+      "vitreous slag"
+    ],
+    "Reply": "The slag was rather insubstantial, and crumbles to dust at your touch."
+  },
+  {
+    "Room": "WestOfHouse",
+    "Holding": "Slag",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "slag",
+      "small piece of vitreous slag",
+      "vitreous slag"
+    ],
+    "Reply": "Dropped"
+  }
+]

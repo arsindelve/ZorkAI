@@ -8,6 +8,8 @@ namespace ZorkOne.Item;
 
 public class Rug : ItemBase
 {
+    private static readonly VerbFamily SitVerb = new("sit");
+
     public bool HasBeenMovedAside { get; set; }
 
     public override string CannotBeTakenDescription => HasBeenMovedAside
@@ -22,10 +24,10 @@ public class Rug : ItemBase
         if (!action.MatchNoun(NounsForMatching))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
-        if (action.MatchVerb(["move", "slide", "pull", "rearrange"]))
+        if (action.MatchVerb(Verbs.MoveAsideVerbs))
             return MoveRug();
 
-        if (action.MatchVerb(["sit"]) && action.OriginalInput != null &&
+        if (action.MatchVerb(SitVerb) && action.OriginalInput != null &&
             action.OriginalInput.ToLowerInvariant().Contains("on"))
             return SitOnRug();
 
@@ -33,7 +35,7 @@ public class Rug : ItemBase
             action.OriginalInput.ToLowerInvariant().Contains("under"))
             return LookUnderRug();
         
-        if (action.MatchVerb(["lift", "hoist", "raise"]) && action.OriginalInput != null)
+        if (action.MatchVerb(Verbs.RaiseVerbs) && action.OriginalInput != null)
             return LookUnderRug();
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

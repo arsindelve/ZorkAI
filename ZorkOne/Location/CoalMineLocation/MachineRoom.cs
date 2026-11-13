@@ -42,7 +42,6 @@ public class MachineRoom : DarkLocation
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        string[] verbs = ["turn", "use", "apply"];
         string[] prepositions = ["with", "to", "on", "using"];
 
         if (!action.NounOne.ToLowerInvariant().Trim().Contains("switch") &&
@@ -53,7 +52,7 @@ public class MachineRoom : DarkLocation
             !action.NounTwo.ToLowerInvariant().Trim().Contains("screwdriver"))
             return await base.RespondToMultiNounInteraction(action, context);
 
-        if (!verbs.Contains(action.Verb.ToLowerInvariant().Trim()))
+        if (!Verbs.TurnWithToolVerbs.Contains(action.Verb.ToLowerInvariant().Trim()))
             return await base.RespondToMultiNounInteraction(action, context);
 
         if (!prepositions.Contains(action.Preposition.ToLowerInvariant().Trim()))

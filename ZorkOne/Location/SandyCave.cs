@@ -8,6 +8,8 @@ namespace ZorkOne.Location;
 
 public class SandyCave : DarkLocationWithNoStartingItems
 {
+    private static readonly VerbFamily DigVerb = new("dig");
+
     [UsedImplicitly] public int DigCount { get; set; }
 
     public override string Name => "Sandy Cave";
@@ -33,7 +35,7 @@ public class SandyCave : DarkLocationWithNoStartingItems
         IContext context)
     {
         if (action.Match(
-                ["dig"],
+                DigVerb,
                 ["ground", "sand", "dirt"],
                 ["shovel"],
                 ["with"]))

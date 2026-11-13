@@ -13,19 +13,6 @@ public class Skeleton : ItemBase
     public override string[] NounsForMatching =>
         ["skeleton", "bones", "body", "remains", "adventurer", "luckless adventurer"];
 
-    // The classic skeleton curse fires for any of these verbs applied to the bones
-    // (zork1/1actions.zil:931 — SKELETON: <VERB? TAKE RUB MOVE PUSH RAISE LOWER ATTACK KICK KISS>).
-    // We map each ZIL verb to the engine's thesaurus where one exists (so synonyms like "get"/"kill"/
-    // "touch" all trigger the ghost), but deliberately NOT to Verbs.PushVerbs — that family folds in
-    // machine-operation synonyms (toggle/flip/switch/activate/click) that read as nonsense on bones.
-    // PUSH/RAISE/LOWER/MOVE/KICK/KISS are spelled out with only their sensible "manhandle" synonyms.
-    private static readonly string[] CurseVerbs =
-        Verbs.TakeVerbs                       // TAKE
-            .Concat(Verbs.TouchVerbs)         // RUB
-            .Concat(Verbs.KillVerbs)          // ATTACK
-            .Concat(["push", "depress", "shove", "move", "raise", "lift", "lower", "kick", "kiss"])
-            .ToArray();
-
     private const string CurseMessage =
         "A ghost appears in the room and is appalled at your desecration of the remains of a fellow " +
         "adventurer. He casts a curse on your valuables and banishes them to the Land of the Living " +
@@ -42,7 +29,7 @@ public class Skeleton : ItemBase
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         // Only the bones trigger this; non-curse verbs (examine, smell, ...) fall through to the base.
-        if (!action.MatchNoun(NounsForMatching) || !action.MatchVerb(CurseVerbs))
+        if (!action.MatchNoun(NounsForMatching) || !action.MatchVerb(Verbs.DisturbVerbs))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         var dead = Repository.GetLocation<LandOfTheDead>();

@@ -36,7 +36,7 @@ internal class BioLockEast : LocationBase, ITurnBasedActor, IFloydDoesNotTalkHer
         // fired only intermittently and silently degraded to the room description. The parser-level #423
         // change alone can't cure that variance, so gate the view on the raw input (a look/examine verb +
         // "through" + "window"). The second branch keeps examine / look at / look into window working.
-        if (action.MatchInInput(Verbs.LookVerbs.Concat(Verbs.ExamineVerbs).ToArray(), "through", ["window"]) ||
+        if (action.MatchInInput(Verbs.LookThroughVerbs, "through", ["window"]) ||
             action.Match(Verbs.ExamineVerbs, ["window"]))
         {
             var view =

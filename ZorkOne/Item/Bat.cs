@@ -21,8 +21,6 @@ public class Bat : ItemBase
     /// rather than a hand-inlined copy so a take synonym added to the family (issue #406's drift
     /// class) provokes the bat instead of silently printing the ceiling refusal.
     /// </summary>
-    private static readonly string[] ProvokingVerbs =
-        Verbs.KillVerbs.Concat(Verbs.TakeVerbs).ToArray();
 
     public override string NeverPickedUpDescription(ILocation currentLocation)
     {
@@ -41,7 +39,7 @@ public class Bat : ItemBase
         {
             var batRoom = Repository.GetLocation<BatRoom>();
 
-            if (context.CurrentLocation == batRoom && action.MatchVerb(ProvokingVerbs) &&
+            if (context.CurrentLocation == batRoom && action.MatchVerb(Verbs.GrabOrAttackVerbs) &&
                 !batRoom.IsSafeFromBat(context))
             {
                 var destination = batRoom.CarryPlayerOff(context);

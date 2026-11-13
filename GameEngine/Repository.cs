@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using GameEngine.Item;
 using GameEngine.Location;
@@ -36,6 +37,15 @@ public static class Repository
             AllLocations = new Dictionary<Type, ILocation>(_allLocations),
             AllItems = new Dictionary<Type, IItem>(_allItems)
         };
+    }
+
+    /// <summary>
+    ///     Every item and location loaded so far. For test tooling that has to reach all of them at once
+    ///     (the interaction census pins every object's dice before a probe).
+    /// </summary>
+    internal static IEnumerable<object> Loaded()
+    {
+        return _allItems.Values.Cast<object>().Concat(_allLocations.Values).ToList();
     }
 
     internal static bool ItemExistsInTheStory(string? item)
@@ -432,44 +442,179 @@ public static class Repository
     {
         lock (_allNouns)
         {
-            var assembly = Assembly.Load(gameName);
-            var types = assembly.GetTypes();
+            _allNouns = GetNounOwners(gameName).SelectMany(owner => owner.Nouns).ToArray();
+            return _allNouns;
+        }
+    }
 
-            var nouns = new List<string>();
+    /// <summary>
+    ///     The same nouns as <see cref="GetNouns" />, each group with the item or location type that declares
+    ///     it. This is what lets a parser tell whose noun a noun is - and so whether a verb that only one
+    ///     object answers is being aimed at that object.
+    /// </summary>
+    public static IReadOnlyList<(Type Owner, string[] Nouns)> GetNounOwners(string gameName)
+    {
+        var owners = new List<(Type, string[])>();
 
-            foreach (var type in types)
+        foreach (var type in Assembly.Load(gameName).GetTypes())
+        {
+            if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false })
+                continue;
+
+            if (type.IsSubclassOf(typeof(ItemBase)))
             {
-                if (type is not { IsClass: true, IsGenericType: false, IsAbstract: false })
-                    continue;
-
-                if (type.IsSubclassOf(typeof(ItemBase)))
+                var instance = (ItemBase)Activator.CreateInstance(type)!;
+                owners.Add((type, instance.NounsForMatching));
+            }
+            else if (type.IsSubclassOf(typeof(LocationBase)))
+            {
+                // A location owns its scenery nouns (LocationBase.SceneryNouns, backed by its Scenery
+                // declarations) and any destination aliases (NounsForMatching). Harvesting them here —
+                // instead of hardcoding a per-game noun list in the parser — keeps the engine ignorant of
+                // any specific game's content: each game declares, the engine reflects. Guarded so a
+                // location that can't be constructed bare doesn't sink the whole vocabulary.
+                try
                 {
-                    var instance = (ItemBase)Activator.CreateInstance(type)!;
-                    nouns.AddRange(instance.NounsForMatching);
+                    var location = (LocationBase)Activator.CreateInstance(type)!;
+                    owners.Add((type, [..location.NounsForMatching, ..location.SceneryNouns]));
                 }
-                else if (type.IsSubclassOf(typeof(LocationBase)))
+                catch
                 {
-                    // A location owns its scenery nouns (LocationBase.SceneryNouns, backed by its Scenery
-                    // declarations) and any destination aliases (NounsForMatching). Harvesting them here —
-                    // instead of hardcoding a per-game noun list in the parser — keeps the engine ignorant of
-                    // any specific game's content: each game declares, the engine reflects. Guarded so a
-                    // location that can't be constructed bare doesn't sink the whole vocabulary.
-                    try
-                    {
-                        var location = (LocationBase)Activator.CreateInstance(type)!;
-                        nouns.AddRange(location.NounsForMatching);
-                        nouns.AddRange(location.SceneryNouns);
-                    }
-                    catch
-                    {
-                        // A location that throws when constructed without Init() simply contributes no
-                        // vocabulary; the AI parser still covers its nouns as a fallback.
-                    }
+                    // A location that throws when constructed without Init() simply contributes no
+                    // vocabulary; the AI parser still covers its nouns as a fallback.
                 }
             }
+        }
 
-            _allNouns = nouns.ToArray();
-            return _allNouns;
+        return owners;
+    }
+
+    private static readonly ConcurrentDictionary<string, (VerbFamily Family, Type? Owner)[]> VerbsByGame = new();
+
+    /// <summary>
+    ///     Every verb family the game answers: each grouping from the shared thesaurus (<see cref="Verbs" />)
+    ///     that the engine or one of the game's own classes matches on, and every single verb an item or
+    ///     location declares for itself. This is the verb counterpart of <see cref="GetNouns" />, and it is
+    ///     complete for the same reason: a handler can only match a verb through a <see cref="VerbFamily" />,
+    ///     and a family can only be created in a static field, so there is nothing a handler answers that
+    ///     this cannot see. (See <see cref="VerbFamily" />; <c>VerbFamilyDeclarationTests</c> enforces the rule.)
+    /// </summary>
+    /// <remarks>
+    ///     Each game's list is its own: a grouping only Stationfall's objects use is not in Zork's
+    ///     vocabulary, although both are declared in the same file. Cached per game - families are
+    ///     immutable statics, so nothing about a running game can change the answer.
+    /// </remarks>
+    public static VerbFamily[] GetVerbs(string gameName)
+    {
+        return GetVerbOwners(gameName)
+            .Select(owned => owned.Family)
+            .DistinctBy(family => string.Join('\n', family), StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+    }
+
+    /// <summary>
+    ///     Every verb family with who answers it. An <c>Owner</c> of <c>null</c> is the engine: one of its
+    ///     processors matches on the family, so it is answered for any object. Otherwise the owner is the
+    ///     game class whose code matches on it (see <see cref="VerbFamilyUsage" />) - one entry per class,
+    ///     so a grouping three objects share appears three times. A parser needs exactly this to tell a verb
+    ///     it knows from a verb the object in front of it answers - see <see cref="DeterministicParser" />.
+    /// </summary>
+    public static IReadOnlyList<(VerbFamily Family, Type? Owner)> GetVerbOwners(string gameName)
+    {
+        return VerbsByGame.GetOrAdd(gameName, HarvestVerbs);
+    }
+
+    private static (VerbFamily Family, Type? Owner)[] HarvestVerbs(string gameName)
+    {
+        var owned = new HashSet<(VerbFamily, Type?)>();
+        var thesaurus = typeof(VerbFamily).Assembly;
+        var engine = typeof(Repository).Assembly;
+
+        foreach (var assembly in VocabularyAssemblies(gameName))
+        {
+            // The thesaurus only declares. A grouping is answered by whoever reads it, never by the file
+            // it is written in - which is also what keeps another game's groupings out of this game.
+            if (assembly == thesaurus)
+                continue;
+
+            foreach (var (field, usedBy) in VerbFamilyUsage.In(assembly))
+                if (ValueOf(field) is { } family)
+                    owned.Add((family, assembly == engine ? null : usedBy));
+
+            // A single verb a class declares for itself belongs to that class even on the one path the
+            // scan above cannot read: a generic base such as SlotBase<TCard, TSlot> has no statics of its
+            // own - only its closed forms do - and a closed form is only reachable as a subclass's base.
+            foreach (var type in LoadableTypes(assembly))
+                for (var current = type; current is not null; current = current.BaseType)
+                {
+                    if (current.ContainsGenericParameters)
+                        continue;
+
+                    foreach (var field in current.GetFields(BindingFlags.Static | BindingFlags.Public |
+                                                            BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                        if (field.FieldType == typeof(VerbFamily) && ValueOf(field) is { } family)
+                            owned.Add((family, assembly == engine
+                                ? null
+                                : current.IsGenericType ? current.GetGenericTypeDefinition() : current));
+                }
+        }
+
+        return owned.ToArray();
+    }
+
+    private static VerbFamily? ValueOf(FieldInfo field)
+    {
+        // A static on an open generic type cannot be read; its closed forms are picked up as base types.
+        if (field.DeclaringType is null or { ContainsGenericParameters: true })
+            return null;
+
+        try
+        {
+            return field.GetValue(null) as VerbFamily;
+        }
+        catch
+        {
+            // A type whose static initialiser fails contributes no verbs; the AI parser still covers
+            // them, and that failure is not this method's to report.
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     The assemblies that can declare vocabulary for a game: the shared model, this engine, the game
+    ///     itself, and any library the game is built on that references the model (so could declare a
+    ///     <see cref="VerbFamily" /> of its own).
+    /// </summary>
+    private static IEnumerable<Assembly> VocabularyAssemblies(string gameName)
+    {
+        var model = typeof(VerbFamily).Assembly;
+        var game = Assembly.Load(gameName);
+        var assemblies = new List<Assembly> { model, typeof(Repository).Assembly, game };
+
+        foreach (var reference in game.GetReferencedAssemblies())
+            try
+            {
+                var library = Assembly.Load(reference);
+                if (library.GetReferencedAssemblies().Any(name => name.Name == model.GetName().Name))
+                    assemblies.Add(library);
+            }
+            catch
+            {
+                // A reference that cannot be loaded here cannot have contributed a handler either.
+            }
+
+        return assemblies.Distinct();
+    }
+
+    private static IEnumerable<Type> LoadableTypes(Assembly assembly)
+    {
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException partial)
+        {
+            return partial.Types.Where(type => type is not null)!;
         }
     }
 

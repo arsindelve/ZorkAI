@@ -50,10 +50,11 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
         IItemProcessorFactory itemProcessorFactory
         )
     {
-        if (action.Match(["count"], NounsForMatching))
+        if (action.Match(Verbs.CountVerbs, NounsForMatching))
             return new PositiveInteractionResult("There are 69,105 leaves here. ");
 
-        if (action.Match(["move", "search"], NounsForMatching))
+        // Shifting the pile aside or going through it: either way you find what is under it.
+        if (action.Match(Verbs.MoveAsideVerbs, NounsForMatching) || action.Match(Verbs.SearchVerbs, NounsForMatching))
         {
             var clearing = Repository.GetLocation<Clearing>();
             var grating = Repository.GetItem<Grating>();
@@ -73,7 +74,7 @@ public class PileOfLeaves : ItemBase, ICanBeTakenAndDropped, IPluralNoun
             );
         }
 
-        if (action.Match(["burn"], NounsForMatching))
+        if (action.Match(Verbs.BurnVerbs, NounsForMatching))
         {
             var matches = Repository.GetItem<Matchbook>();
             var candles = Repository.GetItem<Candles>();

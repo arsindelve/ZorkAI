@@ -48,7 +48,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         IGenerationClient client,
         IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["turn", "set"], ["dial"]))
+        if (action.Match(Verbs.SetVerbs, ["dial"]))
         {
             // Try to extract text after "to" from the original input (handles "set dial to twelve" case)
             var textAfterTo = action.OriginalInput.ExtractTextAfterTo();
@@ -59,7 +59,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
                 new PositiveInteractionResult("You must specify a number to set the dial to. "));
         }
 
-        if (action.Match(["examine", "look", "look at", "inspect", "read"], ["dial"]) && context.CurrentLocation is RecArea)
+        if (action.Match(Verbs.ReadVerbs, ["dial"]) && context.CurrentLocation is RecArea)
             return Task.FromResult<InteractionResult?>(
                 new PositiveInteractionResult($"The dial is set to {Code}. "));
 
@@ -71,7 +71,7 @@ public class ConferenceRoomDoor : ItemBase, IOpenAndClose, ICanBeExamined
         if (context.CurrentLocation is not RecArea)
             return base.RespondToMultiNounInteraction(action, context);
 
-        if (!action.MatchVerb(["turn", "set"]))
+        if (!action.MatchVerb(Verbs.SetVerbs))
             return base.RespondToMultiNounInteraction(action, context);
 
         if (!action.MatchPreposition(["to"]))

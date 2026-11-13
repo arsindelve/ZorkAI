@@ -159,6 +159,29 @@ public class TakeProcessorTests : EngineTestsBase
         result.Should().Contain("Taken");
     }
 
+    // Verbs.DropVerbs: "put down" is "drop", for every object, not for one that lists it itself.
+    [TestCase("drop")]
+    [TestCase("put down")]
+    public async Task PuttingAnItemDown_DropsIt(string verb)
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Attic>();
+        target.Context.Take(Repository.GetItem<Lantern>());
+        Repository.GetItem<Lantern>().IsOn = true;
+        var rope = Repository.GetItem<Rope>();
+        target.Context.Take(rope);
+
+        TakeAndDropParser.Setup(s => s.GetListOfItemsToDrop(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(["rope"]);
+
+        IVerbProcessor processor = new TakeOrDropInteractionProcessor(TakeAndDropParser.Object);
+        await processor.Process(
+            new SimpleIntent { Verb = verb, Noun = "rope", OriginalInput = $"{verb} rope" },
+            target.Context, rope, Client.Object);
+
+        target.Context.HasItem<Rope>().Should().BeFalse($"\"{verb} rope\" puts the rope down");
+    }
+
     [Test]
     public async Task DropItemIDoNotHave()
     {

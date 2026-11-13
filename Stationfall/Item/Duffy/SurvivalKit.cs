@@ -36,7 +36,7 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
         IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.MatchNounAndAdjective(NounsForMatching) &&
-            action.MatchVerb(["empty", "dump", "pour out", "tip out"]))
+            action.MatchVerb(Verbs.EmptyVerbs))
             return new PositiveInteractionResult(
                 "You tip the kit up. The goo stays exactly where it is, and the Thermos rolls back " +
                 "into the corner. You'll have to eat the goo right out of the kit. ");

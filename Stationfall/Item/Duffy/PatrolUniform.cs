@@ -40,13 +40,12 @@ public class PatrolUniform : ContainerBase, ICanBeTakenAndDropped, ICanBeExamine
         IContext context, IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
         if (action.MatchNounAndAdjective(NounsForMatching) &&
-            action.MatchVerb(["open", "close", "shut", "unfasten", "fasten"]))
+            action.MatchVerb(Verbs.FastenVerbs))
             return new PositiveInteractionResult(
                 "There's no way to open or close the pocket of the uniform. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
     }
-
 
     public override void Init()
     {

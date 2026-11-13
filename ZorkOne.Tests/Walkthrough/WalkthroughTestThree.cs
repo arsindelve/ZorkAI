@@ -1,7 +1,7 @@
 ﻿namespace ZorkOne.Tests.Walkthrough;
 
 [TestFixture]
-public sealed class WalkthroughTestThree : WalkthroughTestBase
+public class WalkthroughTestThree : WalkthroughTestBase
 {
     // Book: A shortcut through Adventureland: Vol II - Infocom.
     [Test]

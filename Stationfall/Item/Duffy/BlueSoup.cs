@@ -102,10 +102,11 @@ public class BlueSoup : ItemBase, ICanBeExamined, ICanBeEaten, ITurnBasedActor
         {
             // Touching or tasting it reports the temperature - which is the only reason the
             // temperature exists (ship.zil SOUP-F).
-            if (action.MatchVerb(["touch", "taste", "feel", "reach in", "reach into"]))
+            if (action.MatchVerb(Verbs.TouchVerbs) || action.MatchVerb(Verbs.TasteVerbs) ||
+                action.MatchVerb(Verbs.SearchVerbs))
                 return new PositiveInteractionResult(ExaminationDescription);
 
-            if (action.MatchVerb(["pour", "empty", "pour out", "dump", "spill"]))
+            if (action.MatchVerb(Verbs.EmptyVerbs))
                 return new PositiveInteractionResult(SpillIt());
         }
 

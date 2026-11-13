@@ -2,11 +2,10 @@ namespace Planetfall.Item.Kalamontee.Mech.FloydPart;
 
 public class FloydSocialResponses(Floyd floyd)
 {
-    // The oiling verbs. Kept here (not in Model/Verbs.cs) because they are specific to Floyd's
-    // V-OIL flavor interaction, mirroring how the other Floyd-only flavor verbs (play/kiss/kick/rub)
-    // are matched locally rather than added to the shared verb thesaurus. Referenced by both the
-    // single-noun handler below and Floyd's multi-noun "oil floyd with oil can" branch.
-    internal static readonly string[] OilVerbs = ["oil", "lubricate"];
+    private static readonly VerbFamily PlayVerb = new("play");
+    private static readonly VerbFamily KissVerb = new("kiss");
+    private static readonly VerbFamily KickVerb = new("kick");
+    private static readonly VerbFamily RubVerb = new("rub");
 
     public InteractionResult? HandleSocialInteraction(SimpleIntent action, IContext context)
     {
@@ -19,20 +18,20 @@ public class FloydSocialResponses(Floyd floyd)
         // base when HasDied), matching the RLANDBIT "alive" check. Possession is container-aware: the
         // original's (HAVE) reaches into open carried containers, so a can in the uniform pocket
         // counts — the flat HasItem<T>() would wrongly ask "with what?" (issue #503).
-        if (action.Match(OilVerbs, floyd.NounsForMatching))
+        if (action.Match(Verbs.OilVerbs, floyd.NounsForMatching))
             return new PositiveInteractionResult(
                 context.IsCarrying<OilCan>() ? FloydConstants.Oil : FloydConstants.OilWithWhat);
 
-        if (action.Match(["play"], floyd.NounsForMatching))
+        if (action.Match(PlayVerb, floyd.NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Play);
 
-        if (action.Match(["kiss"], floyd.NounsForMatching))
+        if (action.Match(KissVerb, floyd.NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Kiss);
 
-        if (action.Match(["kick"], floyd.NounsForMatching))
+        if (action.Match(KickVerb, floyd.NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Kick);
 
-        if (action.Match(["rub"], floyd.NounsForMatching))
+        if (action.Match(RubVerb, floyd.NounsForMatching))
             return new PositiveInteractionResult(FloydConstants.Rub);
 
         if (action.Match(Verbs.KillVerbs, floyd.NounsForMatching))

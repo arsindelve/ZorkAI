@@ -34,8 +34,15 @@ public static class DirectionParser
 
         foreach (var verb in Verbs.MoveVerbs) intent = intent?.Replace($"{verb} ", "");
 
-        var firstWord = intent?.Split(' ')[0];
+        var words = intent?.Split(' ') ?? [];
+        var firstWord = words.FirstOrDefault();
         direction = ParseDirection(firstWord);
+
+        // "climb" on its own means up, but it is also simply the verb in "climb down". Reading only the first
+        // word sent "climb down" UP. When the word after it says up or down, that is the way the player means.
+        if (firstWord == "climb" && words.Length > 1 && ParseDirection(words[1]) is (Direction.Up or Direction.Down))
+            direction = ParseDirection(words[1]);
+
         return direction != Direction.Unknown;
     }
 

@@ -38,10 +38,10 @@ public class Ladder : ItemBase, ICanBeTakenAndDropped, ICanBeExamined
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["extend", "expand", "deploy", "pull out", "stretch", "open", "lengthen"], NounsForMatching))
+        if (action.Match(Verbs.ExtendVerbs, NounsForMatching))
             return ExtendTheLadder(context);
 
-        if (action.Match(["retract", "collapse", "shorten", "close", "contract"], NounsForMatching))
+        if (action.Match(Verbs.RetractVerbs, NounsForMatching))
             return CollapseTheLadder();
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

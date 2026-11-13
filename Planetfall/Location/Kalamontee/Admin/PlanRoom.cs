@@ -41,7 +41,8 @@ internal class PlanRoom : LocationWithNoStartingItems
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["examine", "look in"], ["cubbyholes", "holes", "cubbies", "cubby"]))
+        string[] cubbyholes = ["cubbyholes", "holes", "cubbies", "cubby"];
+        if (action.Match(Verbs.ExamineVerbs, cubbyholes) || action.Match(Verbs.SearchVerbs, cubbyholes))
             return new PositiveInteractionResult(
                 "The cubbyholes look like the kind that are used to hold maps or blueprints. They are all empty now. ");
 

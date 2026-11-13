@@ -58,14 +58,13 @@ internal class AdminCorridor : RiftLocationBase
         IContext context)
     {
         var ladder = GetItem<Ladder>();
-        string[] verbs = ["move", "place", "put"];
         var nounOne = ladder.NounsForMatching;
         string[] prepositions = ["across", "over"];
 
-        var match = action.Match(verbs, nounOne, RiftNouns, prepositions);
+        var match = action.Match(Verbs.PutVerbs, nounOne, RiftNouns, prepositions);
 
         // Also support "use ladder on rift"
-        match |= action.Match(["use"], nounOne, RiftNouns, ["on"]);
+        match |= action.Match(Verbs.UseVerbs, nounOne, RiftNouns, ["on"]);
 
         if (match)
         {

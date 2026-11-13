@@ -342,6 +342,20 @@ public class ClearingAndGratingTests : EngineTestsBase
         response.Should().Contain("securely fastened into the ground");
     }
     
+    // Verbs.BurnVerbs: setting fire to something, in whichever word.
+    [TestCase("light leaves")]
+    [TestCase("torch leaves")]
+    [TestCase("ignite leaves")]
+    public async Task BurnTheLeaves_NoFire_InOtherWords(string input)
+    {
+        var target = GetTarget();
+        target.Context.CurrentLocation = Repository.GetLocation<Clearing>();
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("any fire");
+    }
+
     [Test]
     public async Task BurnTheLeaves_NoFire()
     {

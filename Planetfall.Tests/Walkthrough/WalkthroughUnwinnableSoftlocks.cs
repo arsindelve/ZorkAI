@@ -26,7 +26,7 @@ namespace Planetfall.Tests.Walkthrough;
 ///     the computer.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughLetFloydDieWithoutTheCard : WalkthroughTestBase
+public class WalkthroughLetFloydDieWithoutTheCard : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void AtTheBioLockWithFloyd()
@@ -85,7 +85,7 @@ public sealed class WalkthroughLetFloydDieWithoutTheCard : WalkthroughTestBase
 ///     exists to destroy - can never be burned away, so the computer is never repaired.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughRunTheLaserBatteryFlatBeforeTheSpeck : WalkthroughTestBase
+public class WalkthroughRunTheLaserBatteryFlatBeforeTheSpeck : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void OnTheStripWithATiredBattery()
@@ -119,7 +119,7 @@ public sealed class WalkthroughRunTheLaserBatteryFlatBeforeTheSpeck : Walkthroug
 ///     planet's orbit while you do it, and the ending says so.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughLoseTheGoodBedistorInTheRift : WalkthroughTestBase
+public class WalkthroughLoseTheGoodBedistorInTheRift : WalkthroughTestBase
 {
     [UsedImplicitly]
     public void AtTheRiftWithTheBedistor()

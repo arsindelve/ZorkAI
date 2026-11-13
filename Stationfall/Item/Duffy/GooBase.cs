@@ -31,7 +31,7 @@ public abstract class GooBase : ItemBase, ICanBeExamined, ICanBeEaten
         // Eating it where it sits is the ONLY thing that works, so it has to work even though the kit
         // is on the deck rather than in your hands (ship.zil GOO-F gates on being in the kit, not on
         // the player holding it).
-        if (action.MatchVerb(["eat", "drink", "swallow"]))
+        if (action.MatchVerb(Verbs.EatOrDrinkVerbs))
         {
             var (message, consumed) = OnEating(context);
 
@@ -45,12 +45,12 @@ public abstract class GooBase : ItemBase, ICanBeExamined, ICanBeEaten
             return new PositiveInteractionResult(message);
         }
 
-        if (action.MatchVerb(["take", "get", "pick up", "remove", "grab"]))
+        if (action.MatchVerb(Verbs.TakeVerbs) || action.MatchVerb(Verbs.RemoveVerbs))
             return new PositiveInteractionResult(
                 "It would ooze through your fingers. You'll have to eat it right out of the survival " +
                 "kit. ");
 
-        if (action.MatchVerb(["drop", "put down", "throw"]))
+        if (action.MatchVerb(Verbs.ThrowOrDropVerbs))
             return new PositiveInteractionResult(
                 "The goo, being gooey, sticks where it is. You'll have to eat it right out of the " +
                 "survival kit. ");

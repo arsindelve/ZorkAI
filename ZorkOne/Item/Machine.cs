@@ -8,6 +8,8 @@ namespace ZorkOne.Item;
 
 public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAndDropped
 {
+    private static readonly VerbFamily CloseVerb = new("close");
+
     public override string[] NounsForMatching => ["machine", "dryer"];
 
     protected override int SpaceForItems => 6;
@@ -42,19 +44,19 @@ public class Machine : OpenAndCloseContainerBase, ICanBeExamined, ICanBeTakenAnd
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!IsOpen && action.Match(["open"], ["lid"]))
+        if (!IsOpen && action.Match(Verbs.OpenItemLidVerbs, ["lid"]))
         {
             IsOpen = true;
             return new PositiveInteractionResult(NowOpen(context.CurrentLocation));
         }
 
-        if (IsOpen && action.Match(["close"], ["lid"]))
+        if (IsOpen && action.Match(CloseVerb, ["lid"]))
         {
             IsOpen = false;
             return new PositiveInteractionResult(NowClosed(context.CurrentLocation));
         }
 
-        if (action.Verb.ToLowerInvariant() == "turn" && action.Noun?.ToLowerInvariant() == "switch")
+        if (Verbs.TurnByHandVerbs.Contains(action.Verb.ToLowerInvariant()) && action.Noun?.ToLowerInvariant() == "switch")
             return new PositiveInteractionResult("Your bare hands don't appear to be enough.");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

@@ -15,7 +15,7 @@ public class MessDoor : ItemBase, IOpenAndClose, ICanBeExamined
         var padlock = Repository.GetItem<Padlock>();
         if (padlock.AttachedToDoor && context.IsCarrying<Key>())
         {
-            if (action.Match<Key>(["unlock", "open"], NounsForMatching, ["with", "using"]))
+            if (action.Match<Key>(Verbs.OpenLockVerbs, NounsForMatching, ["with", "using"]))
             {
                 // Delegate to the padlock
                 return await padlock.RespondToMultiNounInteraction(action, context);

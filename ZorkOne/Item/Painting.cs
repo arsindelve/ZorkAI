@@ -35,7 +35,7 @@ public class Painting : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedIn
     public override async Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action,
         IContext context)
     {
-        if (action.Match(["cut", "chop", "slash", "destroy"], NounsForMatching,
+        if (action.Match(Verbs.CutVerbs, NounsForMatching,
                 Repository.GetItem<Sword>().NounsForMatching, ["with", "using"]))
         {
             if (!context.HasItem<Sword>())

@@ -23,6 +23,16 @@ public class DuffyContentTests : EngineTestsBase
         _target = GetTarget();
     }
 
+    /// <summary>
+    ///     Restarts the game with the production grammar ahead of the unit-test parser. The unit-test
+    ///     parser knows a two-word noun ("red button", "gray goo") only for the exact sentences in its
+    ///     static table, so any other verb aimed at one never reaches the game through it.
+    /// </summary>
+    private void ThroughTheProductionGrammar()
+    {
+        _target = GetTarget(Walkthrough.DeterministicFirst.Parser());
+    }
+
     private async Task WalkToCargoBay()
     {
         await _target.GetResponse("east");
@@ -72,6 +82,32 @@ public class DuffyContentTests : EngineTestsBase
             Repository.GetItem<DockingBayHatch>().IsOpen.Should().BeFalse();
         }
 
+        // "enter truck" is an enter intent in production, so the engine has to let the truck answer it.
+        [TestCase("enter truck")]
+        [TestCase("board truck")]
+        public async Task EnteringTheTruckByName_WithTheHatchShut_SaysTheHatchIsClosed(string input)
+        {
+            ThroughTheProductionGrammar();
+            await WalkToCargoBay();
+
+            (await _target.GetResponse(input)).Should().Contain("hatch is closed");
+        }
+
+        // Verbs.CloseItemVerbs: from outside, the truck is closed, shut or sealed by its hatch.
+        [TestCase("close truck")]
+        [TestCase("shut truck")]
+        [TestCase("seal truck")]
+        public async Task ClosingTheTruckFromOutside_ShutsItsHatch(string input)
+        {
+            await WalkToCargoBay();
+            await _target.GetResponse("open hatch");
+            Repository.GetItem<SpacetruckHatch>().IsOpen.Should().BeTrue();
+
+            await _target.GetResponse(input);
+
+            Repository.GetItem<SpacetruckHatch>().IsOpen.Should().BeFalse();
+        }
+
         [Test]
         public async Task RefusesToOpenInDeepSpace()
         {
@@ -95,6 +131,22 @@ public class DuffyContentTests : EngineTestsBase
             await BoardTheTruck();
 
             (await _target.GetResponse("listen to radio")).Should().Contain("isn't on");
+        }
+
+        // Verbs.TurnOnVerbs / TurnOffVerbs: the radio answers the same words as anything else that
+        // switches on and off.
+        [TestCase("start radio", "stop radio")]
+        [TestCase("enable radio", "disable radio")]
+        [TestCase("activate radio", "silence radio")]
+        public async Task GoesOnAndOff_InAnyOfTheWordsForIt(string on, string off)
+        {
+            await BoardTheTruck();
+
+            await _target.GetResponse(on);
+            Repository.GetItem<Radio>().IsOn.Should().BeTrue($"\"{on}\" switches it on");
+
+            await _target.GetResponse(off);
+            Repository.GetItem<Radio>().IsOn.Should().BeFalse($"\"{off}\" switches it off");
         }
 
         [Test]
@@ -142,15 +194,131 @@ public class DuffyContentTests : EngineTestsBase
         }
     }
 
+    /// <summary>
+    ///     Objects that share a usage share a verb grouping, so each answers every word of it. Each case
+    ///     runs an established wording and another word from the same grouping on fresh games and
+    ///     requires the same reply.
+    /// </summary>
+    [TestFixture]
+    public class SharedGroupings : DuffyContentTests
+    {
+        private async Task<string?> ReplyTo(string[] route, string command)
+        {
+            ThroughTheProductionGrammar();
+
+            foreach (var step in route)
+                await _target.GetResponse(step);
+
+            return await _target.GetResponse(command);
+        }
+
+        private static readonly string[] InTheTruckWithTheKitOpen = ["east", "east", "open hatch", "in", "open kit"];
+        private static readonly string[] WithTheThermosOpen = [..InTheTruckWithTheKitOpen, "open thermos"];
+        private static readonly string[] AtThePallets = ["south"];
+        private static readonly string[] AtTheCargoBay = ["east", "east"];
+
+        // Verbs.EmptyVerbs
+        [TestCase("kit", "empty kit", "spill kit")]
+        [TestCase("kit", "empty thermos", "spill thermos")]
+        [TestCase("thermos", "empty soup", "dump soup")]
+        // Verbs.TouchVerbs, Verbs.TasteVerbs, Verbs.SearchVerbs: all report the soup's temperature
+        [TestCase("thermos", "touch soup", "rub soup")]
+        [TestCase("thermos", "touch soup", "lick soup")]
+        [TestCase("thermos", "touch soup", "check soup")]
+        // Verbs.InsertVerbs
+        [TestCase("kit", "put radio in thermos", "stick radio in thermos")]
+        // Verbs.OpenItemVerbs, Verbs.SearchVerbs, Verbs.DestroyPaperVerbs
+        [TestCase("pallets", "open pallets", "force pallets")]
+        [TestCase("pallets", "open pallets", "check pallets")]
+        [TestCase("pallets", "destroy pallets", "wreck pallets")]
+        [TestCase("start", "crumple assignment", "deface assignment")]
+        [TestCase("start", "crumple assignment", "smash assignment")]
+        [TestCase("cargo bay", "open spacetruck", "force spacetruck")]
+        public async Task AnotherWordForTheSameAction_GetsTheSameReply(string where, string established,
+            string inOtherWords)
+        {
+            var route = where switch
+            {
+                "kit" => InTheTruckWithTheKitOpen,
+                "thermos" => WithTheThermosOpen,
+                "pallets" => AtThePallets,
+                "cargo bay" => AtTheCargoBay,
+                _ => []
+            };
+
+            var expected = await ReplyTo(route, established);
+            var actual = await ReplyTo(route, inOtherWords);
+
+            expected.Should().NotBeNullOrWhiteSpace($"\"{established}\" is the wording the handler already answers");
+            actual.Should().Be(expected, $"\"{inOtherWords}\" is the same action as \"{established}\"");
+        }
+    }
+
+    [TestFixture]
+    public class TheGoo : DuffyContentTests
+    {
+        private async Task WithTheKitOpen()
+        {
+            ThroughTheProductionGrammar();
+            await BoardTheTruck();
+            await _target.GetResponse("open kit");
+        }
+
+        // Verbs.TakeVerbs and Verbs.RemoveVerbs: picking it up, in any of the words for that.
+        [TestCase("take gray goo")]
+        [TestCase("remove gray goo")]
+        [TestCase("hold gray goo")]
+        [TestCase("carry gray goo")]
+        public async Task CannotBePickedUp_HoweverThePlayerSaysIt(string input)
+        {
+            await WithTheKitOpen();
+
+            (await _target.GetResponse(input)).Should().Contain("ooze through your fingers");
+        }
+
+        // Verbs.ThrowOrDropVerbs: getting rid of it, in any of the words for that.
+        [TestCase("drop gray goo")]
+        [TestCase("throw gray goo")]
+        [TestCase("toss gray goo")]
+        [TestCase("hurl gray goo")]
+        public async Task CannotBePutDown_HoweverThePlayerSaysIt(string input)
+        {
+            await WithTheKitOpen();
+
+            (await _target.GetResponse(input)).Should().Contain("sticks where it is");
+        }
+
+        // Verbs.EatOrDrinkVerbs: the goo is eaten in the same words as any other food.
+        [TestCase("eat gray goo")]
+        [TestCase("consume gray goo")]
+        [TestCase("chew gray goo")]
+        public async Task IsEaten_HoweverThePlayerSaysIt(string input)
+        {
+            await WithTheKitOpen();
+            LeakRecorder.Clear();
+
+            await _target.GetResponse(input);
+
+            LeakRecorder.CompletenessLeaks.Should().BeEmpty(
+                $"\"{input}\" is answered by the goo, not handed to the narrator");
+        }
+    }
+
     [TestFixture]
     public class TheEmergencyBeacon : DuffyContentTests
     {
-        [Test]
-        public async Task RefusesWhileYouAreNotActuallyInTrouble()
+        // Verbs.PushVerbs: a button is pushed, pressed, clicked or hit, here as on every other button.
+        [TestCase("push red button")]
+        [TestCase("click red button")]
+        [TestCase("depress red button")]
+        [TestCase("hit red button")]
+        [TestCase("punch red button")]
+        public async Task RefusesWhileYouAreNotActuallyInTrouble(string input)
         {
+            ThroughTheProductionGrammar();
             await BoardTheTruck();
 
-            (await _target.GetResponse("push red button")).Should().Contain("court-martial");
+            (await _target.GetResponse(input)).Should().Contain("court-martial");
         }
 
         [Test]
@@ -188,12 +356,39 @@ public class DuffyContentTests : EngineTestsBase
             (await _target.GetResponse("look in third bin")).Should().Contain("empty");
         }
 
-        [Test]
-        public async Task AreNotForClimbingInto()
+        // Verbs.BoardVerbs: getting into a thing, in any of the words for that.
+        [TestCase("enter first bin")]
+        [TestCase("board first bin")]
+        public async Task AreNotForClimbingInto(string input)
         {
+            ThroughTheProductionGrammar();
             await GoToRobotPool();
 
-            (await _target.GetResponse("enter first bin")).Should().Contain("only for robots");
+            (await _target.GetResponse(input)).Should().Contain("only for robots");
+        }
+
+        // Verbs.PutInsideVerbs: using the bin as somewhere to put things, naming only the bin.
+        [TestCase("put in first bin")]
+        public async Task AreNotForStoringThingsIn(string input)
+        {
+            ThroughTheProductionGrammar();
+            await GoToRobotPool();
+
+            (await _target.GetResponse(input)).Should().Contain("only for robots");
+        }
+
+        // With the bin as the only noun, these are about moving the BIN, not about putting something in
+        // it. The storage refusal answered them while the bin matched every word for inserting.
+        [TestCase("drop first bin")]
+        [TestCase("place first bin")]
+        [TestCase("stick first bin")]
+        [TestCase("insert first bin")]
+        public async Task AreNotMistakenForTheThingBeingMoved(string input)
+        {
+            ThroughTheProductionGrammar();
+            await GoToRobotPool();
+
+            (await _target.GetResponse(input)).Should().NotContain("only for robots");
         }
     }
 
@@ -236,6 +431,15 @@ public class DuffyContentTests : EngineTestsBase
         {
             // The refusal has to name the remedy, or the player is left rattling a door for no reason.
             (await _target.GetResponse("open door")).Should().Contain("validated Assignment Completion Form");
+        }
+
+        // Verbs.CloseItemVerbs: it is already closed, however the player says to close it.
+        [TestCase("close door")]
+        [TestCase("shut door")]
+        [TestCase("seal door")]
+        public async Task IsAlreadyClosed_HoweverThePlayerSaysToCloseIt(string input)
+        {
+            (await _target.GetResponse(input)).Should().Contain("It's already closed");
         }
 
         [Test]

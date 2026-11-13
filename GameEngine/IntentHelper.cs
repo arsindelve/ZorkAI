@@ -41,7 +41,7 @@ public static class IntentHelper
     /// <typeparam name="T"></typeparam>
     /// <typeparam name="TNounTwo"></typeparam>
     /// <returns></returns>
-    public static bool Match<TNounTwo>(this MultiNounIntent intent, string[] verbs, string[] nounsOneForMatching,
+    public static bool Match<TNounTwo>(this MultiNounIntent intent, VerbFamily verbs, string[] nounsOneForMatching,
         string[] prepositionsForMatching) where TNounTwo : IItem, new()
     {
         var itemTwo = Repository.GetItem<TNounTwo>();
@@ -59,7 +59,7 @@ public static class IntentHelper
     /// <typeparam name="TNounTwo"></typeparam>
     /// <typeparam name="TNounOne"></typeparam>
     /// <returns></returns>
-    public static bool Match<TNounOne, TNounTwo>(this MultiNounIntent intent, string[] verbs,
+    public static bool Match<TNounOne, TNounTwo>(this MultiNounIntent intent, VerbFamily verbs,
         string[] prepositionsForMatching) where TNounTwo : IItem, new() where TNounOne : IItem, new()
     {
         var itemOne = Repository.GetItem<TNounOne>();

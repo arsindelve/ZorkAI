@@ -5,6 +5,9 @@ namespace Planetfall.Item.Feinstein;
 
 public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICanBeExamined
 {
+    private static readonly VerbFamily EmptyVerb = new("empty");
+    private static readonly VerbFamily ShakeVerb = new("shake");
+
     public override string[] NounsForMatching => ["survival kit", "kit", "survival"];
 
     public string ExaminationDescription => IsOpen
@@ -49,7 +52,7 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
         // pure misdirect - EMPTY never removes the goo. Closed -> "The kit is closed!"; open with
         // goo -> the goo-sticks message; open and empty -> the default V-EMPTY message.
         // See planetfall-source/globals.zil:1022-1029 and verbs.zil:1718.
-        if (action.Match(["empty"], NounsForMatching))
+        if (action.Match(EmptyVerb, NounsForMatching))
         {
             if (!IsOpen)
                 return new PositiveInteractionResult("The kit is closed! ");
@@ -65,7 +68,7 @@ public class SurvivalKit : OpenAndCloseContainerBase, ICanBeTakenAndDropped, ICa
         // whether the goo is IN the kit (not OPENBIT), so a closed kit is emptied just the same.
         // With no goo left, fall through to the default shake handling. See
         // planetfall-source/verbs.zil:1167.
-        if (action.Match(["shake"], NounsForMatching))
+        if (action.Match(ShakeVerb, NounsForMatching))
         {
             var goo = Items.OfType<GooBase>().ToList();
             if (goo.Count > 0)

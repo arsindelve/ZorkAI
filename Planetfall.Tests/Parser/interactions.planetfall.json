@@ -1,0 +1,1992 @@
+[
+  {
+    "Room": "AdminCorridorSouth",
+    "Verbs": [
+      "examine",
+      "inspect",
+      "look",
+      "look into",
+      "peek",
+      "peer",
+      "study",
+      "view",
+      "x"
+    ],
+    "Nouns": [
+      "crack",
+      "crevice",
+      "hole"
+    ],
+    "Reply": "Lying at the bottom of the narrow crack, partly covered by layers of dust, is a shiny steel key!"
+  },
+  {
+    "Room": "BioLabLocation",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "lab door"
+    ],
+    "Reply": "The door opens."
+  },
+  {
+    "Room": "BioLabLocation",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "office door"
+    ],
+    "Reply": "The office door is now open. Mutated monsters from the Bio Lab pour into the office. You are devoured. *** You have died *** Your score would be 0 (out of 80 po..."
+  },
+  {
+    "Room": "BioLockEast",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "door",
+      "lab door"
+    ],
+    "Reply": "The door opens. Opening the door reveals a Bio-Lab full of horrible mutations. You stare at them, frozen with horror. Growling with hunger and delight, the muta..."
+  },
+  {
+    "Room": "BioLockWest",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "bio door",
+      "bio lock",
+      "bio lock door",
+      "bio-lock",
+      "bio-lock door",
+      "biolock",
+      "biolock door",
+      "door"
+    ],
+    "Reply": "The door opens."
+  },
+  {
+    "Room": "ComputerRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "computer output",
+      "output",
+      "printout"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "CourseControl",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "cube",
+      "large metal cube",
+      "lid",
+      "metal cube"
+    ],
+    "Reply": "The lid swings open. The large metal cube contains: A fused ninety-ohm bedistor"
+  },
+  {
+    "Room": "CryoElevatorLocation",
+    "Verbs": [
+      "activate",
+      "click",
+      "depress",
+      "flip",
+      "hit",
+      "press",
+      "punch",
+      "push",
+      "switch",
+      "toggle"
+    ],
+    "Nouns": [
+      "button",
+      "elevator button"
+    ],
+    "Reply": "The elevator door closes just as the monsters reach it! You slump back against the wall, exhausted from the chase. The elevator begins to move downward."
+  },
+  {
+    "Room": "ElevatorLobby",
+    "Verbs": [
+      "activate",
+      "click",
+      "depress",
+      "flip",
+      "hit",
+      "press",
+      "punch",
+      "push",
+      "switch",
+      "toggle"
+    ],
+    "Nouns": [
+      "blue button"
+    ],
+    "Reply": "You hear a faint whirring noise from behind the blue door."
+  },
+  {
+    "Room": "EscapePod",
+    "Verbs": [
+      "get",
+      "rest",
+      "sit"
+    ],
+    "Nouns": [
+      "safety webbing",
+      "web",
+      "webbing"
+    ],
+    "Reply": "You are now safely cushioned within the web."
+  },
+  {
+    "Room": "Infirmary",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bottle",
+      "medicine bottle",
+      "vial"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "Infirmary",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "bottle",
+      "medicine bottle",
+      "vial"
+    ],
+    "Reply": "Opened."
+  },
+  {
+    "Room": "Infirmary",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "red",
+      "red spool",
+      "spool"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "LabOffice",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "desk",
+      "drawer",
+      "lab desk"
+    ],
+    "Reply": "Opening the desk reveals a gas mask."
+  },
+  {
+    "Room": "LabOffice",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "door",
+      "office door"
+    ],
+    "Reply": "The office door is now open. Mutated monsters from the Bio Lab pour into the office. You are devoured. *** You have died *** Your score would be 0 (out of 80 po..."
+  },
+  {
+    "Room": "LabOffice",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "inspect",
+      "pick up",
+      "read",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "memo",
+      "note",
+      "paper"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "LabOffice",
+    "Verbs": [
+      "activate",
+      "click",
+      "depress",
+      "flip",
+      "hit",
+      "press",
+      "punch",
+      "push",
+      "switch",
+      "toggle"
+    ],
+    "Nouns": [
+      "red",
+      "red button"
+    ],
+    "Reply": "You hear a hissing from beyond the door to the west."
+  },
+  {
+    "Room": "LabStorage",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "battery",
+      "fresh",
+      "fresh battery",
+      "new battery"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "LabStorage",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "lab pocket",
+      "lab uniform pocket"
+    ],
+    "Reply": "You discover a teleportation access card and a piece of paper in the pocket of the uniform."
+  },
+  {
+    "Room": "LabStorage",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "lab uniform"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "LabStorage",
+    "Verbs": [
+      "don",
+      "dress in",
+      "put on",
+      "slip on",
+      "wear"
+    ],
+    "Nouns": [
+      "lab uniform"
+    ],
+    "Reply": "You are wearing the lab uniform."
+  },
+  {
+    "Room": "LabStorage",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "lab uniform"
+    ],
+    "Reply": "Opened."
+  },
+  {
+    "Room": "LargeOffice",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "desk",
+      "large desk"
+    ],
+    "Reply": "Opening the large desk reveals a shuttle access card."
+  },
+  {
+    "Room": "Library",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "green",
+      "green spool",
+      "spool"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "LibraryLobby",
+    "Verbs": [
+      "activate",
+      "enable",
+      "light",
+      "start",
+      "strike",
+      "switch on",
+      "turn on"
+    ],
+    "Nouns": [
+      "computer",
+      "computer terminal",
+      "keyboard",
+      "keypad",
+      "keys",
+      "screen",
+      "terminal"
+    ],
+    "Reply": "The screen gives off a green flash, and then some writing appears on the screen: 1. Histooree 2. Kulcur 3. Teknolojee 4. Jeeografee 5. Xe Prajekt 6. Inturlajik ..."
+  },
+  {
+    "Room": "MainLab",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "bio door",
+      "bio lock",
+      "bio lock door",
+      "bio-lock",
+      "bio-lock door",
+      "biolock",
+      "biolock door"
+    ],
+    "Reply": "The door opens."
+  },
+  {
+    "Room": "MainLab",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "radiation",
+      "radiation door",
+      "radiation lock",
+      "radiation lock door",
+      "radiation-lock",
+      "radiation-lock door"
+    ],
+    "Reply": "The door opens."
+  },
+  {
+    "Room": "MessHall",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "canteen",
+      "octagonally shaped canteen"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "MessHall",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "canteen",
+      "octagonally shaped canteen"
+    ],
+    "Reply": "Opened."
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "access panel",
+      "fromitz access panel",
+      "panel",
+      "small access panel"
+    ],
+    "Reply": "The panel swings open."
+  },
+  {
+    "Room": "RadiationLab",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "brown",
+      "brown spool",
+      "spool"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "RadiationLab",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "lamp",
+      "lantern",
+      "light",
+      "portable lamp",
+      "portable light",
+      "portable powerful lamp",
+      "powerful lamp",
+      "powerful light",
+      "powerful portable lamp"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "RadiationLab",
+    "Verbs": [
+      "activate",
+      "enable",
+      "light",
+      "start",
+      "strike",
+      "switch on",
+      "turn on"
+    ],
+    "Nouns": [
+      "lamp",
+      "lantern",
+      "light",
+      "portable lamp",
+      "portable light",
+      "portable powerful lamp",
+      "powerful lamp",
+      "powerful light",
+      "powerful portable lamp"
+    ],
+    "Reply": "The lamp is now producing a bright light."
+  },
+  {
+    "Room": "RadiationLockEast",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "door",
+      "radiation",
+      "radiation door",
+      "radiation lock",
+      "radiation lock door",
+      "radiation-lock",
+      "radiation-lock door"
+    ],
+    "Reply": "The door opens."
+  },
+  {
+    "Room": "RobotShop",
+    "Verbs": [
+      "activate",
+      "enable",
+      "start",
+      "switch on",
+      "turn on"
+    ],
+    "Nouns": [
+      "b-19-7",
+      "multi-purpose robot",
+      "robot"
+    ],
+    "Reply": "Nothing happens."
+  },
+  {
+    "Room": "RobotShop",
+    "Verbs": [
+      "check",
+      "force",
+      "look into",
+      "open",
+      "pry",
+      "reach in",
+      "reach into",
+      "search",
+      "unseal"
+    ],
+    "Nouns": [
+      "b-19-7",
+      "multi-purpose robot",
+      "robot"
+    ],
+    "Reply": "In one of the robot's compartments you find and take a magnetic-striped card embossed \"Loowur Elavaatur Akses Kard.\""
+  },
+  {
+    "Room": "RobotShop",
+    "Verbs": [
+      "activate",
+      "start",
+      "switch on",
+      "turn on"
+    ],
+    "Nouns": [
+      "floyd"
+    ],
+    "Reply": "Nothing happens."
+  },
+  {
+    "Room": "SmallOffice",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "desk",
+      "small desk"
+    ],
+    "Reply": "Opening the small desk reveals a kitchen access card and a upper elevator access card."
+  },
+  {
+    "Room": "StorageEast",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "90-ohm",
+      "90-ohm bedistor",
+      "bedistor",
+      "good",
+      "good bedistor",
+      "good ninety-ohm bedistor",
+      "ninety-ohm",
+      "ninety-ohm bedistor"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "StorageEast",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "b megafuse",
+      "b-megafuse",
+      "b-series",
+      "b-series megafuse"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "StorageEast",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "board",
+      "cracked",
+      "cracked board",
+      "cracked fromitz",
+      "cracked fromitz board",
+      "fromitz",
+      "fromitz board"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "StorageEast",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "box",
+      "cardboard",
+      "cardboard box",
+      "small box",
+      "small cardboard box"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "StorageEast",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "can",
+      "oil",
+      "oil can",
+      "oilcan"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "StorageEast",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "k megafuse",
+      "k-megafuse",
+      "k-series",
+      "k-series megafuse"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "StorageWest",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "aluminum ladder",
+      "extendable aluminum ladder",
+      "extendable ladder",
+      "ladder",
+      "large aluminum ladder"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "StorageWest",
+    "Verbs": [
+      "deploy",
+      "expand",
+      "extend",
+      "lengthen",
+      "open",
+      "pull out",
+      "stretch"
+    ],
+    "Nouns": [
+      "aluminum ladder",
+      "extendable aluminum ladder",
+      "extendable ladder",
+      "ladder",
+      "large aluminum ladder"
+    ],
+    "Reply": "The ladder extends to a length of around eight meters."
+  },
+  {
+    "Room": "StorageWest",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "can",
+      "spam and egz",
+      "tin can"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "ToolRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "akmee laazur",
+      "akmee portabul laazur",
+      "laazur",
+      "laser",
+      "portable laser"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "ToolRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "bar",
+      "curved metal bar",
+      "magnet",
+      "metal bar",
+      "metal bar, curved into a u-shape"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "ToolRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "remove",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "battery",
+      "old battery"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "ToolRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "flask",
+      "glass flask",
+      "large glass flask"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "ToolRoom",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "pliers",
+      "wide-nosed pliers"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "AdminCorridorSouth",
+    "Holding": "Key",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "key",
+      "shiny object",
+      "shiny thing",
+      "steel key"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ComputerRoom",
+    "Holding": "ComputerOutput",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "computer output",
+      "output",
+      "printout"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "CourseControl",
+    "Holding": "FusedBedistor",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bedistor",
+      "fused",
+      "fused bedistor",
+      "fused ninety-ohm bedistor",
+      "ninety-ohm bedistor"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "CryoElevatorLocation",
+    "Holding": "CryoElevatorButton",
+    "Verbs": [
+      "activate",
+      "click",
+      "depress",
+      "flip",
+      "hit",
+      "press",
+      "punch",
+      "push",
+      "switch",
+      "toggle"
+    ],
+    "Nouns": [
+      "elevator button"
+    ],
+    "Reply": "The elevator door closes just as the monsters reach it! You slump back against the wall, exhausted from the chase. The elevator begins to move downward."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Blather",
+    "Verbs": [
+      "assault",
+      "attack",
+      "beat",
+      "defeat",
+      "destroy",
+      "fight",
+      "hit",
+      "kick",
+      "kill",
+      "murder",
+      "punch",
+      "slay",
+      "stab",
+      "strike"
+    ],
+    "Nouns": [
+      "blather",
+      "ensign blather"
+    ],
+    "Reply": "Blather removes several of your appendages and internal organs. *** You have died *** Your score would be 0 (out of 80 points). It is Day 1 of your adventure. C..."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Brochure",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "brochure"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "BrownGoo",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "brown",
+      "brown goo",
+      "goo"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Brush",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "brush",
+      "multi-purpose scrub brush",
+      "patrol-issue self-contained multi-purpose scrub brush",
+      "scrub brush"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Celery",
+    "Verbs": [
+      "chew",
+      "consume",
+      "devour",
+      "drink",
+      "eat",
+      "gobble",
+      "sip",
+      "snack on",
+      "swallow"
+    ],
+    "Nouns": [
+      "celery",
+      "stalk",
+      "stalk of celery"
+    ],
+    "Reply": "Oops. Looks like Blow'k-Bibben-Gordoan metabolism is not compatible with our own. You die of all sorts of convulsions. *** You have died *** Your score would be..."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Chronometer",
+    "Verbs": [
+      "discard",
+      "doff",
+      "remove",
+      "slip off",
+      "take off"
+    ],
+    "Nouns": [
+      "chronometer",
+      "watch",
+      "wrist-watch"
+    ],
+    "Reply": "You have removed your chronometer."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Diary",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "diary"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Diary",
+    "Verbs": [
+      "inspect",
+      "read"
+    ],
+    "Nouns": [
+      "diary"
+    ],
+    "Reply": "Words start to scroll across the screen: 11,344 July 22 -- Transferred from S.P.S. Trilobyte to S.P.S. Feinstein for the third of my four tours of duty. I'm tru..."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "GreenGoo",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "goo",
+      "green",
+      "green goo"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "IdCard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "card",
+      "id",
+      "id card"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "MedicalRobotBreastPlate",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "breastplate",
+      "medical breastplate",
+      "medical robot breastplate",
+      "plate",
+      "robot breastplate"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "MiniaturizationAccessCard",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "access card"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "MiniaturizationAccessCard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "mini access card",
+      "mini card",
+      "miniaturization",
+      "miniaturization access",
+      "miniaturization access card",
+      "miniaturization card"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "PatrolUniform",
+    "Verbs": [
+      "discard",
+      "doff",
+      "remove",
+      "slip off",
+      "take off"
+    ],
+    "Nouns": [
+      "patrol uniform",
+      "uniform"
+    ],
+    "Reply": "You have removed your patrol uniform."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "RedGoo",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "goo",
+      "red",
+      "red goo"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "ShinyFromitzBoard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "board",
+      "fromitz",
+      "fromitz board",
+      "shiny",
+      "shiny board",
+      "shiny fromitz",
+      "shiny fromitz board"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "SurvivalKit",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "kit",
+      "survival",
+      "survival kit"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "SurvivalKit",
+    "Verbs": [
+      "lift",
+      "open",
+      "pry",
+      "raise",
+      "unbar",
+      "uncover",
+      "unlatch",
+      "unseal"
+    ],
+    "Nouns": [
+      "kit",
+      "survival",
+      "survival kit"
+    ],
+    "Reply": "Opening the survival kit reveals a blob of red goo, a blob of brown goo and a blob of green goo."
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "SurvivalKit",
+    "Verbs": [
+      "shake"
+    ],
+    "Nouns": [
+      "kit",
+      "survival",
+      "survival kit"
+    ],
+    "Reply": "Colored goo flies all over everything. Yechh!"
+  },
+  {
+    "Room": "DeckNine",
+    "Holding": "Towel",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "towel"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Infirmary",
+    "Holding": "Medicine",
+    "Verbs": [
+      "chew",
+      "consume",
+      "devour",
+      "drink",
+      "eat",
+      "gobble",
+      "sip",
+      "snack on",
+      "swallow"
+    ],
+    "Nouns": [
+      "medicine"
+    ],
+    "Reply": "The medicine tasted extremely bitter."
+  },
+  {
+    "Room": "Infirmary",
+    "Holding": "MedicineBottle",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bottle",
+      "medicine bottle",
+      "vial"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Infirmary",
+    "Holding": "RedSpool",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "red",
+      "red spool",
+      "spool"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LabOffice",
+    "Holding": "GasMask",
+    "Verbs": [
+      "don",
+      "dress in",
+      "put on",
+      "slip on",
+      "wear"
+    ],
+    "Nouns": [
+      "gas mask",
+      "mask"
+    ],
+    "Reply": "You are wearing the gas mask."
+  },
+  {
+    "Room": "LabOffice",
+    "Holding": "GasMask",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "gas mask",
+      "mask"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LabOffice",
+    "Holding": "Memo",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "memo",
+      "note",
+      "paper"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LabStorage",
+    "Holding": "FreshBattery",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "battery",
+      "fresh",
+      "fresh battery",
+      "new battery"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LabStorage",
+    "Holding": "LabUniform",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "lab uniform"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LabStorage",
+    "Holding": "PieceOfPaper",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "paper",
+      "piece of paper"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LabStorage",
+    "Holding": "TeleportationAccessCard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "teleport",
+      "teleport access card",
+      "teleport card",
+      "teleportation",
+      "teleportation access card",
+      "teleportation card"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "LargeOffice",
+    "Holding": "ShuttleAccessCard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "shuttle",
+      "shuttle access",
+      "shuttle access card",
+      "shuttle card"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "Library",
+    "Holding": "GreenSpool",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "green",
+      "green spool",
+      "spool"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MessCorridor",
+    "Holding": "Padlock",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "lock",
+      "padlock"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "MessHall",
+    "Holding": "Canteen",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "canteen",
+      "octagonally shaped canteen"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Holding": "FirstFromitzBoard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "board",
+      "first",
+      "first board",
+      "first fromitz",
+      "first fromitz board",
+      "fromitz",
+      "fromitz board"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Holding": "FourthFromitzBoard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "board",
+      "fourth",
+      "fourth board",
+      "fourth fromitz",
+      "fourth fromitz board",
+      "fromitz",
+      "fromitz board"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Holding": "FriedFromitzBoard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "board",
+      "fromitz",
+      "fromitz board"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "PlanetaryDefense",
+    "Holding": "ThirdFromitzBoard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "board",
+      "fromitz",
+      "fromitz board",
+      "third",
+      "third board",
+      "third fromitz",
+      "third fromitz board"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "RadiationLab",
+    "Holding": "BrownSpool",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "brown",
+      "brown spool",
+      "spool"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "RadiationLab",
+    "Holding": "Lamp",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "lamp",
+      "lantern",
+      "light",
+      "portable lamp",
+      "portable light",
+      "portable powerful lamp",
+      "powerful lamp",
+      "powerful light",
+      "powerful portable lamp"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "RobotShop",
+    "Holding": "LowerElevatorAccessCard",
+    "Verbs": [
+      "acquire",
+      "carry",
+      "get",
+      "grab",
+      "hold",
+      "pick up",
+      "snatch",
+      "take"
+    ],
+    "Nouns": [
+      "access card",
+      "elevator access card"
+    ],
+    "Reply": "Taken."
+  },
+  {
+    "Room": "RobotShop",
+    "Holding": "LowerElevatorAccessCard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "elevator",
+      "lower",
+      "lower access card",
+      "lower card",
+      "lower elevator",
+      "lower elevator access",
+      "lower elevator access card",
+      "lower elevator card"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "SmallOffice",
+    "Holding": "KitchenAccessCard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "kitchen",
+      "kitchen access",
+      "kitchen access card",
+      "kitchen card"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "SmallOffice",
+    "Holding": "UpperElevatorAccessCard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "elevator",
+      "upper",
+      "upper access card",
+      "upper card",
+      "upper elevator",
+      "upper elevator access",
+      "upper elevator access card",
+      "upper elevator card"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageEast",
+    "Holding": "BSeriesMegafuse",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "b megafuse",
+      "b-megafuse",
+      "b-series",
+      "b-series megafuse"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageEast",
+    "Holding": "CardboardBox",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "box",
+      "cardboard",
+      "cardboard box",
+      "small box",
+      "small cardboard box"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageEast",
+    "Holding": "CrackedFromitzBoard",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "board",
+      "cracked",
+      "cracked board",
+      "cracked fromitz",
+      "cracked fromitz board",
+      "fromitz",
+      "fromitz board"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageEast",
+    "Holding": "GoodBedistor",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "90-ohm",
+      "90-ohm bedistor",
+      "bedistor",
+      "good",
+      "good bedistor",
+      "good ninety-ohm bedistor",
+      "ninety-ohm",
+      "ninety-ohm bedistor"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageEast",
+    "Holding": "KSeriesMegafuse",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "k megafuse",
+      "k-megafuse",
+      "k-series",
+      "k-series megafuse"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageEast",
+    "Holding": "OilCan",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "can",
+      "oil",
+      "oil can",
+      "oilcan"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageWest",
+    "Holding": "Ladder",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "aluminum ladder",
+      "extendable aluminum ladder",
+      "extendable ladder",
+      "ladder",
+      "large aluminum ladder"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "StorageWest",
+    "Holding": "TinCan",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "can",
+      "spam and egz",
+      "tin can"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ToolRoom",
+    "Holding": "Flask",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "flask",
+      "glass flask",
+      "large glass flask"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ToolRoom",
+    "Holding": "Laser",
+    "Verbs": [
+      "activate",
+      "discharge",
+      "fire",
+      "shoot"
+    ],
+    "Nouns": [
+      "akmee laazur",
+      "akmee portabul laazur",
+      "laazur",
+      "laser",
+      "portable laser"
+    ],
+    "Reply": "The laser emits a narrow blue beam of light."
+  },
+  {
+    "Room": "ToolRoom",
+    "Holding": "Laser",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "akmee laazur",
+      "akmee portabul laazur",
+      "laazur",
+      "laser",
+      "portable laser"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ToolRoom",
+    "Holding": "Magnet",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "bar",
+      "curved metal bar",
+      "magnet",
+      "metal bar",
+      "metal bar, curved into a u-shape"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ToolRoom",
+    "Holding": "OldBattery",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "battery",
+      "old battery"
+    ],
+    "Reply": "Dropped"
+  },
+  {
+    "Room": "ToolRoom",
+    "Holding": "Pliers",
+    "Verbs": [
+      "drop",
+      "put down"
+    ],
+    "Nouns": [
+      "pliers",
+      "wide-nosed pliers"
+    ],
+    "Reply": "Dropped"
+  }
+]

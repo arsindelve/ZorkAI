@@ -55,10 +55,9 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
     {
         string[] liquidNouns = ["liquid", "coolant", "fluid", "flask", "chemical"];
         string[] holeNouns = ["hole", "funnel", "console", "machine", "equipment", "system"];
-        string[] verbs = ["empty", "pour", "dump"];
         string[] prepositions = ["into", "down", "in"];
 
-        if (!action.Match(verbs, liquidNouns, holeNouns, prepositions))
+        if (!action.Match(Verbs.EmptyVerbs, liquidNouns, holeNouns, prepositions))
             return base.RespondToMultiNounInteraction(action, context);
 
         var flask = GetItem<Flask>();
@@ -175,7 +174,7 @@ internal class CommRoom : LocationWithNoStartingItems, IFloydDoesNotTalkHere
                 "on any of the standard frequen...\" The sentence is cut short by the sound of an explosion and a loud " +
                 "burst of static, followed by silence.");
 
-        if (action.Match(["read", "examine"], ["screen", "console", "message"]))
+        if (action.Match(Verbs.ReadVerbs, ["screen", "console", "message"]))
             return new PositiveInteractionResult(
                 "\"Tuu enee ship uv xe Sekund Galaktik Yuunyun: Planitwiid plaag haz struk entiir popyuulaashun. " +
                 "Tiim iz kritikul. Eemurjensee asistins reekwestid. <reepeet\nmesij>\"");

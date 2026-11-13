@@ -55,23 +55,23 @@ public abstract class SpacetruckExteriorBase : ItemBase, ICanBeExamined
             // Acting on the hatch directly rather than forwarding the intent: the intent names the
             // truck, which the hatch does not answer to, so forwarding it just fell through to the
             // narrator - the very gap the sweep caught.
-            if (action.MatchVerb(["open", "unseal"]))
+            if (action.MatchVerb(Verbs.OpenItemVerbs))
                 return new PositiveInteractionResult(OperateHatch(true, context));
 
-            if (action.MatchVerb(["close", "shut"]))
+            if (action.MatchVerb(Verbs.CloseItemVerbs))
                 return new PositiveInteractionResult(OperateHatch(false, context));
 
-            if (action.MatchVerb(["search", "look in", "look inside"]))
+            if (action.MatchVerb(Verbs.SearchVerbs))
                 return new PositiveInteractionResult(
                     Repository.GetItem<SpacetruckHatch>().IsOpen
                         ? "Through the open hatch you can see two seats and an empty cargo section. "
                         : "The hatch is closed, and the viewport shows you nothing but your own " +
                           "reflection. ");
 
-            if (action.MatchVerb(["launch", "start", "drive", "fly", "turn on"]))
+            if (action.MatchVerb(Verbs.LaunchVerbs))
                 return new PositiveInteractionResult("You're not even in it! ");
 
-            if (action.MatchVerb(["enter", "board", "get in", "climb in"]))
+            if (action.MatchVerb(Verbs.BoardVerbs))
                 return new PositiveInteractionResult(
                     Repository.GetItem<SpacetruckHatch>().IsOpen
                         ? "You'll have to go in. "

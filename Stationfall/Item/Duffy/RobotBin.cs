@@ -41,11 +41,13 @@ public abstract class RobotBin : ItemBase, ICanBeExamined
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(["look in", "look inside", "search", "examine", "inspect", "look at"]))
+        if (action.MatchVerb(Verbs.SearchVerbs) || action.MatchVerb(Verbs.ExamineVerbs))
             return new PositiveInteractionResult(ExaminationDescription);
 
-        // The original refuses to let you climb in or use a bin as storage, in as many words.
-        if (action.MatchVerb(["enter", "get in", "climb in", "sit in", "put", "put in"]))
+        // The original refuses to let you climb in or use a bin as storage, in as many words. The bin is
+        // the only noun here, so the storage words are the two that still mean "into the bin" on their
+        // own - not every word for inserting, which would answer "drop bin" and "place bin" this way too.
+        if (action.MatchVerb(Verbs.BoardVerbs) || action.MatchVerb(Verbs.PutInsideVerbs))
             return new PositiveInteractionResult("The bin is only for robots. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

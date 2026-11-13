@@ -14,8 +14,7 @@ public class SmellInteractionProcessor : IVerbProcessor
     {
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case "smell":
-            case "sniff":
+            case var verb when Verbs.SmellVerbs.Contains(verb):
 
                 if (context.ItIsDarkHere)
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see! "));

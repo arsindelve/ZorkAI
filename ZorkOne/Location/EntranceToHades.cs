@@ -55,9 +55,8 @@ internal class EntranceToHades : DarkLocation
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        string[] verbs = ["ring", "activate", "shake"];
         if (Items.Contains(Repository.GetItem<Spirits>()) &&
-            action.Match(verbs, Repository.GetItem<BrassBell>().NounsForMatching))
+            action.Match(Verbs.RingBellVerbs, Repository.GetItem<BrassBell>().NounsForMatching))
             return await RingTheBell(context);
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

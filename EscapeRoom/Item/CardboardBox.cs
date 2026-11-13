@@ -39,7 +39,7 @@ public class CardboardBox : OpenAndCloseContainerBase, ICanBeExamined
     public override Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Match(["search", "look in", "look inside"], NounsForMatching))
+        if (action.Match(Verbs.SearchVerbs, NounsForMatching))
             return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(ExaminationDescription));
 
         return base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

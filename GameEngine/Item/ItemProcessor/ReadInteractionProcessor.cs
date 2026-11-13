@@ -11,10 +11,7 @@ public class ReadInteractionProcessor : IVerbProcessor
     {
         switch (action.Verb.ToLowerInvariant())
         {
-            case "examine":
-            case "look":
-            case "look at":
-            case "read":
+            case var verb when Verbs.ReadVerbs.Contains(verb):
 
                 if (context.ItIsDarkHere)
                     return Task.FromResult<InteractionResult?>(new PositiveInteractionResult("It's too dark to see!"));

@@ -8,6 +8,8 @@ namespace ZorkOne.Item;
 public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTrophyCase,
     IGivePointsWhenFirstPickedUp, IAmPointyAndPunctureThings, IWeapon
 {
+    private static readonly VerbFamily WaveVerb = new("wave");
+
     // The original Zork I source accepts both spellings: (SYNONYM SCEPTRE SCEPTER TREASURE).
     // Keep the American "scepter" so players can refer to the item either way.
     public override string[] NounsForMatching =>
@@ -36,7 +38,7 @@ public class Sceptre : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInT
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (action.Verb.ToLowerInvariant() != "wave")
+        if (!WaveVerb.Contains(action.Verb.ToLowerInvariant()))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (!action.MatchNoun(NounsForMatching))

@@ -12,7 +12,7 @@ namespace ZorkOne.Tests.Walkthrough;
 /// (pray, launch, echo, cross the rainbow). Every other step names its destination.
 /// </summary>
 [TestFixture]
-public sealed class WalkthroughByLocationName : WalkthroughTestBase
+public class WalkthroughByLocationName : WalkthroughTestBase
 {
     [Test]
     [TestCase("open mailbox", null, "Opening the small mailbox reveals a leaflet.")]

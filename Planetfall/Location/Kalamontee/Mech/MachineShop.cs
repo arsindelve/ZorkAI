@@ -37,10 +37,9 @@ internal class MachineShop : LocationWithNoStartingItems
     public override Task<InteractionResult?> RespondToMultiNounInteraction(MultiNounIntent action, IContext context)
     {
         var flask = Repository.GetItem<Flask>();
-        string[] verbs = ["place", "put", "move"];
         string[] spoutNouns = ["spout", "machine", "dispenser", "dispensing machine", "dispensing machine spout"];
 
-        if (action.Match(verbs, flask.NounsForMatching, spoutNouns, ["under", "underneath"]))
+        if (action.Match(Verbs.PutVerbs, flask.NounsForMatching, spoutNouns, ["under", "underneath"]))
         {
             if (flask.IsHereButNotInInventory(context))
                 return Task.FromResult<InteractionResult?>(new PositiveInteractionResult(

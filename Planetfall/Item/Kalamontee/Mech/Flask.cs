@@ -57,7 +57,7 @@ public class Flask : ItemBase, ICanBeExamined, ICanBeTakenAndDropped
             return Task.FromResult<InteractionResult?>(result);
         }
 
-        if (action.Match(["empty", "dump", "pour"], NounsForMatching))
+        if (action.Match(Verbs.EmptyVerbs, NounsForMatching))
         {
             if (string.IsNullOrEmpty(LiquidColor))
                 return Task.FromResult<InteractionResult?>(

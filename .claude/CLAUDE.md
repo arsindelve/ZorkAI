@@ -383,6 +383,119 @@ This Lambda integration demonstrates how the core game engine's excellent archit
   randomness untestable; refactor to `Chooser` (and mock it) when modifying them.
   (`Planetfall/Item/Feinstein/Ambassador.cs` was converted in PR #384.)
 
+### Verb Pattern (VerbFamily) - verbs are declared, never inlined
+- **Never match a verb against a loose list of strings.** `SimpleIntent` / `MultiNounIntent`
+  `Match`, `MatchVerb` and `MatchInInput` take a `VerbFamily` (`Model/VerbFamily.cs`), not a `string[]`,
+  so `action.MatchVerb(["pull", "yank"])` does not compile.
+- **Every collection of verbs is declared in `Model/Verbs.cs`**, once, as a grouping named for the action it
+  stands for, and matched from there:
+  ```csharp
+  // Model/Verbs.cs
+  public static readonly VerbFamily MoveAsideVerbs = new("move", "slide", "pull", "rearrange", "shift");
+
+  // the rug's handler
+  if (action.Match(Verbs.MoveAsideVerbs, NounsForMatching)) ...
+  ```
+  - It does not matter who answers it - one object, several, an engine processor, the parser. Two words
+    or more go in `Verbs.cs`; `VerbFamilyDeclarationTests.ACollectionOfVerbsIsDeclaredInVerbsCs` fails on a
+    collection declared anywhere else.
+  - The engine declares no families at all (`...TheEngineDeclaresNoFamiliesOfItsOwn`).
+  - The one family a game class declares for itself is a **single verb that nothing else uses**:
+    `private static readonly VerbFamily DigVerb = new("dig");`
+- **The same words are never declared twice.** Before declaring a family, look in `Verbs.cs`; if another
+  class already declares those exact words, move the family to `Verbs.cs` and use it from both.
+  `VerbFamilyDeclarationTests.NoTwoFamiliesHoldTheSameWords` fails on a repeat and names both fields.
+- **A grouping is named for the usage, and its words fit that usage.** "Open" is not one thing:
+  `Verbs.OpenVerbs` is what every ordinary container and door answers (open, lift, pry, unbar ...),
+  `Verbs.OpenItemLidVerbs` is opening a thing by its lid (open, lift, raise), `Verbs.OpenItemVerbs` is trying
+  to get a shut-tight thing open (open, pry, force, unseal), `Verbs.OpenLockVerbs` is getting a lock open
+  (unlock, open). When an object needs a narrower or different set of words than an existing grouping,
+  add a grouping for that usage - never a "just this one word" set, and never the nearest wider grouping
+  because it is there. One grouping per usage: the basket and the rug both answer `Verbs.RaiseVerbs`.
+- **Build on another family with a spread**: `new([..Verbs.KillVerbs, "kick"])`. The first word is the
+  family's canonical `Name`.
+- **Why**: `Repository.GetVerbs(gameName)` harvests every static `VerbFamily` field in the engine and the
+  game by reflection - the verb counterpart of `GetNouns`. The production `DeterministicParser` and the
+  tests' `TestParser` take their verb vocabulary from it; there is no hand-kept verb list anywhere, so a
+  verb a handler answers cannot be missing from the vocabulary. A family built inline inside a method
+  would still match and would be invisible to the harvest, so `VerbFamilyDeclarationTests` (UnitTests)
+  reads the compiled IL and fails if one is.
+- **Don't compare `action.Verb` to a string literal** (`action.Verb == "ring"`, `switch (action.Verb)`).
+  It compiles, and it hides the verb from the vocabulary exactly as an inline list did. Use a family:
+  `action.MatchVerb(RingVerb)`, or `RingVerb.Contains(verb)` on an already-normalised verb.
+- **Don't borrow a family with a different word set to save a line.** It silently widens or narrows what
+  the object answers. Declare a new one; merging near-duplicates is a deliberate change of its own.
+- Each game's vocabulary is its own, although every grouping is declared in the one file: a grouping is
+  in a game's vocabulary only if the engine or that game's code matches on it. One that only Planetfall's
+  classes use is unknown to Zork's parser. A grouping nothing matches on is in no vocabulary at all, and
+  `VerbFamilyDeclarationTests.EveryGroupingInTheThesaurus_IsUsedByTheEngineOrSomeGame` fails on it.
+- **Known is not answered - who MATCHES on a grouping is who answers it.** The deterministic parser
+  resolves a verb on a noun by itself only where something will answer: an engine processor that matches on
+  the grouping answers for any noun; a game class that matches on it answers only for its own nouns
+  (`NounsForMatching`, `SceneryNouns`). "yank" is the admin corridor's verb for the key; aimed at a lever it
+  reaches nothing, so the parser hands it to the AI, which makes it "pull". Where a grouping is declared
+  says nothing - `VerbFamilyUsage` (GameEngine) reads the compiled code to find which class reads which
+  grouping. Two consequences: a helper class that is neither an item nor a room owns no nouns, so the
+  grammar never resolves what only it matches on; and a room whose handler matches a noun must own that
+  noun - put it in the room's `SceneryNouns`.
+- Multi-word phrases ("pour out") are fine in a family. The deterministic parser reads a **two-word
+  phrase a game class matches on as typed, on that class's nouns** ("pour out the soup", "look into the
+  leaves") - the same ownership rule as its single-word verbs. On any other noun it acts only on single
+  words plus its small `MultiWordVerbCanon` rewrite table ("turn on" → "activate"); other phrases reach
+  handlers through the AI parser.
+- **The engine rewrites "look at / look in / look inside <noun>" to "examine <noun>" before any parser
+  runs** (`GameEngine.NormalizeLookAt`, issue #396). A handler that matches "look in" is therefore never
+  reached by those words as typed - only by a parser that answers "look in" for some other sentence.
+
+### Parser Tests - one corpus, three layers, mock or live AI
+The parser is tested from one list of cases, `UnitTests/Parser/ParserCorpus.*.cs`: a line of player
+input, the room it is typed in, and what it must mean (`Act("open", "mailbox")`, `Take("lamp")`,
+`Move("north")`, `Board("boat")` ... - see `Meaning`). Nothing in a case names an AI provider.
+- **Add a case for every new phrasing you care about.** Mark it `.AiOnly()` if the grammar should decline
+  it. The tests pin which layer answers: if the grammar later learns the phrasing, a test tells you to take
+  `.AiOnly()` off; if a case is really a global command or a bare direction, a test tells you it never
+  reaches a parser and belongs with the `Heading` / `GlobalCommand` / `SystemCommand` cases.
+- **Every case is checked at each layer that can see it** (`ParserCorpusTests`, `ParserContractTests`):
+  the grammar alone resolves or declines it; the AI asked directly produces the expected intent; and the
+  production `IntentParser` answers from the right one, with zero AI calls for grammar cases.
+- **The AI is either scripted or real, same tests.** `ScriptedAiParserContractTests` (UnitTests, normal
+  run) stubs the model with each case's `ModelAnswer` and runs the real adapter, `ParsingHelper` rules and
+  repairs. `LiveAiParserContractTests` (IntegrationTests, `[Explicit]`, needs `OPEN_AI_KEY`) runs the
+  identical tests against the live model:
+  `dotnet test IntegrationTests --filter "FullyQualifiedName~LiveAiParserContractTests"`.
+  Run it whenever the parser prompt, the model or the provider changes.
+- **A known way the model gets a sentence wrong** is a case too: `.WhenTheModelSays(new ModelAnswer(...))`
+  scripts the degraded answer while the expected intent stays what the engine needs (issues #538, #551,
+  #580). That is what holds the pipeline's repairs in place.
+- **Changing AI provider**: implement `IAIParser`, return it from `LiveAiParserContractTests.CreateAi`, and
+  render `ModelAnswer` as the new provider's response in `ScriptedAiParserContractTests`. The cases and the
+  contract do not change.
+- **The corpus also holds cases nobody wrote: every sentence a walkthrough types that changes the
+  game.** `UnitTests/Parser/Walkthroughs/walkthrough.<game>.json` lists each one with the room it is
+  typed in and every reading of it the game answers identically - other verbs of the same grouping,
+  other names of the same object, the grammar's own reading. `ParserCorpus.Walkthroughs.cs` loads them as
+  ordinary cases, so the scripted and live contract tests cover them with no harness of their own. These
+  are the commands that need setup or two nouns ("unlock grate with key"); the walkthrough is the setup.
+  The file is generated, never edited: `WalkthroughHarvest` replays each walkthrough and, at every
+  sentence that reaches a parser, saves the game, tries a reading, restores, and keeps the reading when
+  the game ends in the same state. Regenerate after changing a walkthrough or a handler:
+  `dotnet test ZorkOne.Tests --filter "FullyQualifiedName~RegenerateTheWalkthroughInteractions"` (and
+  the same for `Planetfall.Tests`); a few minutes each.
+- **Every single-noun interaction that changes a fresh game is in
+  `<Game>.Tests/Parser/interactions.<game>.json`**: a room (and perhaps an item in hand), the verbs and
+  the nouns that have that effect. `InteractionSetTests` sends every wording through the production
+  parser and requires the game to end in the state it reaches when the engine is handed the verb and noun
+  directly. Also generated (`RegenerateTheInteractionSet`): `InteractionCensus` aims every verb at
+  every noun in every room and keeps what leaves the game different from a turn in which nothing
+  happened. Examining and reading change nothing, so they are not in it. On one core that is half an hour
+  for Zork I and far longer for Planetfall; the engine keeps the game in statics, so one process plays
+  one game at a time. To use every core, run the generator once per shell with `INTERACTION_SET_PART=1/4`,
+  `2/4` ... and then `MergeTheInteractionSetParts`.
+- `DeterministicParserVocabularyTests` is exhaustive over each game's harvested vocabulary (every noun,
+  verb and room name), and every walkthrough fixture has a `...DeterministicFirst` twin that replays it
+  through the production grammar. `DeterministicParserCoverageTests` pins the walkthrough commands the
+  grammar declines and where it reads a command differently from the test parser.
+
 ### AI Integration Guidelines  
 - **Hierarchical parsing**: Try simple pattern matching first, then fall back to expensive AI calls
 - **Context matters**: AI parsers receive location descriptions to better understand commands
@@ -506,10 +619,13 @@ For complex interactions, create an item processor:
 // GameEngine/Item/ItemProcessor/WearRingProcessor.cs
 public class WearRingProcessor : IInteractionProcessor
 {
+    // Verbs are always a declared VerbFamily - see "Verb Pattern (VerbFamily)". A processor is engine
+    // code, so its family lives in Model/Verbs.cs: public static readonly VerbFamily WearVerbs = ...
+
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (!action.MatchVerb(["wear", "put on"]))
+        if (!action.MatchVerb(Verbs.WearVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         var ring = Repository.GetItem<MagicRing>();
@@ -537,21 +653,28 @@ public class WearRingProcessor : IInteractionProcessor
 
 Commands allow players to interact with the game world. Here's how to add new verbs:
 
-**1. Add Verb to Verb Collections**
+**1. Declare the Verb Family Where It Is Answered**
+
+Every verb a handler matches belongs to a `VerbFamily` declared as a `static readonly` field (see
+"Verb Pattern (VerbFamily)"). A grouping of two or more verbs always goes in the shared thesaurus:
 
 ```csharp
 // Model/Verbs.cs
 public static class Verbs
 {
-    // Add new verb array or extend existing one
-    public static readonly string[] WearVerbs = ["wear", "put on", "don"];
-    public static readonly string[] RemoveVerbs = ["remove", "take off", "doff"];
+    // A new family - the first word is the canonical verb
+    public static readonly VerbFamily WearVerbs = new("wear", "put on", "don");
+    public static readonly VerbFamily RemoveVerbs = new("remove", "take off", "doff");
 
-    // Or extend existing array
-    public static readonly string[] UseVerbs =
-        ["use", "apply", "activate", "press", "push", "wield"]; // added "wield"
+    // Or extend an existing family
+    public static readonly VerbFamily ApplyVerbs =
+        new("use", "apply", "stick", "put", "place", "spread", "smear", "press", "wield"); // added "wield"
 }
 ```
+
+Only a single verb that nothing else uses is declared on the item or room that answers it. The
+vocabulary harvest (`Repository.GetVerbs`) finds a family in either place: what puts a `Verbs.cs` grouping
+in a game's vocabulary is that game's code matching on it.
 
 **2. Create a Command Processor**
 
@@ -584,10 +707,12 @@ For **item-specific commands**:
 // GameEngine/Item/ItemProcessor/ClimbProcessor.cs
 public class ClimbProcessor : IInteractionProcessor
 {
+    // Declared in Model/Verbs.cs: public static readonly VerbFamily ClimbVerbs = new("climb", "scale", "ascend");
+
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
-        if (!action.MatchVerb(["climb", "scale", "ascend"]))
+        if (!action.MatchVerb(Verbs.ClimbVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         // Check if item can be climbed
@@ -921,11 +1046,13 @@ For specialized item behaviors, create interaction processors:
 // GameEngine/Item/ItemProcessor/PolishProcessor.cs
 public class PolishProcessor : IInteractionProcessor
 {
+    // Declared in Model/Verbs.cs: public static readonly VerbFamily PolishVerbs = new("polish", "shine", "clean", "rub");
+
     public Task<InteractionResult?> Process(SimpleIntent action, IContext context,
         IGenerationClient client)
     {
         // Only handle "polish" verb
-        if (!action.MatchVerb(["polish", "shine", "clean", "rub"]))
+        if (!action.MatchVerb(Verbs.PolishVerbs))
             return Task.FromResult<InteractionResult?>(null);
 
         var item = Repository.GetItem(action.Noun);
@@ -976,7 +1103,8 @@ _processors.Add(new PolishProcessor());
 | Create location | Location class | Inherit `LocationBase`, override exits |
 | Block direction | Location class | Return `null` from `GetNorth()` etc |
 | Require light | Location class | `IsLit => false` |
-| Add verb synonym | `Model/Verbs.cs` | Add to appropriate array |
+| Add verb synonym | The grouping in `Model/Verbs.cs` | Add the word to the grouping |
+| Answer a new verb | `Model/Verbs.cs`, then the answering class | Add a grouping to `Verbs.cs`, then `action.Match(Verbs.X, ...)` |
 | Create command | `StaticCommand/Implementation/` | Implement `IStaticCommandProcessor` |
 | Custom interaction | `Item/ItemProcessor/` | Implement `IInteractionProcessor` |
 

@@ -290,4 +290,35 @@ public class StructuredIntentParsingTests
         var intentEnum = act()["properties"]!["intent"]!["enum"]!.Values<string>().ToList();
         intentEnum.Should().BeEquivalentTo(StructuredIntentParsing.IntentValues);
     }
+
+    [Test]
+    public void ParseResponse_SeveralCommandsOnOneLine_BecomeAMultipleCommandsIntent()
+    {
+        // Issue #256. The tag format said this with more than one <verb> tag; a schema with exactly one verb
+        // cannot, so until "multiple" existed the model could only answer for ONE of the commands and the
+        // rest were dropped without a word.
+        var json = "{\"intent\":\"multiple\",\"verb\":null,\"nouns\":[],\"preposition\":null," +
+                   "\"direction\":null,\"adjective\":null}";
+
+        var intent = StructuredIntentParsing.ParseResponse(json, "open the mailbox take the leaflet read it");
+
+        intent.Should().BeOfType<MultipleCommandsIntent>();
+    }
+
+    [Test]
+    public void TheSchemaAndThePrompt_OfferTheModelAWayToSaySeveralCommands()
+    {
+        StructuredIntentParsing.IntentValues.Should().Contain(StructuredIntentParsing.MultipleCommands);
+        StructuredIntentParsing.JsonSchema.Should().Contain("\"multiple\"");
+        StructuredIntentParsing.SystemPrompt.Should().Contain("\"multiple\"");
+    }
+
+    [Test]
+    public void ParseResponse_OneActionOnTwoObjects_IsStillATake_NotSeveralCommands()
+    {
+        var json = "{\"intent\":\"take\",\"verb\":\"take\",\"nouns\":[\"sword\",\"shield\"]," +
+                   "\"preposition\":null,\"direction\":null,\"adjective\":null}";
+
+        StructuredIntentParsing.ParseResponse(json, "take the sword and the shield").Should().BeOfType<TakeIntent>();
+    }
 }

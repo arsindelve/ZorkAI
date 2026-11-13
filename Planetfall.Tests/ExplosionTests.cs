@@ -762,6 +762,23 @@ public class ExplosionTests : EngineTestsBase
             pod.SubLocation.Should().BeNull();
         }
 
+        // Verbs.DisembarkVerbs: the one grouping for getting out of a thing.
+        [Test]
+        public async Task DisembarkWeb_WhileSeated_StandsYouUp()
+        {
+            var target = GetTarget();
+            var pod = Pod(target, seated: true);
+
+            // Called directly, as the "exit" test below is: the grammar leaves getting out of a thing
+            // to the AI, so the phrasing does not reach the handler through the unit-test parser.
+            var action = new SimpleIntent { Verb = "disembark", Noun = "web" };
+            var result = await Repository.GetItem<SafetyWeb>().RespondToSimpleInteraction(action, target.Context,
+                Mock.Of<IGenerationClient>(), new ItemProcessorFactory(Mock.Of<IAITakeAndAndDropParser>()));
+
+            result!.InteractionMessage.Should().Contain("You are standing again.");
+            pod.SubLocation.Should().BeNull();
+        }
+
         // The "exit" verb takes the same branch as "leave". Called directly because the test parser
         // doesn't carry "exit" as a verb, so the phrasing can't reach the handler through the engine.
         [Test]

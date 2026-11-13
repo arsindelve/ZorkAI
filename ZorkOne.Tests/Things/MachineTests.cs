@@ -71,6 +71,31 @@ public class MachineTests : EngineTestsBase
         response.Should().Contain("Your bare hands don't appear to be enough");
     }
 
+    // Verbs.OpenItemLidVerbs: a lid is lifted or raised as readily as it is opened.
+    [TestCase("lift lid")]
+    [TestCase("raise lid")]
+    public async Task TheLidOpens_HoweverThePlayerSaysToOpenALid(string input)
+    {
+        var target = Setup();
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("The lid opens");
+        _machine.IsOpen.Should().BeTrue();
+    }
+
+    // Verbs.TurnByHandVerbs: twisting or rotating the switch is still doing it with bare hands.
+    [TestCase("twist switch")]
+    [TestCase("rotate switch")]
+    public async Task TurnSwitch_BareHands_InOtherWords(string input)
+    {
+        var target = Setup();
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("Your bare hands don't appear to be enough");
+    }
+
     [Test]
     public async Task TurnSwitch_NotHoldingScrewdriver()
     {

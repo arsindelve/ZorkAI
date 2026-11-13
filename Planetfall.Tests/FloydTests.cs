@@ -78,6 +78,54 @@ public class FloydTests : EngineTestsBase
         response.Should().Contain("already been");
     }
 
+    // Verbs.TurnOnVerbs / TurnOffVerbs: one grouping for switching a thing on or off, for Floyd as for
+    // a lamp. Checked on the flag, so the test does not depend on the wording of his reaction.
+    [TestCase("activate floyd")]
+    [TestCase("start floyd")]
+    [TestCase("enable floyd")]
+    public async Task SwitchingFloydOn_InAnyOfTheWordsForIt(string input)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = true;
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("already been");
+    }
+
+    [TestCase("deactivate floyd")]
+    [TestCase("stop floyd")]
+    [TestCase("disable floyd")]
+    [TestCase("silence floyd")]
+    public async Task SwitchingFloydOff_InAnyOfTheWordsForIt(string input)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        var floyd = GetItem<Floyd>();
+        floyd.HasDied = true;
+        floyd.HasEverBeenOn = true;
+
+        var response = await target.GetResponse(input);
+
+        response.Should().Contain("has already been turned off, permanently");
+    }
+
+    // "strike" and "light" are how a match or a lamp is brought to life. They are not ways to switch
+    // a robot on: "strike floyd" is hitting him.
+    [TestCase("strike floyd")]
+    [TestCase("light floyd")]
+    public async Task TheFlameWords_DoNotSwitchFloydOn(string input)
+    {
+        var target = GetTarget();
+        StartHere<RobotShop>();
+        GetItem<Floyd>().IsOn = false;
+
+        await target.GetResponse(input);
+
+        GetItem<Floyd>().IsOn.Should().BeFalse();
+    }
+
     [Test]
     public async Task TurnOn_FloydIsDead()
     {

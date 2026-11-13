@@ -286,6 +286,77 @@ public class DestinationNavigationTests : EngineTestsBase
     }
 
     /// <summary>
+    /// "go to the aft", "head to starboard": a model files a ship direction as a PLACE to travel to.
+    /// No room is called "starboard", so navigation refused what is plainly a move. A destination that
+    /// names no adjacent room and is itself a direction word is a move that way.
+    /// </summary>
+    [TestFixture]
+    public class WhenTheDestinationIsADirection : EngineTestsBase
+    {
+        private static IGenerationClient NoNarrator()
+        {
+            var client = new Mock<IGenerationClient>();
+            client.Setup(c => c.IsDisabled).Returns(true);
+            return client.Object;
+        }
+
+        [Test]
+        public async Task GoingToStarboard_FromDeckNine_WalksEast()
+        {
+            var target = GetTarget();
+            StartHere<DeckNine>();
+
+            await new DestinationNavigationEngine().Process(
+                new GoToDestinationIntent { Destination = "starboard" }, target.Context, NoNarrator());
+
+            target.Context.CurrentLocation.Should().BeOfType<ReactorLobby>();
+        }
+
+        [Test]
+        public async Task TheArticleTheModelLeavesOn_DoesNotMatter()
+        {
+            var target = GetTarget();
+            StartHere<DeckNine>();
+
+            await new DestinationNavigationEngine().Process(
+                new GoToDestinationIntent { Destination = "the starboard" }, target.Context, NoNarrator());
+
+            target.Context.CurrentLocation.Should().BeOfType<ReactorLobby>();
+        }
+
+        [Test]
+        public async Task ADirectionWithNoExit_IsRefusedAsAMove_NotAsAnUnknownPlace()
+        {
+            // Deck Nine has nothing aft. The refusal is the one "aft" itself gets.
+            var target = GetTarget();
+            StartHere<DeckNine>();
+            var narrator = NoNarrator();
+
+            var byName = await new DestinationNavigationEngine().Process(
+                new GoToDestinationIntent { Destination = "aft" }, target.Context, narrator);
+            var byDirection = await new MoveEngine().Process(
+                new MoveIntent { Direction = Model.Movement.Direction.S }, target.Context, narrator);
+
+            byName.ResultMessage.Should().Be(byDirection.ResultMessage);
+            target.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+        }
+
+        [Test]
+        public async Task ARoomOfThatName_StillWinsOverTheDirection()
+        {
+            // "up" is a direction, and from the Gangway it is also a word no room is called - but a room
+            // that IS named is matched first, so naming Deck Nine from the Gangway goes down, not up.
+            var target = GetTarget();
+            StartHere<Gangway>();
+
+            await new DestinationNavigationEngine().Process(
+                new GoToDestinationIntent { Destination = "deck nine" }, target.Context, NoNarrator());
+
+            target.Context.CurrentLocation.Should().BeOfType<DeckNine>();
+        }
+    }
+
+    /// <summary>
     /// Reproduction for the playtest report: standing in the Reactor Lobby (whose west exit leads to
     /// Deck Nine), "go to deck nine" was refused with "you can't get there from here" even though Deck
     /// Nine is a direct exit. (Issue #268 follow-up.)

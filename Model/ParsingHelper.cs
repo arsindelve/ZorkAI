@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Model.Intent;
@@ -226,6 +227,22 @@ public static class ParsingHelper
                 prepositionTag = RecoverPrepositionFromInput(originalInput, nouns[1]) ?? "with";
             }
 
+            // "use the wrench to turn the bolt": the model gets the verb right ("turn") and then lists
+            // the nouns as they come - the tool, then the thing - joined by a "to" that is not a
+            // preposition at all. "turn wrench to bolt" is a command no handler answers. The player's
+            // sentence says which noun is the tool: the one that follows "use". Handed over as "turn
+            // bolt with wrench", it is the same intent the plain phrasing produces.
+            if (IsToolUsedTo(originalInput, verbTag, nouns[0]))
+                return new MultiNounIntent
+                {
+                    NounOne = nouns[1],
+                    NounTwo = nouns[0],
+                    Verb = verbTag,
+                    Preposition = "with",
+                    OriginalInput = originalInput,
+                    Message = response
+                };
+
             return new MultiNounIntent
             {
                 NounOne = nouns[0],
@@ -240,7 +257,7 @@ public static class ParsingHelper
         return null;
     }
 
-    private static GoToDestinationIntent? DetermineGoToIntent(string? response)
+    private static GoToDestinationIntent? DetermineGoToIntent(string? response, string originalInput)
     {
         // Issue #268: the player named a place/room to travel to ("go to the kitchen"). The AI tags
         // this "goto" with the destination in <noun> tags. The engine resolves it against the current
@@ -253,7 +270,37 @@ public static class ParsingHelper
         if (!nouns.Any())
             return null;
 
-        return new GoToDestinationIntent { Destination = nouns.First(), Message = response };
+        return new GoToDestinationIntent
+        {
+            Destination = RejoinDestinationFromInput(originalInput, nouns.First(),
+                ExtractElementsByTag(response, "adjective").FirstOrDefault()),
+            Message = response
+        };
+    }
+
+    /// <summary>
+    ///     A room whose name ends or begins with a word the model takes for a describing word - "admin
+    ///     corridor north", "systems corridor west", "small office" - comes back split in two: the noun
+    ///     "admin corridor" and the adjective "north". Navigation matches a room by its name, and two
+    ///     rooms answer to "admin corridor", so the trip was refused or asked which one was meant. Where
+    ///     the player's own sentence has the two side by side, the place is what they typed.
+    /// </summary>
+    private static string RejoinDestinationFromInput(string? originalInput, string noun, string? adjective)
+    {
+        if (string.IsNullOrWhiteSpace(adjective) || string.IsNullOrWhiteSpace(originalInput))
+            return noun;
+
+        // The sentence as typed, lowercased, single-spaced and without its closing punctuation, padded so
+        // that only whole words match.
+        var words = originalInput.ToLowerInvariant().TrimEnd('.', '!', '?', ' ')
+            .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var typed = $" {string.Join(' ', words)} ";
+
+        foreach (var whole in new[] { $"{noun} {adjective}", $"{adjective} {noun}" })
+            if (typed.Contains($" {whole.ToLowerInvariant()} ", StringComparison.Ordinal))
+                return whole.ToLowerInvariant();
+
+        return noun;
     }
 
     private static IntentBase? DetermineMoveIntent(string? response, string originalInput)
@@ -345,6 +392,21 @@ public static class ParsingHelper
             return null;
 
         return intentTag != tag ? null : new T();
+    }
+
+    /// <summary>
+    ///     True when the player's sentence is "use &lt;tool&gt; to &lt;verb&gt; ..." for this verb and this
+    ///     first noun: the construction in which the noun after "use" is the instrument and the "to"
+    ///     introduces the action, rather than joining two nouns.
+    /// </summary>
+    private static bool IsToolUsedTo(string? originalInput, string verb, string firstNoun)
+    {
+        if (string.IsNullOrWhiteSpace(originalInput))
+            return false;
+
+        return Regex.IsMatch(originalInput,
+            $@"^\s*us(e|ing)\s+(the\s+|a\s+|an\s+|my\s+)?{Regex.Escape(firstNoun)}\s+to\s+{Regex.Escape(verb)}\b",
+            RegexOptions.IgnoreCase);
     }
 
     // Issue #538. The prepositions a player can realistically use to join two nouns in a command.
@@ -551,7 +613,7 @@ public static class ParsingHelper
         if (disembarkIntent != null)
             return disembarkIntent;
 
-        var goToIntent = DetermineGoToIntent(response?.ToLowerInvariant());
+        var goToIntent = DetermineGoToIntent(response?.ToLowerInvariant(), input);
         if (goToIntent != null)
             return goToIntent;
 

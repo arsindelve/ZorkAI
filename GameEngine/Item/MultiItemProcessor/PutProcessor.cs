@@ -19,11 +19,7 @@ public class PutProcessor : IMultiNounVerbProcessor
 
         switch (action.Verb.ToLowerInvariant().Trim())
         {
-            case "put":
-            case "jam":
-            case "place":
-            case "shove":
-            case "push":
+            case var verb when Verbs.PutVerbs.Contains(verb):
 
                 switch (action.Preposition.ToLowerInvariant().Trim())
                 {

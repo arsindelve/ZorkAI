@@ -64,9 +64,7 @@ public class RobotPool : LocationBase
     public override async Task<InteractionResult> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        string[] lookVerbs = ["look in", "look into", "examine", "look", "search", "inspect", "check"];
-
-        if (action.MatchVerb(lookVerbs))
+        if (action.MatchVerb(Verbs.SearchVerbs) || action.MatchVerb(Verbs.ExamineVerbs))
         {
             if (action.MatchNoun(["first bin", "bin one", "bin 1"]))
                 return DescribeBin(Repository.GetItem<Rex>());

@@ -155,16 +155,13 @@ public abstract class ShipRobot : ContainerBase, ICanBeExamined, ITurnBasedActor
         {
             // You cannot requisition a robot by asking for it; that is what the equipment is for, and
             // saying so is what points the player at the keypad.
-            if (action.MatchVerb(["pick", "choose", "select", "requisition", "hire"]))
+            if (action.MatchVerb(Verbs.ChooseVerbs))
                 return new PositiveInteractionResult(PickResponse());
 
             // Only physical contact is blocked. The original gates on TOUCHING?, not on visibility -
             // and it matters: the passed-over robot's reaction is meant to be seen, so refusing to let
             // the player look at them would hide the one thing choosing has consequences for.
-            var isPhysical = action.MatchVerb([
-                "take", "get", "grab", "touch", "push", "pull", "move", "kick", "shake", "hit", "kiss",
-                "attack", "kill", "turn on", "turn off", "open", "close", "hug", "tickle"
-            ]);
+            var isPhysical = action.MatchVerb(Verbs.ManhandleVerbs);
 
             if (isPhysical && !IsWithinReach && AnyRobotPicked)
                 return new PositiveInteractionResult($"You can't reach {Name} from here. ");

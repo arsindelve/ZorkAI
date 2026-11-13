@@ -33,7 +33,7 @@ public class Canary : ItemBase, ICanBeTakenAndDropped, IGivePointsWhenPlacedInTr
     public override async Task<InteractionResult?> RespondToSimpleInteraction(SimpleIntent action, IContext context,
         IGenerationClient client, IItemProcessorFactory itemProcessorFactory)
     {
-        if (!action.Match(["wind", "wind up", "crank", "twist", "turn"], NounsForMatching))
+        if (!action.Match(Verbs.WindUpVerbs, NounsForMatching))
             return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);
 
         if (IsDestroyed)

@@ -59,11 +59,11 @@ public class Radio : ItemBase, ICanBeExamined, ITurnBasedActor
         if (!action.MatchNounAndAdjective(NounsForMatching))
             return new NoNounMatchInteractionResult();
 
-        if (action.MatchVerb(["listen", "listen to", "hear"]))
+        if (action.MatchVerb(Verbs.ListenVerbs))
             return new PositiveInteractionResult(
                 IsOn ? "\"Hiss. Crackle.\" " : "The radio isn't on! ");
 
-        if (action.MatchVerb(["turn on", "switch on", "activate", "start"]))
+        if (action.MatchVerb(Verbs.TurnOnVerbs))
         {
             if (IsOn)
                 return new PositiveInteractionResult("It's already on. ");
@@ -73,7 +73,7 @@ public class Radio : ItemBase, ICanBeExamined, ITurnBasedActor
             return new PositiveInteractionResult("The radio comes on with a wash of static. ");
         }
 
-        if (action.MatchVerb(["turn off", "switch off", "deactivate", "stop", "silence"]))
+        if (action.MatchVerb(Verbs.TurnOffVerbs))
         {
             if (!IsOn)
                 return new PositiveInteractionResult("It's already off. ");

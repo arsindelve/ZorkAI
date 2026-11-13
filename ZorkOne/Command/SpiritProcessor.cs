@@ -126,7 +126,7 @@ public class SpiritProcessor
         return result;
     }
 
-    private static bool Matches(string command, params string[] verbs)
+    private static bool Matches(string command, params IEnumerable<string> verbs)
     {
         // Whole-verb match: the command is exactly the verb, or the verb followed by its object.
         return verbs.Any(v => command == v || command.StartsWith(v + " ", StringComparison.Ordinal));

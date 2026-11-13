@@ -52,7 +52,7 @@ public class BatRoomTests : EngineTestsBase
     [TestCase("carry bat")]
     public async Task ProvokeBatWithTakeSynonym_WithoutGarlic_CarriesPlayerOff(string input)
     {
-        // Review follow-up to issue #406: Bat.ProvokingVerbs now concatenates Verbs.TakeVerbs
+        // Review follow-up to issue #406: Verbs.GrabOrAttackVerbs now concatenates Verbs.TakeVerbs
         // instead of a hand-inlined copy, so every take synonym provokes the bat identically.
         // "carry" is the original's fourth TAKE synonym (<SYNONYM TAKE GET HOLD CARRY>) and was
         // covered by neither the old copy nor Verbs.TakeVerbs.

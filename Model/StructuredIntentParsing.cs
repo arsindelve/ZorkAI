@@ -29,7 +29,16 @@ public static class StructuredIntentParsing
 {
     /// <summary>The intent categories <see cref="ParsingHelper.GetIntent" /> recognises. Closed set.</summary>
     public static readonly string[] IntentValues =
-        ["move", "goto", "board", "disembark", "take", "drop", "look", "inventory", "act"];
+        ["move", "goto", "board", "disembark", "take", "drop", "look", "inventory", "act", MultipleCommands];
+
+    /// <summary>
+    /// The intent value for several separate commands run together on one line (issue #256). The tag format
+    /// signalled this by emitting more than one &lt;verb&gt; or &lt;intent&gt; tag, which
+    /// <see cref="ParsingHelper.GetIntent" /> still detects. A schema with exactly one of each cannot say it
+    /// that way, so without a value of its own the model could only pick ONE of the player's commands and the
+    /// rest would be dropped in silence.
+    /// </summary>
+    public const string MultipleCommands = "multiple";
 
     /// <summary>
     /// The movement words <see cref="Model.Movement.DirectionParser.ParseDirection" /> resolves, plus
@@ -88,6 +97,13 @@ public static class StructuredIntentParsing
             "drop"      the player wants to drop one or more items
             "look"      the player wants to "look"/"look around" or asks "where am I?"
             "inventory" the player wants to know what they are carrying
+            "multiple"  the player ran SEVERAL SEPARATE COMMANDS together on one line, each with its own
+                        verb ("open the mailbox take the leaflet read it", "take the lamp and then go north").
+                        This is NOT one action on several objects ("take the sword and the shield" is a
+                        "take"), NOT one action described in steps ("stand up and get out of the boat" is
+                        a "disembark"), and NOT one action whose object is named first and then referred to
+                        as "it" ("the sword, drop it" is a "drop" of the sword). Count the verbs: a sentence
+                        with ONE verb is never "multiple". Leave every other field null or empty.
             "act"       anything else
 
         IMPORTANT: "move" is only for TRAVEL by a movement verb (go/walk/run/head/enter/climb...). A
@@ -117,6 +133,7 @@ public static class StructuredIntentParsing
         "type 1" -> {"intent":"act","verb":"type","nouns":["1"],"preposition":null,"direction":null,"adjective":null}
         "drop the sword" -> {"intent":"drop","verb":"drop","nouns":["sword"],"preposition":null,"direction":null,"adjective":null}
         "take the sword" -> {"intent":"take","verb":"take","nouns":["sword"],"preposition":null,"direction":null,"adjective":null}
+        "the sandwich, eat it" -> {"intent":"act","verb":"eat","nouns":["sandwich"],"preposition":null,"direction":null,"adjective":null}
         "look under the rug" -> {"intent":"act","verb":"look","nouns":["rug"],"preposition":"under","direction":null,"adjective":null}
         "turn on lamp" -> {"intent":"act","verb":"activate","nouns":["lamp"],"preposition":null,"direction":null,"adjective":null}
         "press the up button" -> {"intent":"act","verb":"press","nouns":["up button"],"preposition":null,"direction":null,"adjective":null}
@@ -202,6 +219,10 @@ public static class StructuredIntentParsing
             logger?.LogWarning("Structured parse returned null JSON for input '{Input}'", input);
             return new NullIntent();
         }
+
+        // Several commands on one line: the one thing the single-verb shape cannot carry to GetIntent.
+        if (string.Equals(parsed.Intent?.Trim(), MultipleCommands, StringComparison.OrdinalIgnoreCase))
+            return new MultipleCommandsIntent { Message = ToTagString(parsed) };
 
         return ParsingHelper.GetIntent(input, ToTagString(parsed), logger);
     }

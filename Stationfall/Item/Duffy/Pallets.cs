@@ -38,22 +38,23 @@ public class Pallets : ItemBase, ICanBeExamined, ICanBeRead
             return new NoNounMatchInteractionResult();
 
         // Opening a box is a joke with a long windup, and the length is the joke (ship.zil PALLETS-F).
-        if (action.MatchVerb(["open", "look in", "look inside", "search", "empty", "unseal"]))
+        if (action.MatchVerb(Verbs.OpenItemVerbs) || action.MatchVerb(Verbs.SearchVerbs) ||
+            action.MatchVerb(Verbs.EmptyVerbs))
             return new PositiveInteractionResult(
                 "You work a box open. Inside are forms" + string.Concat(Enumerable.Repeat(" and forms", 50)) +
                 ". Horrified, you reseal the box. ");
 
-        if (action.MatchVerb(["count"]))
+        if (action.MatchVerb(Verbs.CountVerbs))
             return new PositiveInteractionResult(
                 "You get as far as the fourth row before losing your place, and the thought of " +
                 "starting again is more than you can bear. ");
 
-        if (action.MatchVerb(["destroy", "tear", "rip", "shred", "burn", "break", "crumple"]))
+        if (action.MatchVerb(Verbs.DestroyPaperVerbs))
             return new PositiveInteractionResult(
                 "Destroying Patrol forms on this scale would be a violation of the Uniform Code of " +
                 "Paperwork so comprehensive that it probably has its own form. ");
 
-        if (action.MatchVerb(["close", "shut", "seal"]))
+        if (action.MatchVerb(Verbs.CloseItemVerbs))
             return new PositiveInteractionResult("The boxes are already sealed. ");
 
         return await base.RespondToSimpleInteraction(action, context, client, itemProcessorFactory);

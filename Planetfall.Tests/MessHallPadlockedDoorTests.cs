@@ -87,6 +87,21 @@ public class MessHallPadlockedDoorTests : EngineTestsBase
         Repository.GetItem<Padlock>().AttachedToDoor.Should().BeTrue();
     }
 
+    // Verbs.UseVerbs: "apply the key to it" is "use the key on it".
+    [Test]
+    public async Task ApplyKeyOnPadlock_UnlocksPadlock()
+    {
+        // Through the production grammar: the unit-test parser builds a two-noun intent only for the
+        // sentences in its static table.
+        var target = GetTarget(Walkthrough.DeterministicFirst.Parser());
+        target.Context.CurrentLocation = Repository.GetLocation<MessCorridor>();
+        target.Context.ItemPlacedHere<Key>();
+
+        var response = await target.GetResponse("apply key on padlock");
+        response.Should().Contain("springs open");
+        Repository.GetItem<Padlock>().Locked.Should().BeFalse();
+    }
+
     [Test]
     public async Task UseKeyOnPadlock_UnlocksPadlock()
     {
